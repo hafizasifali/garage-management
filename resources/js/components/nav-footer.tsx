@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/sidebar';
 import { resolveUrl } from '@/lib/utils';
 import { type NavItem } from '@/types';
+import { Link } from '@inertiajs/react';
 import { type ComponentPropsWithoutRef } from 'react';
 
 export function NavFooter({
@@ -23,26 +24,14 @@ export function NavFooter({
             className={`group-data-[collapsible=icon]:p-0 ${className || ''}`}
         >
             <SidebarGroupContent>
-                <SidebarMenu>
+                <SidebarMenu className='bg-gray-800 text-white'>
                     {items.map((item) => (
-                        <SidebarMenuItem key={item.title}>
-                            <SidebarMenuButton
-                                asChild
-                                className="text-neutral-600 hover:text-neutral-800 dark:text-neutral-300 dark:hover:text-neutral-100"
-                            >
-                                <a
-                                    href={resolveUrl(item.href)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    {item.icon && (
-                                        <Icon
-                                            iconNode={item.icon}
-                                            className="h-5 w-5"
-                                        />
-                                    )}
+                        <SidebarMenuItem key={item.title} className='bg-gray-800 text-white'>
+                            <SidebarMenuButton asChild>
+                                <Link href={item.href} prefetch>
+                                    {item.icon && <Icon iconNode={item.icon} className="h-5 w-5" />}
                                     <span>{item.title}</span>
-                                </a>
+                                </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     ))}
