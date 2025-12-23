@@ -1,40 +1,84 @@
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
+import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
+import { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
 import { BreadcrumbItem } from '@/types';
 import { route } from 'ziggy-js';
 import toast from 'react-hot-toast';
 import { useConfirm } from '@/hooks/useConfirm';
-import { useState } from 'react';
+
+/* Reusable index components */
+import IndexHeader from '@/components/index/IndexHeader';
+import IndexFilters from '@/components/index/IndexFilters';
+import ViewToggle from '@/components/index/ViewToggle';
+import DataTable from '@/components/index/DataTable';
+import Pagination from '@/components/index/Pagination';
+import { Edit, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+/* ---------------- Types ---------------- */
+type Company = {
+    id: number;
+    name: string;
+    email: string;
+    phone: string;
+    active: boolean;
+    country?: { name: string };
+    currency?: { name: string };
+};
 
 export default function Index() {
-    const { companies } = usePage().props as any;
+    const { companies, filters } = usePage().props as any;
     const form = useForm();
     const { confirm } = useConfirm();
 
+    const [view, setView] = useState<'list' | 'kanban'>('list');
+    const [selected, setSelected] = useState<number[]>([]);
+
     const breadcrumbs: BreadcrumbItem[] = [
-        {
-            title: 'Companies',
-            href: route('companies.index'),
-        },
+        { title: 'Companies', href: route('companies.index') },
     ];
 
-    /* -------------------- Bulk selection -------------------- */
-    const [selected, setSelected] = useState<number[]>([]);
+    /* ---------------- Actions ---------------- */
+    const handleDelete = async (id: number, name: string) => {
+        const ok = await confirm({
+            title: 'Delete Company?',
+            text: `Company "${name}" will be permanently removed.`,
+            confirmText: 'Delete',
+        });
+        if (!ok) return;
+
+        form.delete(route('companies.destroy', id), {
+            preserveScroll: true,
+            onSuccess: () => toast.success('Company deleted'),
+        });
+    };
+
+    const handleBulkDelete = async () => {
+        const ok = await confirm({
+            title: 'Delete selected companies?',
+            text: `${selected.length} companies will be permanently removed.`,
+            confirmText: 'Delete',
+        });
+        if (!ok) return;
+
+        router.post(
+            route('companies.bulk-delete'),
+            { ids: selected },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast.success('Companies deleted');
+                    setSelected([]);
+                },
+            }
+        );
+    };
 
     const toggleAll = () => {
         setSelected(
-            selected.length === companies.length
+            selected.length === companies.data.length
                 ? []
-                : companies.map((c: any) => c.id)
+                : companies.data.map((c: Company) => c.id)
         );
     };
 
@@ -44,40 +88,54 @@ export default function Index() {
         );
     };
 
-    /* -------------------- Single delete -------------------- */
-    const handleDelete = async (id: number, name: string) => {
-        const ok = await confirm({
-            title: 'Delete Company?',
-            text: `Company "${name}" will be permanently removed.`,
-            confirmText: 'Delete',
-        });
+    /* ---------------- Table Columns ---------------- */
+    const columns = [
+        { label: 'Name', render: (row: Company) => row.name },
+        { label: 'Email', render: (row: Company) => row.email },
+        { label: 'Phone', render: (row: Company) => row.phone },
+        { label: 'Country', render: (row: Company) => row.country?.name },
+        { label: 'Currency', render: (row: Company) => row.currency?.name },
+        { label: 'Active', render: (row: Company) => (row.active ? 'Yes' : 'No') },
+        {
+            label: 'Actions',
+            render: (row: Company) => (
+                <div className="flex gap-2">
+                    <Button size="sm" variant="outline" asChild title="Edit">
+                        <Link href={route('companies.edit', row.id)}>
+                            <Edit className="h-4 w-4" />
+                        </Link>
+                    </Button>
+                    <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDelete(row.id, row.name)}
+                        title="Delete"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                </div>
+            ),
+        },
+    ];
 
-        if (!ok) return;
+    /* ---------------- Per-page options ---------------- */
+    const perPageOptions = [10, 25, 50, 100,500];
 
-        form.delete(route('companies.destroy', id), {
-            preserveScroll: true,
-            onSuccess: () => toast.success(`"${name}" deleted`),
-        });
+    const handlePerPageChange = (value: number) => {
+        router.get(
+            route('companies.index'),
+            { ...filters, per_page: value },
+            { preserveState: true, replace: true }
+        );
     };
 
-    /* -------------------- Bulk delete -------------------- */
-    const handleBulkDelete = async () => {
-        const ok = await confirm({
-            title: 'Delete selected companies?',
-            text: `${selected.length} companies will be permanently removed.`,
-            confirmText: 'Delete all',
-        });
-
-        if (!ok) return;
-
-        form.post(route('companies.bulk-delete'), {
-            data: { ids: selected },
-            preserveScroll: true,
-            onSuccess: () => {
-                toast.success('Companies deleted');
-                setSelected([]);
-            },
-        });
+    /* ---------------- Search / Active Filter ---------------- */
+    const handleFilterChange = (key: string, value: any) => {
+        router.get(
+            route('companies.index'),
+            { ...filters, [key]: value },
+            { preserveState: true, replace: true }
+        );
     };
 
     return (
@@ -86,119 +144,68 @@ export default function Index() {
 
             <div className="p-4 space-y-4">
                 {/* Header */}
-                <div className="flex justify-between items-center">
-                    <h1 className="text-xl font-bold">Companies</h1>
+                <IndexHeader
+                    title="Companies"
+                    bulkCount={selected.length}
+                    onBulkDelete={handleBulkDelete}
+                    view={view}
+                    onViewChange={setView}
+                    createLink={route('companies.create')}
+                />
 
-                    <div className="flex gap-2">
-                        {selected.length > 0 && (
-                            <Button
-                                variant="destructive"
-                                onClick={handleBulkDelete}
+                {/* Filters + per-page selector */}
+                <IndexFilters
+                    filters={filters}
+                    perPage={filters?.per_page || 10}
+                    perPageOptions={perPageOptions}
+                    onPerPageChange={handlePerPageChange}
+                    onChange={handleFilterChange}
+                />
+
+                {/* List / Kanban */}
+                {view === 'list' ? (
+                    <DataTable
+                        data={companies.data}
+                        selected={selected}
+                        toggleAll={toggleAll}
+                        toggleOne={toggleOne}
+                        columns={columns}
+                    />
+                ) : (
+                    <div className="grid grid-cols-4 gap-4">
+                        {companies.data.map((company: Company) => (
+                            <div
+                                key={company.id}
+                                className="border rounded-lg p-4 bg-white shadow-sm"
                             >
-                                Delete ({selected.length})
-                            </Button>
-                        )}
+                                <h3 className="font-semibold">{company.name}</h3>
+                                <p className="text-sm text-gray-500">{company.email}</p>
 
-                        <Button asChild className="bg-gray-700 hover:bg-gray-800">
-                            <Link href={route('companies.create')}>
-                                Create
-                            </Link>
-                        </Button>
+                                <div className="flex justify-between items-center mt-3">
+                                    <span
+                                        className={`text-xs px-2 py-1 rounded ${
+                                            company.active
+                                                ? 'bg-green-100 text-green-700'
+                                                : 'bg-gray-100 text-gray-500'
+                                        }`}
+                                    >
+                                        {company.active ? 'Active' : 'Inactive'}
+                                    </span>
+
+                                    <Link
+                                        href={route('companies.edit', company.id)}
+                                        className="text-sm text-blue-600 hover:underline"
+                                    >
+                                        Edit
+                                    </Link>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                </div>
+                )}
 
-                {/* Table */}
-                <div className="overflow-x-auto">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-10">
-                                    <input
-                                        type="checkbox"
-                                        checked={
-                                            companies.length > 0 &&
-                                            selected.length === companies.length
-                                        }
-                                        onChange={toggleAll}
-                                    />
-                                </TableHead>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Email</TableHead>
-                                <TableHead>Phone</TableHead>
-                                <TableHead>Country</TableHead>
-                                <TableHead>Currency</TableHead>
-                                <TableHead>Active</TableHead>
-                                <TableHead className="text-right">
-                                    Actions
-                                </TableHead>
-                            </TableRow>
-                        </TableHeader>
-
-                        <TableBody>
-                            {companies.map((company: any) => (
-                                <TableRow
-                                    key={company.id}
-                                    className="h-10 text-sm"
-                                >
-                                    <TableCell>
-                                        <input
-                                            type="checkbox"
-                                            checked={selected.includes(
-                                                company.id
-                                            )}
-                                            onChange={() =>
-                                                toggleOne(company.id)
-                                            }
-                                        />
-                                    </TableCell>
-
-                                    <TableCell>{company.name}</TableCell>
-                                    <TableCell>{company.email}</TableCell>
-                                    <TableCell>{company.phone}</TableCell>
-                                    <TableCell>
-                                        {company.country?.name}
-                                    </TableCell>
-                                    <TableCell>
-                                        {company.currency?.name}
-                                    </TableCell>
-                                    <TableCell>
-                                        {company.active ? 'Yes' : 'No'}
-                                    </TableCell>
-
-                                    <TableCell className="flex justify-end gap-2">
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            asChild
-                                        >
-                                            <Link
-                                                href={route(
-                                                    'companies.edit',
-                                                    company.id
-                                                )}
-                                            >
-                                                Edit
-                                            </Link>
-                                        </Button>
-
-                                        <Button
-                                            size="sm"
-                                            variant="destructive"
-                                            onClick={() =>
-                                                handleDelete(
-                                                    company.id,
-                                                    company.name
-                                                )
-                                            }
-                                        >
-                                            Delete
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </div>
+                {/* Pagination */}
+                <Pagination meta={companies} />
             </div>
         </AppLayout>
     );

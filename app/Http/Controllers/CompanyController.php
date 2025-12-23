@@ -13,14 +13,29 @@ class CompanyController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $companies = Company::with(['country', 'currency'])
+            ->when(
+                $request->search,
+                fn($q) =>
+                $q->where('name', 'like', "%{$request->search}%")
+                    ->orWhere('email', 'like', "%{$request->search}%")
+            )
+            ->when(
+                $request->active !== null,
+                fn($q) =>
+                $q->where('active', $request->active)
+            )
+            ->paginate($request->per_page ?? 80)
+            ->withQueryString();
+
         return Inertia::render('companies/index', [
-            'companies'  => Company::with(['country', 'currency'])->orderBy('name')->get(),
-            'countries'  => Country::where('active', true)->orderBy('name')->get(),
-            'currencies' => Currency::where('active', true)->orderBy('name')->get(),
+            'companies' => $companies,
+            'filters' => $request->only(['search', 'active', 'per_page']),
         ]);
     }
+
 
     public function create()
     {
