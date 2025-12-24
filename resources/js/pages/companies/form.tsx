@@ -50,11 +50,20 @@ export default function CompanyForm({ fields, record, countries, currencies }) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={record ? `Edit Company - ${record.name}` : 'New Company'} />
             <div className="p-4">
-                <h1 className="text-xl font-bold mb-4">
-                    {record ? 'Edit Company' : 'Create Company'}
-                </h1>
+                            
 
                 <form onSubmit={handleSubmit}>
+                    <div className="flex items-center justify-between mb-4">
+                            <h1 className="text-xl font-bold">
+                            {record ? `Edit Company #${record.id}` : 'Create Company'}
+                            </h1>
+                            <div className="flex gap-2">
+                            <Button type="button" variant="outline" onClick={() => window.history.back()}>
+                                Cancel
+                            </Button>
+                            <Button type="submit">{record ? 'Update' : 'Create'}</Button>
+                            </div>
+                        </div>
                     <FormRenderer
                         fields={fields}
                         form={form}
@@ -65,21 +74,6 @@ export default function CompanyForm({ fields, record, countries, currencies }) {
                         columns={2} // Odoo-style 2-column layout
                     />
 
-                    <div className="mt-6 flex justify-end gap-2">
-                        <Button
-                            className='cursor-pointer'
-                            type="button"
-                            variant="outline"
-                            onClick={() => window.history.back()}
-                        >
-                            Cancel
-                        </Button>
-                        <Button 
-                            className='cursor-pointer'
-                            type="submit">
-                            {record ? 'Update' : 'Create'}
-                        </Button>
-                    </div>
                 </form>
             </div>
         </AppLayout>

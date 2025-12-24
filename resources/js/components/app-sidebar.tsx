@@ -36,7 +36,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Jobs',
-        href: '/garage-jobs',
+        href: route('garage-jobs.index'),
         icon: LucideWrench, // garage jobs/work orders
     },
     {

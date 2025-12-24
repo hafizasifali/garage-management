@@ -66,12 +66,20 @@ export default function UserForm({ fields, record, roles }: Props) {
             <Head title={record ? `Edit User - ${record.name}` : 'New User'} />
 
             <div className="p-4">
-                <h1 className="text-xl font-bold mb-4">
-                    {record ? 'Edit User' : 'Create User'}
-                </h1>
                 <div className="grid grid-cols-12">
                 <div className="col-span-12 md:col-span-6">
                 <form onSubmit={handleSubmit}>
+                    <div className="flex items-center justify-between mb-4">
+                            <h1 className="text-xl font-bold">
+                            {record ? `Edit User #${record.id}` : 'Create User'}
+                            </h1>
+                            <div className="flex gap-2">
+                            <Button type="button" variant="outline" onClick={() => window.history.back()}>
+                                Cancel
+                            </Button>
+                            <Button type="submit">{record ? 'Update' : 'Create'}</Button>
+                            </div>
+                        </div>
                     <FormRenderer
                         fields={fields}
                         form={form}
@@ -81,20 +89,6 @@ export default function UserForm({ fields, record, roles }: Props) {
                         columns={1} // Odoo-style layout
                     />
 
-                    <div className="mt-6 flex justify-end gap-2">
-                        <Button
-                            className="cursor-pointer"
-                            type="button"
-                            variant="outline"
-                            onClick={() => window.history.back()}
-                        >
-                            Cancel
-                        </Button>
-
-                        <Button className="cursor-pointer" type="submit">
-                            {record ? 'Update' : 'Create'}
-                        </Button>
-                    </div>
                 </form>
                 </div>
                 </div>

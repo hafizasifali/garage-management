@@ -32,6 +32,17 @@ class GarageJob extends Model
         'total_amount' => 'decimal:2',
     ];
 
+    public static function fields(): array
+    {
+        return [
+        'partner_id' => ['label' => 'Customer', 'type' => 'many2one', 'relation' => 'partners'],
+        'vehicle_id' => ['label' => 'Vehicle', 'type' => 'many2one', 'relation' => 'vehicles'],
+        'job_date' => ['label' => 'Job Date', 'type' => 'date'],
+        'employee_ids' => ['label' => 'Mechanics', 'type' => 'many2many', 'relation' => 'employees'],
+        'state' => ['label' => 'State', 'type' => 'char'],
+    ];
+    }
+
     /* ==========================
      | Relationships
      ========================== */

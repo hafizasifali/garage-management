@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
         UserSeeder::class,    
         CurrencySeeder::class,
         CountrySeeder::class,
+        ProductCategorySeeder::class,
+        ProductSeeder::class,
     ]);
     }
 }

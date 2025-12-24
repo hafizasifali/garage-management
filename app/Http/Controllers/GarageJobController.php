@@ -2,119 +2,123 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Employee;
 use App\Models\GarageJob;
-use App\Models\GarageJobLine;
 use App\Models\Partner;
 use App\Models\Vehicle;
+use App\Models\Employee;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class GarageJobController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        return Inertia::render('GarageJobs/Index', [
-            'jobs'      => GarageJob::with(['partner', 'vehicle', 'employees', 'lines.product'])
-                ->orderBy('job_date', 'desc')
-                ->get(),
-            'partners'  => Partner::where('active', true)->get(),
-            'vehicles'  => Vehicle::where('active', true)->get(),
-            'employees' => Employee::whereNotNull('id')->get(),
+        $jobs = GarageJob::with(['partner', 'vehicle', 'employees', 'lines.product'])->paginate(10);
+
+        return Inertia::render('GarageJobs/index', [
+            'jobs' => $jobs,
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        // Return an Inertia page with the form
-        return Inertia::render('GarageJobs/Create', [
-            'partners'  => Partner::where('active', true)->get(),
-            'vehicles'  => Vehicle::where('active', true)->get(),
+        return Inertia::render('GarageJobs/form', [
+            'partners' => Partner::all(),
+            'vehicles' => Vehicle::all(),
             'employees' => Employee::all(),
+            'products' => Product::all(),
+            'fields' => GarageJob::fields(),
+            'record' => null,
         ]);
     }
 
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'garage_job_id' => 'required|exists:garage_jobs,id',
-            'product_id'    => 'required|exists:products,id',
-            'quantity'      => 'required|numeric|min:0.01',
-            'unit_price'    => 'required|numeric|min:0',
-            'tax'           => 'nullable|numeric|min:0',
-            'discount'      => 'nullable|numeric|min:0',
-        ]);
-
-        $subtotal = ($request->quantity * $request->unit_price) + ($request->tax ?? 0) - ($request->discount ?? 0);
-
-        GarageJobLine::create([
-            'garage_job_id' => $request->garage_job_id,
-            'product_id'    => $request->product_id,
-            'quantity'      => $request->quantity,
-            'unit_price'    => $request->unit_price,
-            'tax'           => $request->tax ?? 0,
-            'discount'      => $request->discount ?? 0,
-            'subtotal'      => $subtotal,
-        ]);
-
-        return redirect()->back()->with('success', 'Job line added successfully.');
-    }
-    /**
-     * Display the specified resource.
-     */
-    public function show(GarageJob $garageJob)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(GarageJob $garageJob)
     {
-        //
+        $garageJob->load(['lines', 'employees']);
+
+        return Inertia::render('GarageJobs/form', [
+            'partners' => Partner::all(),
+            'vehicles' => Vehicle::all(),
+            'employees' => Employee::all(),
+            'products' => Product::all(),
+            'record' => $garageJob,
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, GarageJobLine $garageJobLine)
+    public function store(Request $request)
     {
-        $request->validate([
-            'quantity'   => 'required|numeric|min:0.01',
-            'unit_price' => 'required|numeric|min:0',
-            'tax'        => 'nullable|numeric|min:0',
-            'discount'   => 'nullable|numeric|min:0',
+        $validated = $request->validate([
+            'partner_id' => 'required|exists:partners,id',
+            'vehicle_id' => 'required|exists:vehicles,id',
+            'job_date' => 'required|date',
+            'state' => 'required|in:pending,in_progress,completed',
+            'employees' => 'array',
+            'employees.*' => 'exists:employees,id',
+            'lines' => 'array',
+            'lines.*.product_id' => 'required|exists:products,id',
+            'lines.*.quantity' => 'required|numeric',
+            'lines.*.unit_price' => 'nullable|numeric',
+            'lines.*.tax' => 'nullable|numeric',
+            'lines.*.discount' => 'nullable|numeric',
+            'lines.*.subtotal' => 'nullable|numeric',
         ]);
 
-        $garageJobLine->update([
-            'quantity'   => $request->quantity,
-            'unit_price' => $request->unit_price,
-            'tax'        => $request->tax ?? 0,
-            'discount'   => $request->discount ?? 0,
-            'subtotal'   => ($request->quantity * $request->unit_price) + ($request->tax ?? 0) - ($request->discount ?? 0),
-        ]);
+        $job = GarageJob::create($validated);
 
-        return redirect()->back()->with('success', 'Job line updated successfully.');
+        if (isset($validated['employees'])) {
+            $job->employees()->sync($validated['employees']);
+        }
+
+        if (isset($validated['lines'])) {
+            foreach ($validated['lines'] as $line) {
+                $job->lines()->create($line);
+            }
+        }
+
+        return redirect()->route('garage-jobs.index')->with('success', 'Garage job created.');
     }
 
+    public function update(Request $request, GarageJob $garageJob)
+    {
+        $validated = $request->validate([
+            'partner_id' => 'required|exists:partners,id',
+            'vehicle_id' => 'required|exists:vehicles,id',
+            'job_date' => 'required|date',
+            'state' => 'required|in:pending,in_progress,completed',
+            'employees' => 'array',
+            'employees.*' => 'exists:employees,id',
+            'lines' => 'array',
+            'lines.*.product_id' => 'required|exists:products,id',
+            'lines.*.quantity' => 'required|numeric',
+            'lines.*.unit_price' => 'nullable|numeric',
+            'lines.*.tax' => 'nullable|numeric',
+            'lines.*.discount' => 'nullable|numeric',
+            'lines.*.subtotal' => 'nullable|numeric',
+        ]);
 
+        $garageJob->update($validated);
 
-    /**
-     * Remove the specified resource from storage.
-     */
+        if (isset($validated['employees'])) {
+            $garageJob->employees()->sync($validated['employees']);
+        }
+
+        if (isset($validated['lines'])) {
+            // delete old lines and recreate
+            $garageJob->lines()->delete();
+            foreach ($validated['lines'] as $line) {
+                $garageJob->lines()->create($line);
+            }
+        }
+
+        return redirect()->route('garage-jobs.index')->with('success', 'Garage job updated.');
+    }
+
     public function destroy(GarageJob $garageJob)
     {
-        //
+        $garageJob->lines()->delete();
+        $garageJob->delete();
+
+        return redirect()->route('garage-jobs.index')->with('success', 'Garage job deleted.');
     }
 }

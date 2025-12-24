@@ -79,6 +79,14 @@ export default function FormRenderer({
                   className={cn(error && 'border-destructive')}
                 />
               )}
+              {field.type === 'date' && (
+                <Input
+                    type="date"
+                    value={form.data[name] || ''}
+                    onChange={(e) => form.setData(name, e.target.value)}
+                    className={cn(error && 'border-destructive')}
+                />
+                )}
 
               {/* BOOLEAN */}
               {field.type === 'boolean' && (
