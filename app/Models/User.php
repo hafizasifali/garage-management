@@ -22,7 +22,45 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'active',
     ];
+
+    public static function fields(): array
+    {
+        return [
+            'name' => [
+                'type' => 'char',
+                'label' => 'Full Name',
+                'required' => true,
+            ],
+            'email' => [
+                'type' => 'char',
+                'label' => 'Email',
+                'required' => true,
+            ],
+            'roles' => [
+                'type' => 'many2many',
+                'label' => 'Roles',
+                'relation' => 'roles',
+            ],
+            'password' => [
+                'type' => 'password',
+                'label' => 'Password',
+                'required' => true,
+            ],
+            'password_confirmation' => [
+                'type' => 'password',
+                'label' => 'Confirm Password',
+                'required' => true,
+            ],
+            'active' => [
+                'type' => 'boolean',
+                'label' => 'Active',
+                'default' => true,
+            ],
+            
+        ];
+    }
 
     /**
      * The attributes that should be hidden for serialization.

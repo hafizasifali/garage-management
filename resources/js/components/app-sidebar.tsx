@@ -17,6 +17,7 @@ import { BarChart2, Building2, Car, CreditCard, FileText, LayoutGrid, LucideWren
 import AppLogo from './app-logo';
 import { route } from 'ziggy-js';
 
+
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
@@ -72,7 +73,7 @@ const footerNavItems: NavItem[] = [
     },
     {
         title: 'Users',
-        href: '/users',
+        href: route('users.index'),
         icon: Users, 
     },
     {

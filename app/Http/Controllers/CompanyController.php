@@ -89,10 +89,12 @@ class CompanyController extends Controller
             $data['logo'] = $request->file('logo')->store('company-logos', 'public');
         }
 
-        Company::create($data);
+        $company=Company::create($data);
 
-        return redirect()->back()->with('success', 'Company created successfully.');
-    }
+        return redirect()
+            ->route('companies.edit', $company->id)
+            ->with('success', 'Company created successfully.');
+            }
 
     /**
      * Update the specified resource.
