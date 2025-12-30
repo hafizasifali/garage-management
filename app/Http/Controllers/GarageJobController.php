@@ -24,8 +24,13 @@ class GarageJobController extends Controller
     public function create()
     {
         return Inertia::render('GarageJobs/form', [
-            'partners' => Partner::all(),
-            'vehicles' => Vehicle::all(),
+            'partners' => Partner::where('customer_rank', '>', 0)->get(), // only customers,
+            'vehicles' => Vehicle::all()->map(function($vehicle) {
+                return [
+                    'id' => $vehicle->id,
+                    'name' => $vehicle->display_name, // computed field
+                ];
+            }),
             'employees' => Employee::all(),
             'products' => Product::all(),
             'fields' => GarageJob::fields(),
@@ -38,8 +43,13 @@ class GarageJobController extends Controller
         $garageJob->load(['lines', 'employees']);
 
         return Inertia::render('GarageJobs/form', [
-            'partners' => Partner::all(),
-            'vehicles' => Vehicle::all(),
+            'partners' => Partner::where('customer_rank', '>', 0)->get(), // only customers,
+            'vehicles' => Vehicle::all()->map(function($vehicle) {
+                return [
+                    'id' => $vehicle->id,
+                    'name' => $vehicle->display_name, // computed field
+                ];
+            }),
             'employees' => Employee::all(),
             'products' => Product::all(),
             'record' => $garageJob,

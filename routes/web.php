@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\GarageJobController;
 use App\Http\Controllers\InvoiceController;
@@ -29,6 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('companies', CompanyController::class);
     Route::resource('users', UserController::class);
     Route::resource('partners', PartnerController::class);
+    Route::resource('customers', CustomerController::class);
     Route::resource('vehicles', VehicleController::class);
     Route::resource('product-categories', ProductCategoryController::class);
     Route::resource('products', ProductController::class);

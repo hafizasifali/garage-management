@@ -9,74 +9,81 @@ use Inertia\Inertia;
 
 class VehicleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        return Inertia::render('Vehicles/Index', [
-            'vehicles' => Vehicle::with('partner')->orderBy('id', 'desc')->get(),
-            'partners' => Partner::where('active', true)->orderBy('name')->get(),
+        $vehicles = Vehicle::with('partner')
+            ->when($request->search, fn($q) =>
+                $q->where('license_plate', 'like', "%{$request->search}%")
+                  ->orWhere('model', 'like', "%{$request->search}%")
+            )
+            ->when($request->active !== null, fn($q) =>
+                $q->where('active', $request->active)
+            )
+            ->paginate($request->per_page ?? 50)
+            ->withQueryString();
+
+        return Inertia::render('vehicles/index', [
+            'vehicles' => $vehicles,
+            'filters' => $request->only(['search', 'active', 'per_page']),
         ]);
     }
 
-    /**
-     * Store a newly created resource.
-     */
+    public function create()
+    {
+        return Inertia::render('vehicles/form', [
+            'fields' => Vehicle::fields(),
+            'record' => null,
+            'partners' => Partner::select('id', 'name')->get(),
+        ]);
+    }
+
+    public function edit(Vehicle $vehicle)
+    {
+        return Inertia::render('vehicles/form', [
+            'fields' => Vehicle::fields(),
+            'record' => $vehicle,
+            'partners' => Partner::select('id', 'name')->get(),
+        ]);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
-            'partner_id'    => 'required|exists:partners,id',
-            'license_plate' => 'nullable|string|max:50',
-            'model'         => 'nullable|string|max:255',
-            'year'          => 'nullable|integer|min:1900|max:' . date('Y'),
-            'active'        => 'boolean',
+            'partner_id' => 'required|exists:partners,id',
+            'license_plate' => 'required|string|max:20',
+            'model' => 'required|string|max:255',
+            'year' => 'nullable|integer',
+            'active' => 'boolean',
         ]);
 
-        Vehicle::create([
-            'partner_id'    => $request->partner_id,
-            'license_plate' => $request->license_plate,
-            'model'         => $request->model,
-            'year'          => $request->year,
-            'active'        => $request->active ?? true,
-        ]);
+        $vehicle = Vehicle::create($request->only([
+            'partner_id', 'license_plate', 'model', 'year', 'active'
+        ]));
 
-        return redirect()->back()->with('success', 'Vehicle added successfully.');
+        return redirect()
+            ->route('vehicles.edit', $vehicle->id)
+            ->with('success', 'Vehicle created successfully.');
     }
 
-    /**
-     * Update the specified resource.
-     */
     public function update(Request $request, Vehicle $vehicle)
     {
         $request->validate([
-            'partner_id'    => 'required|exists:partners,id',
-            'license_plate' => 'nullable|string|max:50',
-            'model'         => 'nullable|string|max:255',
-            'year'          => 'nullable|integer|min:1900|max:' . date('Y'),
-            'active'        => 'boolean',
+            'partner_id' => 'required|exists:partners,id',
+            'license_plate' => 'required|string|max:20',
+            'model' => 'required|string|max:255',
+            'year' => 'nullable|integer',
+            'active' => 'boolean',
         ]);
 
         $vehicle->update($request->only([
-            'partner_id',
-            'license_plate',
-            'model',
-            'year',
-            'active',
+            'partner_id', 'license_plate', 'model', 'year', 'active'
         ]));
 
         return redirect()->back()->with('success', 'Vehicle updated successfully.');
     }
 
-    /**
-     * Soft deactivate instead of delete
-     */
     public function destroy(Vehicle $vehicle)
     {
-        if ($vehicle->garageJobs()->exists()) {
-            return redirect()->back()->with('error', 'Cannot deactivate vehicle with service history.');
-        }
-
         $vehicle->update(['active' => false]);
 
         return redirect()->back()->with('success', 'Vehicle deactivated successfully.');

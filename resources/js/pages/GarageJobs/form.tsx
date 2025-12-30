@@ -19,7 +19,7 @@ type GarageJobLine = {
   subtotal: number;
 };
 
-export default function GarageJobForm({ record, partners, vehicles, products,fields }: any) {
+export default function GarageJobForm({ record, partners, vehicles, products,employees,fields }: any) {
   const form = useForm({
     partner_id: null,
     vehicle_id: null,
@@ -81,7 +81,7 @@ export default function GarageJobForm({ record, partners, vehicles, products,fie
   };
 
 
-  const options = { partners, vehicles, products };
+  const options = { partners, vehicles, products,employees };
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>

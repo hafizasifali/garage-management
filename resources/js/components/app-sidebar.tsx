@@ -26,12 +26,12 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Customers',
-        href: '/customers',
+         href: route('customers.index'),
         icon: Users, // user/customer management
     },
     {
         title: 'Vehicles',
-        href: '/vehicles',
+        href: route('vehicles.index'),
         icon: Car, // vehicles
     },
     {

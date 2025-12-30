@@ -16,8 +16,41 @@ class Vehicle extends Model
         'license_plate',
         'model',
         'year',
-        'active',
     ];
+
+    // Accessor for dropdown display
+    public function getDisplayNameAttribute()
+    {
+        return trim(($this->license_plate ? $this->license_plate . ' - ' : '') 
+                    . $this->model 
+                    . ($this->year ? ' (' . $this->year . ')' : ''));
+    }
+
+    public static function fields(): array
+    {
+        return [
+            'partner_id' => [
+                'type' => 'many2one',
+                'label' => 'Partner',
+                'relation' => 'partners',
+                'required' => true,
+            ],
+            'license_plate' => [
+                'type' => 'char',
+                'label' => 'License Plate',
+                'required' => true,
+            ],
+            'model' => [
+                'type' => 'char',
+                'label' => 'Model',
+                'required' => true,
+            ],
+            'year' => [
+                'type' => 'number',
+                'label' => 'Year',
+            ],
+        ];
+    }
 
     /* ==========================
      | Relationships
