@@ -37,7 +37,7 @@ if (!fields || Object.keys(fields).length === 0) {
     </div>
   );
 }
-    
+
   return (
     <div className={`grid gap-4 ${gridCols}`}>
       {Object.entries(fields).map(([name, field]: any) => {
@@ -61,70 +61,90 @@ if (!fields || Object.keys(fields).length === 0) {
             : null;
 
         return (
-          <div key={name} className="flex items-center gap-2">
-            <Label className="w-32 flex-shrink-0 text-left">{field.label}</Label>
+            <div key={name} className="flex items-center gap-2">
+                <Label className="w-32 flex-shrink-0 text-left">
+                    {field.label}
+                </Label>
 
-            <div className="flex-1 flex flex-col">
-              {/* CHAR / TEXT */}
-              {field.type === 'char' && (
-                <Input
-                  value={form.data[name] || ''}
-                  onChange={(e) => form.setData(name, e.target.value)}
-                  className={cn(error && 'border-destructive')}
-                />
-              )}
+                <div className="flex flex-1 flex-col">
+                    {/* CHAR / TEXT */}
+                    {field.type === 'char' && (
+                        <Input
+                            value={form.data[name] || ''}
+                            onChange={(e) => form.setData(name, e.target.value)}
+                            className={cn(error && 'border-destructive')}
+                        />
+                    )}
 
-              {field.type === 'password' && (
-                <Input
-                  type="password"
-                  value={form.data[name] || ''}
-                  onChange={(e) => form.setData(name, e.target.value)}
-                  autoComplete="new-password"
-                  className={cn(error && 'border-destructive')}
-                />
-              )}
+                    {field.type === 'password' && (
+                        <Input
+                            type="password"
+                            value={form.data[name] || ''}
+                            onChange={(e) => form.setData(name, e.target.value)}
+                            autoComplete="new-password"
+                            className={cn(error && 'border-destructive')}
+                        />
+                    )}
 
-              {field.type === 'text' && (
-                <Textarea
-                  value={form.data[name] || ''}
-                  onChange={(e) => form.setData(name, e.target.value)}
-                  className={cn(error && 'border-destructive')}
-                />
-              )}
-              {field.type === 'date' && (
-                <Input
-                    type="date"
-                    value={form.data[name] || ''}
-                    onChange={(e) => form.setData(name, e.target.value)}
-                    className={cn(error && 'border-destructive')}
-                />
-                )}
+                    {field.type === 'text' && (
+                        <Textarea
+                            value={form.data[name] || ''}
+                            onChange={(e) => form.setData(name, e.target.value)}
+                            className={cn(error && 'border-destructive')}
+                        />
+                    )}
+                    {field.type === 'date' && (
+                        <Input
+                            type="date"
+                            value={form.data[name] || ''}
+                            onChange={(e) => form.setData(name, e.target.value)}
+                            className={cn(error && 'border-destructive')}
+                        />
+                    )}
 
-              {/* BOOLEAN */}
-              {field.type === 'boolean' && (
-                <Switch
-                  checked={form.data[name]}
-                  onCheckedChange={(val) => form.setData(name, val)}
-                />
-              )}
+                    {/* BOOLEAN */}
+                    {field.type === 'boolean' && (
+                        <Switch
+                            checked={form.data[name]}
+                            onCheckedChange={(val) => form.setData(name, val)}
+                        />
+                    )}
 
-              {/* MANY2ONE / MANY2MANY with react-select */}
-              {field.type === 'many2one' && (
-            <Many2OneField
-              label={field.label}
-              value={form.data[name]}
-              options={options[field.relation] || []}
-              onChange={(val) => form.setData(name, val)}
-              createRoute={`${field.relation}.quickCreate`}
-              createTitle={field.label}
-              fields={options[`${field.relation}_fields`] ?? {}}
-            />
-          )}
-
-
-
+                    {/* MANY2ONE / MANY2MANY with react-select */}
+                    {(field.type === 'many2many') && (
+                        <Select
+                            options={selectOptions}
+                            value={selectValue}
+                            isMulti={field.type === 'many2many'}
+                            onChange={(selected: any) => {
+                                if (field.type === 'many2one') {
+                                    form.setData(name, selected?.value || null);
+                                } else {
+                                    form.setData(
+                                        name,
+                                        selected ? selected.map((s: any) => s.value) : []
+                                    );
+                                }
+                            }}
+                            placeholder={`Select ${field.label}`}
+                            className={cn(error && 'border-destructive')}
+                            classNamePrefix="react-select"
+                        />
+                    )}
+                    {field.type === 'many2one' && (
+                        <Many2OneField
+                            label={field.label}
+                            value={form.data[name]}
+                            options={options[field.relation] || []}
+                            onChange={(val) => form.setData(name, val)}
+                            createRoute={`${field.relation}.quickCreate`}
+                            createTitle={field.label}
+                            fields={options[`${field.relation}_fields`] ?? {}}
+                            quickCreate={field.quick_create === true}
+                        />
+                    )}
+                </div>
             </div>
-          </div>
         );
       })}
     </div>

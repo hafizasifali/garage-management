@@ -9,10 +9,10 @@ import toast from 'react-hot-toast';
 type VehicleFormProps = {
     fields: any;
     record: any;
-    partners: { id: number; name: string }[];
+    customers: { id: number; name: string }[];
 };
 
-export default function VehicleForm({ fields, record, partners }: VehicleFormProps) {
+export default function VehicleForm({ fields, record, customers }: VehicleFormProps) {
     const form = useForm({
         partner_id: null,
         license_plate: '',
@@ -65,7 +65,7 @@ export default function VehicleForm({ fields, record, partners }: VehicleFormPro
                         fields={fields}
                         form={form}
                         options={{
-                            partners,
+                            customers,
                         }}
                         columns={1}
                     />

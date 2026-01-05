@@ -17,12 +17,10 @@ class VehicleSeeder extends Seeder
         $now = Carbon::now();
 
         // Fetch all customers from partners table
-        $customers = DB::table('partners')
-            ->where('customer_rank', '>', 0)
-            ->pluck('id');
+        $customers = DB::table('customers')->pluck('id');
 
         if ($customers->isEmpty()) {
-            $this->command->info('No customers found. Please run PartnerSeeder first.');
+            $this->command->info('No customers found. Please run CustomerSeeder first.');
             return;
         }
 
@@ -49,8 +47,14 @@ class VehicleSeeder extends Seeder
                 $plate = $province . ' ' . strtoupper(substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 3))
                          . rand(1000, 9999);
 
+                $province = 'ON';               // 2 chars
+                $letters = strtoupper(substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 11)); // 11 chars
+                $numbers = rand(1000, 9999);    // 4 chars
+                $vin = $province . $letters . $numbers; // 17 chars
+
                 $vehicles[] = [
-                    'partner_id' => $customerId,
+                    'customer_id' => $customerId,
+                    'vin' => $vin,
                     'license_plate' => $plate,
                     'model' => $model,
                     'year' => $year,

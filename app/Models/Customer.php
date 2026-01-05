@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Partner extends Model
+class Customer extends Model
 {
     use HasFactory;
 
-    protected $table = 'partners';
+    protected $table = 'customers';
 
     protected $fillable = [
         'name',
@@ -17,11 +17,10 @@ class Partner extends Model
         'email',
         'phone',
         'address',
-        'is_company', 'parent_id', 'customer_rank', 'supplier_rank',
         'active',
     ];
 
-       public static function customerFields(): array
+       public static function fields(): array
     {
         return [
             'name' => [
@@ -52,7 +51,7 @@ class Partner extends Model
         ];
     }
 
-    
+
     // Accessor for is_customer
     public function getIsCustomerAttribute()
     {
@@ -68,13 +67,13 @@ class Partner extends Model
     // Relationship for contacts
     public function contacts()
     {
-        return $this->hasMany(Partner::class, 'parent_id');
+        return $this->hasMany(Customer::class, 'parent_id');
     }
 
     // Relationship to parent company
     public function company()
     {
-        return $this->belongsTo(Partner::class, 'parent_id');
+        return $this->belongsTo(Customer::class, 'parent_id');
     }
 
     /* ==========================
@@ -88,7 +87,7 @@ class Partner extends Model
 
     public function garageJobs()
     {
-        return $this->hasMany(GarageJob::class);
+        return $this->hasMany(Order::class);
     }
 
     public function invoices()

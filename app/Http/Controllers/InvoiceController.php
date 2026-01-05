@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invoice;
-use App\Models\Partner;
-use App\Models\GarageJob;
+use App\Models\Customer;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,16 +14,16 @@ class InvoiceController extends Controller
     {
         return Inertia::render('Invoices/Index', [
             'invoices' => Invoice::with(['partner', 'lines.product', 'garageJobs'])->orderBy('invoice_date', 'desc')->get(),
-            'partners' => Partner::where('active', true)->get(),
-            'garageJobs' => GarageJob::where('state', 'completed')->get(),
+            'partners' => Customer::where('active', true)->get(),
+            'garageJobs' => Order::where('state', 'completed')->get(),
         ]);
     }
 
     public function create()
     {
         return Inertia::render('Invoices/Create', [
-            'partners'   => Partner::where('active', true)->get(),
-            'garageJobs' => GarageJob::where('state', 'completed')->get(),
+            'partners'   => Customer::where('active', true)->get(),
+            'garageJobs' => Order::where('state', 'completed')->get(),
         ]);
     }
 

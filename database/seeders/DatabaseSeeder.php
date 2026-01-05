@@ -19,11 +19,11 @@ class DatabaseSeeder extends Seeder
             CountrySeeder::class,
         CompanySeeder::class,
         EmployeeSeeder::class,
-        UserSeeder::class,    
-        
+        UserSeeder::class,
+
         ProductCategorySeeder::class,
         ProductSeeder::class,
-        PartnerSeeder::class,
+        CustomerSeeder::class,
         VehicleSeeder::class,
     ]);
     }

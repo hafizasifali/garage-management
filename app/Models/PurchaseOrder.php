@@ -22,7 +22,7 @@ class PurchaseOrder extends Model
 
     public function supplier()
     {
-        return $this->belongsTo(Partner::class, 'partner_id');
+        return $this->belongsTo(Customer::class, 'partner_id');
     }
 
     public function lines()

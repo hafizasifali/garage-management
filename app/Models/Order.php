@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class GarageJob extends Model
+class Order extends Model
 {
     use HasFactory;
 
-    protected $table = 'garage_jobs';
+    protected $table = 'orders';
 
     protected $fillable = [
         'partner_id',
@@ -37,9 +37,9 @@ class GarageJob extends Model
         return [
         'partner_id' => ['label' => 'Customer', 'type' => 'many2one', 'relation' => 'customers', 'quick_create' => true,'edit_route' => 'customers.edit',],
         'vehicle_id' => ['label' => 'Vehicle', 'type' => 'many2one', 'relation' => 'vehicles','quick_create' => true,'edit_route' => 'vehicles.edit'],
-        'job_date' => ['label' => 'Job Date', 'type' => 'date'],
+        'job_date' => ['label' => 'Order Date', 'type' => 'date'],
         // 'employee_ids' => ['label' => 'Mechanics', 'type' => 'many2many', 'relation' => 'employees'],
-        'state' => ['label' => 'Job State', 'type' => 'many2one'],
+        'state' => ['label' => 'Order State', 'type' => 'many2one'],
     ];
     }
 
@@ -49,7 +49,7 @@ class GarageJob extends Model
 
     public function partner()
     {
-        return $this->belongsTo(Partner::class);
+        return $this->belongsTo(Customer::class);
     }
 
     public function vehicle()
@@ -64,7 +64,7 @@ class GarageJob extends Model
 
     public function lines()
     {
-        return $this->hasMany(GarageJobLine::class);
+        return $this->hasMany(OrderLine::class);
     }
 
     public function invoices()

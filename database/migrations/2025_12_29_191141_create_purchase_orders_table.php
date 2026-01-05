@@ -14,9 +14,7 @@ return new class extends Migration
         Schema::create('purchase_orders', function (Blueprint $table) {
             $table->id();
             // Supplier (partner with supplier_rank > 0)
-            $table->foreignId('partner_id')
-                ->constrained('partners')
-                ->cascadeOnDelete();
+            $table->foreignId('supplier_id')->constrained('suppliers')->cascadeOnDelete();
 
             $table->date('order_date');
 

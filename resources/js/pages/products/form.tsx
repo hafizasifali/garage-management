@@ -11,9 +11,10 @@ type Props = {
     record: any;
     categories: any[];
     uoms: any[];
+    product_types:any[];
 };
 
-export default function ProductForm({ fields, record, categories, uoms }: Props) {
+export default function ProductForm({ fields, record, categories, uoms,product_types }: Props) {
     const form = useForm({
         name: '',
         category_id: null,
@@ -42,19 +43,26 @@ export default function ProductForm({ fields, record, categories, uoms }: Props)
                   onError: (e) => Object.values(e).forEach(err => toast.error(err)),
               });
     };
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={record ? `Edit Product - ${record.name}` : 'New Product'} />
+            <Head
+                title={record ? `Edit Product - ${record.name}` : 'New Product'}
+            />
 
-            <div className="p-4 max-w-3xl">
+            <div className="max-w-3xl p-4">
                 <form onSubmit={handleSubmit}>
-                    <div className="flex justify-between mb-4">
+                    <div className="mb-4 flex justify-between">
                         <h1 className="text-xl font-bold">
-                            {record ? `Edit Product #${record.id}` : 'Create Product'}
+                            {record
+                                ? `Edit Product #${record.id}`
+                                : 'Create Product'}
                         </h1>
                         <div className="flex gap-2">
-                            <Button type="button" variant="outline" onClick={() => history.back()}>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => history.back()}
+                            >
                                 Cancel
                             </Button>
                             <Button type="submit">
@@ -69,6 +77,7 @@ export default function ProductForm({ fields, record, categories, uoms }: Props)
                         options={{
                             product_categories: categories,
                             uoms,
+                            product_types,
                         }}
                         columns={1}
                     />

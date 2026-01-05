@@ -39,6 +39,23 @@ class Product extends Model
     /* ==========================
      | Dynamic Form Fields
      ========================== */
+    public static function productTypes(): array
+    {
+        return [
+//            [
+//                'id' => 'consu',
+//                'name' => 'Consumable',
+//            ],
+            [
+                'id' => 'service',
+                'name' => 'Service',
+            ],
+            [
+                'id' => 'product',
+                'name' => 'Storable Product',
+            ],
+        ];
+    }
 
     public static function fields(): array
     {
@@ -54,19 +71,16 @@ class Product extends Model
                 'relation' => 'product_categories',
                 'required' => true,
             ],
-            'uom_id' => [
-                'type' => 'many2one',
-                'label' => 'Unit of Measure',
-                'relation' => 'uoms',
-                'required' => true,
-            ],
+//            'uom_id' => [
+//                'type' => 'many2one',
+//                'label' => 'Unit of Measure',
+//                'relation' => 'uoms',
+//                'required' => true,
+//            ],
             'type' => [
                 'type' => 'many2one',
                 'label' => 'Product Type',
-                'options' => [
-                    ['value' => 'product', 'label' => 'Storable Product'],
-                    ['value' => 'service', 'label' => 'Service'],
-                ],
+                'relation' => 'product_types',
                 'required' => true,
             ],
             'cost_price' => [
@@ -89,15 +103,15 @@ class Product extends Model
     {
         return $this->belongsTo(ProductCategory::class, 'category_id');
     }
-
-    public function uom()
-    {
-        return $this->belongsTo(Uom::class, 'uom_id');
-    }
+//
+//    public function uom()
+//    {
+//        return $this->belongsTo(Uom::class, 'uom_id');
+//    }
 
     public function garageJobLines()
     {
-        return $this->hasMany(GarageJobLine::class);
+        return $this->hasMany(OrderLine::class);
     }
 
     public function invoiceLines()

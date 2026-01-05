@@ -20,7 +20,7 @@ type Vehicle = {
     model: string;
     year?: string;
     active: boolean;
-    partner?: { name: string };
+    customer?: { name: string };
 };
 
 export default function VehicleIndex() {
@@ -77,10 +77,11 @@ export default function VehicleIndex() {
         setSelected((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
 
     const columns = [
+        { label: 'Identification Number', render: (row: Vehicle) => row.vin },
         { label: 'License Plate', render: (row: Vehicle) => row.license_plate },
         { label: 'Model', render: (row: Vehicle) => row.model },
         { label: 'Year', render: (row: Vehicle) => row.year },
-        { label: 'Partner', render: (row: Vehicle) => row.partner?.name },
+        { label: 'Customer', render: (row: Vehicle) => row.customer?.name },
         { label: 'Active', render: (row: Vehicle) => (row.active ? 'Yes' : 'No') },
         {
             label: 'Actions',

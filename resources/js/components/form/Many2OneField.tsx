@@ -4,66 +4,77 @@ import OdooMenuList from './OdooMenuList';
 import QuickCreateModal from './QuickCreateModal';
 
 export default function Many2OneField({
-  label,
-  value,
-  options,
-  onChange,
-  createRoute,
-  createTitle,
-  fields,
+    label,
+    value,
+    options,
+    onChange,
+    createRoute,
+    createTitle,
+    fields,
+    quickCreate = false,
 }) {
-  const [localOptions, setLocalOptions] = useState(options);
-  const [open, setOpen] = useState(false);
-  const [defaultName, setDefaultName] = useState('');
+    const [localOptions, setLocalOptions] = useState(options);
+    const [open, setOpen] = useState(false);
+    const [defaultName, setDefaultName] = useState('');
 
-  useEffect(() => {
-    setLocalOptions(options);
-  }, [options]);
+    useEffect(() => {
+        if (!value) return;
+        const exists = localOptions.some((o) => String(o.id) === String(value));
+        if (!exists && value) {
+            setLocalOptions((prev) => prev);
+        }
+    }, [value]);
 
-  const selectOptions = localOptions.map(o => ({
-    value: Number(o.id),
-    label: o.name,
-  }));
 
-  const selected =
-    selectOptions.find(o => o.value === Number(value)) || null;
+    const selectOptions = localOptions.map((o) => ({
+        value: String(o.id), // 🔑 ALWAYS STRING
+        label: o.name,
+    }));
 
-  return (
-    <>
-      <Select
-        options={selectOptions}
-        value={selected}
-        onChange={(opt) => onChange(opt ? opt.value : null)}
-        placeholder={`Select ${label}`}
-        isClearable
-        components={{ MenuList: OdooMenuList }}
-        onInputChange={(val) => setDefaultName(val)}
-        onQuickCreate={(search) => {
-          setDefaultName(search);
-          setOpen(true);
-        }}
-      />
 
-      {open && (
-        <QuickCreateModal
-          open={open}
-          title={`Create ${createTitle}`}
-          fields={fields}
-          routeName={createRoute}
-          defaultValues={{ name: defaultName }}
-          onClose={() => setOpen(false)}
-          onCreated={(id, name) => {
-            // 🔥 ADD + SELECT
-            setLocalOptions(prev => [
-              ...prev,
-              { id, name },
-            ]);
+    const selected = value
+        ? (selectOptions.find((o) => o.value === String(value)) ?? null)
+        : null;
 
-            onChange(id); // <-- THIS selects it
-            setOpen(false);
-          }}
-        />
-      )}
-    </>
-  );
+
+    return (
+        <>
+            <Select
+                options={selectOptions}
+                value={selected}
+                onChange={(opt) => onChange(opt ? opt.value : null)}
+                placeholder={`Select ${label}`}
+                isClearable
+                components={
+                    quickCreate ? { MenuList: OdooMenuList } : undefined
+                }
+                onInputChange={(val) => {
+                    if (quickCreate) setDefaultName(val);
+                    return val;
+                }}
+                {...(quickCreate && {
+                    onQuickCreate: (search) => {
+                        setDefaultName(search);
+                        setOpen(true);
+                    },
+                })}
+            />
+
+            {quickCreate && open && (
+                <QuickCreateModal
+                    open={open}
+                    title={`Create ${createTitle}`}
+                    fields={fields}
+                    routeName={createRoute}
+                    defaultValues={{ name: defaultName }}
+                    onClose={() => setOpen(false)}
+                    onCreated={(id, name) => {
+                        setLocalOptions((prev) => [...prev, { id, name }]);
+                        onChange(id);
+                        setOpen(false);
+                    }}
+                />
+            )}
+        </>
+    );
 }

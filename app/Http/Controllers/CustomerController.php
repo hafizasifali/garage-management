@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Partner;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -10,8 +10,7 @@ class CustomerController extends Controller
 {
     public function index(Request $request)
     {
-        $customers = Partner::query()
-            ->where('customer_rank', '>', 0)
+        $customers = Customer::query()
             ->when($request->search, fn ($q) =>
                 $q->where('name', 'like', "%{$request->search}%")
                    ->orWhere('email', 'like', "%{$request->search}%")
@@ -31,15 +30,15 @@ class CustomerController extends Controller
     public function create()
     {
         return Inertia::render('customers/form', [
-            'fields' => Partner::customerFields(),
+            'fields' => Customer::fields(),
             'record' => null,
         ]);
     }
 
-    public function edit(Partner $customer)
+    public function edit(Customer $customer)
     {
         return Inertia::render('customers/form', [
-            'fields' => Partner::customerFields(),
+            'fields' => Customer::fields(),
             'record' => $customer,
         ]);
     }
@@ -51,14 +50,11 @@ class CustomerController extends Controller
             'email' => 'nullable|email',
             'phone' => 'nullable|string|max:50',
             'address' => 'nullable|string|max:255',
-            'is_company' => 'boolean',
             'active' => 'boolean',
         ]);
 
-        $data['customer_rank'] = 1;
-        $data['supplier_rank'] = 0;
 
-        $customer = Partner::create($data);
+        $customer = Customer::create($data);
 
         return redirect()
             ->route('customers.edit', $customer->id)
@@ -71,14 +67,10 @@ class CustomerController extends Controller
             'email'      => 'nullable|email',
             'phone'      => 'nullable|string|max:50',
             'address'    => 'nullable|string|max:255',
-            'is_company' => 'boolean',
             'active'     => 'boolean',
         ]);
 
-        $data['customer_rank'] = 1;
-        $data['supplier_rank'] = 0;
-
-        $customer = Partner::create($data);
+        $customer = Customer::create($data);
 
         return response()->json([
             'id'    => $customer->id,
@@ -88,7 +80,7 @@ class CustomerController extends Controller
     }
 
 
-    public function update(Request $request, Partner $customer)
+    public function update(Request $request, Customer $customer)
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
@@ -104,7 +96,7 @@ class CustomerController extends Controller
         return redirect()->back()->with('success', 'Customer updated successfully.');
     }
 
-    public function destroy(Partner $customer)
+    public function destroy(Customer $customer)
     {
         $customer->update(['active' => false]);
 

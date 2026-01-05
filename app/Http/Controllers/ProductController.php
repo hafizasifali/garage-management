@@ -12,7 +12,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $products = Product::with(['category', 'uom'])
+        $products = Product::with(['category'])
             ->when(
                 $request->search,
                 fn($q) =>
@@ -43,6 +43,7 @@ class ProductController extends Controller
             'fields' => Product::fields(),
             'record' => null,
             'categories' => ProductCategory::select('id', 'name')->get(),
+            'product_types'=> Product::productTypes(),
             'uoms' => Uom::select('id', 'name')->get(),
         ]);
     }
@@ -53,7 +54,7 @@ class ProductController extends Controller
             'fields' => Product::fields(),
             'record' => $product,
             'categories' => ProductCategory::select('id', 'name')->get(),
-            'uoms' => Uom::select('id', 'name')->get(),
+            'product_types'=> Product::productTypes(),
         ]);
     }
 
@@ -62,11 +63,10 @@ class ProductController extends Controller
         $data = $request->validate([
             'name'        => 'required|string|max:255',
             'category_id' => 'required|exists:product_categories,id',
-            'uom_id'      => 'required|exists:uoms,id',
+//            'uom_id'      => 'required|exists:uoms,id',
             'type'        => 'required|in:product,service',
             'cost_price'  => 'nullable|numeric',
             'sale_price'  => 'required|numeric',
-            'active'      => 'boolean',
         ]);
 
         $product = Product::create($data);
@@ -81,11 +81,10 @@ class ProductController extends Controller
         $data = $request->validate([
             'name'        => 'required|string|max:255',
             'category_id' => 'required|exists:product_categories,id',
-            'uom_id'      => 'required|exists:uoms,id',
+//            'uom_id'      => 'required|exists:uoms,id',
             'type'        => 'required|in:product,service',
             'cost_price'  => 'nullable|numeric',
             'sale_price'  => 'required|numeric',
-            'active'      => 'boolean',
         ]);
 
         $product->update($data);

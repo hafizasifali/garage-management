@@ -2,29 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\GarageJob;
-use App\Models\Partner;
+use App\Models\Order;
+use App\Models\Customer;
 use App\Models\Vehicle;
 use App\Models\Employee;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class GarageJobController extends Controller
+class OrderController extends Controller
 {
     public function index()
     {
-        $jobs = GarageJob::with(['partner', 'vehicle', 'employees', 'lines.product'])->paginate(10);
+        $jobs = Order::with(['partner', 'vehicle', 'employees', 'lines.product'])->paginate(10);
 
-        return Inertia::render('GarageJobs/index', [
+        return Inertia::render('orders/index', [
             'jobs' => $jobs,
         ]);
     }
 
     public function create()
     {
-        return Inertia::render('GarageJobs/form', [
-            'customers' => Partner::where('customer_rank', '>', 0)->get(), // only customers,
+        return Inertia::render('orders/form', [
+            'customers' => Customer::select('id','name')->get(), // only customers,
             'vehicles' => Vehicle::all()->map(function($vehicle) {
                 return [
                     'id' => $vehicle->id,
@@ -33,18 +33,18 @@ class GarageJobController extends Controller
             }),
             'employees' => Employee::all(),
             'products' => Product::all(),
-            'fields' => GarageJob::fields(),
-            'customers_fields' => Partner::customerFields(),
+            'fields' => Order::fields(),
+            'customers_fields' => Customer::fields(),
             'record' => null,
         ]);
     }
 
-    public function edit(GarageJob $garageJob)
+    public function edit(Order $garageJob)
     {
         $garageJob->load(['lines', 'employees']);
 
-        return Inertia::render('GarageJobs/form', [
-            'partners' => Partner::where('customer_rank', '>', 0)->get(), // only customers,
+        return Inertia::render('orders/form', [
+            'customers' => Customer::select('id','name')->get(),
             'vehicles' => Vehicle::all()->map(function($vehicle) {
                 return [
                     'id' => $vehicle->id,
@@ -75,7 +75,7 @@ class GarageJobController extends Controller
             'lines.*.subtotal' => 'nullable|numeric',
         ]);
 
-        $job = GarageJob::create($validated);
+        $job = Order::create($validated);
 
         if (isset($validated['employees'])) {
             $job->employees()->sync($validated['employees']);
@@ -90,7 +90,7 @@ class GarageJobController extends Controller
         return redirect()->route('garage-jobs.index')->with('success', 'Garage job created.');
     }
 
-    public function update(Request $request, GarageJob $garageJob)
+    public function update(Request $request, Order $garageJob)
     {
         $validated = $request->validate([
             'partner_id' => 'required|exists:partners,id',
@@ -125,7 +125,7 @@ class GarageJobController extends Controller
         return redirect()->route('garage-jobs.index')->with('success', 'Garage job updated.');
     }
 
-    public function destroy(GarageJob $garageJob)
+    public function destroy(Order $garageJob)
     {
         $garageJob->lines()->delete();
         $garageJob->delete();

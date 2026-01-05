@@ -50,7 +50,7 @@ export default function ProductIndex() {
     const columns = [
         { label: 'Name', render: (row: Product) => row.name },
         { label: 'Category', render: (row: Product) => row.category?.name },
-        { label: 'UOM', render: (row: Product) => row.uom?.name },
+        // { label: 'UOM', render: (row: Product) => row.uom?.name },
         { label: 'Type', render: (row: Product) => row.type },
         { label: 'Sale Price', render: (row: Product) => row.sale_price },
         {

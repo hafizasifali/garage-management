@@ -13,6 +13,7 @@ class Vehicle extends Model
 
     protected $fillable = [
         'partner_id',
+        'vin',
         'license_plate',
         'model',
         'year',
@@ -21,18 +22,24 @@ class Vehicle extends Model
     // Accessor for dropdown display
     public function getDisplayNameAttribute()
     {
-        return trim(($this->license_plate ? $this->license_plate . ' - ' : '') 
-                    . $this->model 
+        return trim(($this->vin ? $this->vin . ' - ' : '')
+                    .($this->license_plate ? $this->license_plate . ' - ' : '')
+                    . $this->model
                     . ($this->year ? ' (' . $this->year . ')' : ''));
     }
 
     public static function fields(): array
     {
         return [
-            'partner_id' => [
+            'customer_id' => [
                 'type' => 'many2one',
-                'label' => 'Partner',
-                'relation' => 'partners',
+                'label' => 'Customer',
+                'relation' => 'customers',
+                'required' => true,
+            ],
+            'vin' => [
+                'type' => 'char',
+                'label' => 'Identification Number (VIN)',
                 'required' => true,
             ],
             'license_plate' => [
@@ -56,13 +63,13 @@ class Vehicle extends Model
      | Relationships
      ========================== */
 
-    public function partner()
+    public function customer()
     {
-        return $this->belongsTo(Partner::class);
+        return $this->belongsTo(Customer::class);
     }
 
     public function garageJobs()
     {
-        return $this->hasMany(GarageJob::class);
+        return $this->hasMany(Order::class);
     }
 }

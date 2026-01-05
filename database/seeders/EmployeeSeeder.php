@@ -21,7 +21,7 @@ class EmployeeSeeder extends Seeder
             ->pluck('id');
 
         if ($companies->isEmpty()) {
-            $this->command->info('No companies found. Please run PartnerSeeder first.');
+            $this->command->info('No companies found. Please run CustomerSeeder first.');
             return;
         }
 

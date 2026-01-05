@@ -13,7 +13,22 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BarChart2, Building2, Car, CreditCard, FileText, LayoutGrid, LucideWrench, Package, PenTool, UserCog, Users, Wrench } from 'lucide-react';
+import {
+    BarChart2,
+    Building2,
+    Car,
+    CreditCard,
+    FileText,
+    Layers,
+    LayoutGrid,
+    ListOrdered,
+    LucideWrench,
+    Package,
+    PenTool,
+    UserCog,
+    Users,
+    Wrench,
+} from 'lucide-react';
 import AppLogo from './app-logo';
 import { route } from 'ziggy-js';
 
@@ -26,7 +41,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Customers',
-         href: route('customers.index'),
+        href: route('customers.index'),
         icon: Users, // user/customer management
         isActive: route().current('customers.*'),
     },
@@ -37,16 +52,21 @@ const mainNavItems: NavItem[] = [
         isActive: route().current('vehicles.*'),
     },
     {
-        title: 'Jobs',
-        href: route('garage-jobs.index'),
-        icon: LucideWrench, // garage jobs/work orders
-        isActive: route().current('garage-jobs.*'),
+        title: 'Orders',
+        href: route('orders.index'),
+        icon: ListOrdered, // garage jobs/work orders
+        isActive: route().current('orders.*'),
     },
     {
         title: 'Mechanics',
         href: route('employees.index'),
         icon: UserCog, // staff/mechanics
         isActive: route().current('employees.*'),
+    },
+    {
+        title: 'Suppliers',
+        href: route('suppliers.index'),
+        icon: Layers, // spare parts/products
     },
     {
         title: 'Products',
@@ -73,13 +93,13 @@ const footerNavItems: NavItem[] = [
     {
         title: 'Companies',
         href: route('companies.index'),
-        icon: Building2, 
+        icon: Building2,
         isActive: route().current('companies.*'),
     },
     {
         title: 'Users',
         href: route('users.index'),
-        icon: Users, 
+        icon: Users,
         isActive: route().current('users.*'),
     },
     {

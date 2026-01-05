@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 /* Reusable components */
 import DataTable from '@/components/index/DataTable';
 import Pagination from '@/components/index/Pagination';
+import { route } from 'ziggy-js';
 
 type GarageJob = {
   id: number;
@@ -26,21 +27,21 @@ export default function Index() {
   const [selected, setSelected] = useState<number[]>([]);
 
   const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Garage Jobs', href: '/garage-jobs' },
+    { title: 'Orders', href: '/orders' },
   ];
 
   /* ---------------- Actions ---------------- */
   const handleDelete = async (id: number) => {
     const ok = await confirm({
-      title: 'Delete Garage Job?',
+      title: 'Delete Order?',
       text: `This job will be permanently removed.`,
       confirmText: 'Delete',
     });
     if (!ok) return;
 
-    router.delete(route('garage-jobs.destroy', id), {
+    router.delete(route('orders.destroy', id), {
       preserveScroll: true,
-      onSuccess: () => toast.success('Garage job deleted'),
+      onSuccess: () => toast.success('Order deleted'),
     });
   };
 
@@ -70,7 +71,7 @@ export default function Index() {
       render: (row: GarageJob) => (
         <div className="flex gap-2">
           <Button size="sm" variant="outline" asChild>
-            <Link href={route('garage-jobs.edit', row.id)}>
+            <Link href={route('orders.edit', row.id)}>
               <Edit className="h-4 w-4" />
             </Link>
           </Button>
@@ -88,13 +89,13 @@ export default function Index() {
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title="Garage Jobs" />
+      <Head title="Orders" />
 
       <div className="p-4 space-y-4">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-xl font-bold">Garage Jobs</h1>
+          <h1 className="text-xl font-bold">Orders</h1>
           <Button asChild>
-            <Link href={route('garage-jobs.create')}>Create Job</Link>
+            <Link href={route('orders.create')}>Create Job</Link>
           </Button>
         </div>
 

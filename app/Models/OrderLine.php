@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class GarageJobLine extends Model
+class OrderLine extends Model
 {
     use HasFactory;
 
-    protected $table = 'garage_job_lines';
+    protected $table = 'order_lines';
 
     protected $fillable = [
         'garage_job_id',
@@ -33,9 +33,9 @@ class GarageJobLine extends Model
      | Relationships
      ========================== */
 
-    public function garageJob()
+    public function order()
     {
-        return $this->belongsTo(GarageJob::class);
+        return $this->belongsTo(Order::class);
     }
 
     public function product()

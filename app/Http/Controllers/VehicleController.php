@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Vehicle;
-use App\Models\Partner;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -11,7 +11,7 @@ class VehicleController extends Controller
 {
     public function index(Request $request)
     {
-        $vehicles = Vehicle::with('partner')
+        $vehicles = Vehicle::with('customer')
             ->when($request->search, fn($q) =>
                 $q->where('license_plate', 'like', "%{$request->search}%")
                   ->orWhere('model', 'like', "%{$request->search}%")
@@ -33,7 +33,7 @@ class VehicleController extends Controller
         return Inertia::render('vehicles/form', [
             'fields' => Vehicle::fields(),
             'record' => null,
-            'partners' => Partner::select('id', 'name')->get(),
+            'customers' => Customer::select('id', 'name')->get(),
         ]);
     }
 
@@ -42,14 +42,15 @@ class VehicleController extends Controller
         return Inertia::render('vehicles/form', [
             'fields' => Vehicle::fields(),
             'record' => $vehicle,
-            'partners' => Partner::select('id', 'name')->get(),
+            'customers' => Customer::select('id', 'name')->get(),
         ]);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'partner_id' => 'required|exists:partners,id',
+            'customer_id' => 'required|exists:customers,id',
+            'vin' => 'required|string|max:50',
             'license_plate' => 'required|string|max:20',
             'model' => 'required|string|max:255',
             'year' => 'nullable|integer',
@@ -57,7 +58,7 @@ class VehicleController extends Controller
         ]);
 
         $vehicle = Vehicle::create($request->only([
-            'partner_id', 'license_plate', 'model', 'year', 'active'
+            'customer_id','vin', 'license_plate', 'model', 'year', 'active'
         ]));
 
         return redirect()
@@ -68,7 +69,8 @@ class VehicleController extends Controller
     public function update(Request $request, Vehicle $vehicle)
     {
         $request->validate([
-            'partner_id' => 'required|exists:partners,id',
+            'customer_id' => 'required|exists:customers,id',
+            'vin' => 'required|string|max:50',
             'license_plate' => 'required|string|max:20',
             'model' => 'required|string|max:255',
             'year' => 'nullable|integer',
@@ -76,7 +78,7 @@ class VehicleController extends Controller
         ]);
 
         $vehicle->update($request->only([
-            'partner_id', 'license_plate', 'model', 'year', 'active'
+            'customer_id','vin', 'license_plate', 'model', 'year', 'active'
         ]));
 
         return redirect()->back()->with('success', 'Vehicle updated successfully.');
