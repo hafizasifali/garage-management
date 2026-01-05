@@ -12,7 +12,7 @@ class Vehicle extends Model
     protected $table = 'vehicles';
 
     protected $fillable = [
-        'partner_id',
+        'customer_id',
         'vin',
         'license_plate',
         'model',
