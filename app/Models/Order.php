@@ -12,7 +12,7 @@ class Order extends Model
     protected $table = 'orders';
 
     protected $fillable = [
-        'partner_id',
+        'customer_id',
         'vehicle_id',
         'job_date',
         'state', // pending, in_progress, completed
@@ -35,7 +35,7 @@ class Order extends Model
     public static function fields(): array
     {
         return [
-        'partner_id' => ['label' => 'Customer', 'type' => 'many2one', 'relation' => 'customers', 'quick_create' => true,'edit_route' => 'customers.edit',],
+        'customer_id' => ['label' => 'Customer', 'type' => 'many2one', 'relation' => 'customers', 'quick_create' => true,'edit_route' => 'customers.edit',],
         'vehicle_id' => ['label' => 'Vehicle', 'type' => 'many2one', 'relation' => 'vehicles','quick_create' => true,'edit_route' => 'vehicles.edit'],
         'job_date' => ['label' => 'Order Date', 'type' => 'date'],
         // 'employee_ids' => ['label' => 'Mechanics', 'type' => 'many2many', 'relation' => 'employees'],

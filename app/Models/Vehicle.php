@@ -31,12 +31,7 @@ class Vehicle extends Model
     public static function fields(): array
     {
         return [
-            'customer_id' => [
-                'type' => 'many2one',
-                'label' => 'Customer',
-                'relation' => 'customers',
-                'required' => true,
-            ],
+            'customer_id' => ['label' => 'Customer', 'type' => 'many2one', 'relation' => 'customers', 'quick_create' => true,'edit_route' => 'customers.edit',],
             'vin' => [
                 'type' => 'char',
                 'label' => 'Identification Number (VIN)',

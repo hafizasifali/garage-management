@@ -34,6 +34,7 @@ class VehicleController extends Controller
             'fields' => Vehicle::fields(),
             'record' => null,
             'customers' => Customer::select('id', 'name')->get(),
+            'customers_fields' => Customer::fields(),
         ]);
     }
 
@@ -43,6 +44,7 @@ class VehicleController extends Controller
             'fields' => Vehicle::fields(),
             'record' => $vehicle,
             'customers' => Customer::select('id', 'name')->get(),
+            'customers_fields' => Customer::fields(),
         ]);
     }
 
