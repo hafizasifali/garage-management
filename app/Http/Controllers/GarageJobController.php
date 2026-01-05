@@ -24,7 +24,7 @@ class GarageJobController extends Controller
     public function create()
     {
         return Inertia::render('GarageJobs/form', [
-            'partners' => Partner::where('customer_rank', '>', 0)->get(), // only customers,
+            'customers' => Partner::where('customer_rank', '>', 0)->get(), // only customers,
             'vehicles' => Vehicle::all()->map(function($vehicle) {
                 return [
                     'id' => $vehicle->id,
@@ -34,6 +34,7 @@ class GarageJobController extends Controller
             'employees' => Employee::all(),
             'products' => Product::all(),
             'fields' => GarageJob::fields(),
+            'customers_fields' => Partner::customerFields(),
             'record' => null,
         ]);
     }

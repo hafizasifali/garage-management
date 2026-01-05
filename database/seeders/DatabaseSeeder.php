@@ -15,11 +15,12 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
         $this->call([
+            CurrencySeeder::class,
+            CountrySeeder::class,
         CompanySeeder::class,
         EmployeeSeeder::class,
         UserSeeder::class,    
-        CurrencySeeder::class,
-        CountrySeeder::class,
+        
         ProductCategorySeeder::class,
         ProductSeeder::class,
         PartnerSeeder::class,

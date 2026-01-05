@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\GarageJobController;
 use App\Http\Controllers\InvoiceController;
@@ -31,11 +32,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('users', UserController::class);
     Route::resource('partners', PartnerController::class);
     Route::resource('customers', CustomerController::class);
+    Route::post('customers/quick-create', [CustomerController::class, 'quickCreate'])->name('customers.quickCreate');
     Route::resource('vehicles', VehicleController::class);
     Route::resource('product-categories', ProductCategoryController::class);
     Route::resource('products', ProductController::class);
     Route::resource('garage-jobs', GarageJobController::class);
     Route::resource('invoices', InvoiceController::class);
+    Route::resource('employees', EmployeeController::class);
+    Route::resource('products', ProductController::class);
 
 });
 

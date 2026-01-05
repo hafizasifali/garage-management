@@ -28,25 +28,29 @@ const mainNavItems: NavItem[] = [
         title: 'Customers',
          href: route('customers.index'),
         icon: Users, // user/customer management
+        isActive: route().current('customers.*'),
     },
     {
         title: 'Vehicles',
         href: route('vehicles.index'),
         icon: Car, // vehicles
+        isActive: route().current('vehicles.*'),
     },
     {
         title: 'Jobs',
         href: route('garage-jobs.index'),
         icon: LucideWrench, // garage jobs/work orders
+        isActive: route().current('garage-jobs.*'),
     },
     {
         title: 'Mechanics',
-        href: '/employees',
+        href: route('employees.index'),
         icon: UserCog, // staff/mechanics
+        isActive: route().current('employees.*'),
     },
     {
         title: 'Products',
-        href: '/products',
+        href: route('products.index'),
         icon: Package, // spare parts/products
     },
     {
@@ -70,16 +74,19 @@ const footerNavItems: NavItem[] = [
         title: 'Companies',
         href: route('companies.index'),
         icon: Building2, 
+        isActive: route().current('companies.*'),
     },
     {
         title: 'Users',
         href: route('users.index'),
         icon: Users, 
+        isActive: route().current('users.*'),
     },
     {
         title: 'Access Control',
         href: '/users',
         icon: Wrench,
+        isActive: route().current('users.*'),
     },
     // {
     //     title: 'Repository',

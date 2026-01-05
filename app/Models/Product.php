@@ -18,12 +18,68 @@ class Product extends Model
         'cost_price',
         'sale_price',
         'type',
+        'active',
     ];
 
     protected $casts = [
         'cost_price' => 'decimal:2',
         'sale_price' => 'decimal:2',
+        'active'     => 'boolean',
     ];
+
+    /* ==========================
+     | Display helpers
+     ========================== */
+
+    public function getDisplayNameAttribute()
+    {
+        return "{$this->name}";
+    }
+
+    /* ==========================
+     | Dynamic Form Fields
+     ========================== */
+
+    public static function fields(): array
+    {
+        return [
+            'name' => [
+                'type' => 'char',
+                'label' => 'Product Name',
+                'required' => true,
+            ],
+            'category_id' => [
+                'type' => 'many2one',
+                'label' => 'Category',
+                'relation' => 'product_categories',
+                'required' => true,
+            ],
+            'uom_id' => [
+                'type' => 'many2one',
+                'label' => 'Unit of Measure',
+                'relation' => 'uoms',
+                'required' => true,
+            ],
+            'type' => [
+                'type' => 'many2one',
+                'label' => 'Product Type',
+                'options' => [
+                    ['value' => 'product', 'label' => 'Storable Product'],
+                    ['value' => 'service', 'label' => 'Service'],
+                ],
+                'required' => true,
+            ],
+            'cost_price' => [
+                'type' => 'char',
+                'label' => 'Cost Price',
+            ],
+            'sale_price' => [
+                'type' => 'char',
+                'label' => 'Sale Price',
+                'required' => true,
+            ],
+        ];
+    }
 
     /* ==========================
      | Relationships

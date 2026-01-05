@@ -1,5 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { route } from 'ziggy-js';
@@ -9,6 +9,7 @@ import FormRenderer from '@/components/form/FormRenderer';
 import { Input } from '@/components/ui/input';
 import { Trash2, Plus } from 'lucide-react';
 import Select from 'react-select';
+import PartnerQuickCreate from '../customers/QuickCreate';
 type GarageJobLine = {
   id?: number;
   product_id: number | null;
@@ -19,7 +20,7 @@ type GarageJobLine = {
   subtotal: number;
 };
 
-export default function GarageJobForm({ record, partners, vehicles, products,employees,fields }: any) {
+export default function GarageJobForm({ record, customers, vehicles, products,employees,fields,customers_fields }: any) {
   const form = useForm({
     partner_id: null,
     vehicle_id: null,
@@ -33,6 +34,15 @@ export default function GarageJobForm({ record, partners, vehicles, products,emp
     lines: record?.lines || [] as GarageJobLine[],
     ...(record || {}),
   });
+
+  const [quickCreate, setQuickCreate] = useState<any>(null);
+
+useEffect(() => {
+  const handler = (e: any) => setQuickCreate(e.detail);
+  window.addEventListener('quick-create', handler);
+  return () => window.removeEventListener('quick-create', handler);
+}, []);
+
 
   const [tab, setTab] = useState('job-info');
 
@@ -81,14 +91,24 @@ export default function GarageJobForm({ record, partners, vehicles, products,emp
   };
 
 
-  const options = { partners, vehicles, products,employees };
+  const options = { customers, vehicles, products,employees,customers_fields };
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title={record ? `Edit Job #${record.id}` : 'New Garage Job'} />
       <div className="p-4">
 
-
+{quickCreate?.model === 'partners' && (
+  <PartnerQuickCreate
+    open
+    defaultName={quickCreate.label}
+    editMode={quickCreate.mode === 'edit'}
+    onCreated={(id: number) => {
+      form.setData(quickCreate.field, id);
+      setQuickCreate(null);
+    }}
+  />
+)}
         <form onSubmit={handleSubmit}>
             <div className="flex items-center justify-between mb-4">
     <h1 className="text-xl font-bold">
@@ -111,6 +131,7 @@ export default function GarageJobForm({ record, partners, vehicles, products,emp
     <thead>
       <tr className="bg-gray-100">
         <th className="p-1">Product</th>
+        <th className="p-1">Machenic</th>
         <th className="p-1">Quantity</th>
         <th className="p-1">Unit Price</th>
         <th className="p-1">Tax</th>
@@ -128,6 +149,17 @@ export default function GarageJobForm({ record, partners, vehicles, products,emp
                 value={line.product_id ? { value: line.product_id, label: products.find(p => p.id === line.product_id)?.name } : null}
                 onChange={(selected: any) => updateLine(index, 'product_id', selected?.value || null)}
                 placeholder="Select Product"
+                isClearable
+                className="basic-single"
+                classNamePrefix="select"
+            />
+          </td>
+                    <td className="p-1">
+           <Select
+                options={products.map((p: any) => ({ value: p.id, label: p.name }))}
+                value={line.product_id ? { value: line.product_id, label: products.find(p => p.id === line.product_id)?.name } : null}
+                onChange={(selected: any) => updateLine(index, 'product_id', selected?.value || null)}
+                placeholder="Select Machenic"
                 isClearable
                 className="basic-single"
                 classNamePrefix="select"

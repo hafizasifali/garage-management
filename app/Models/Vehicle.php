@@ -46,7 +46,7 @@ class Vehicle extends Model
                 'required' => true,
             ],
             'year' => [
-                'type' => 'number',
+                'type' => 'char',
                 'label' => 'Year',
             ],
         ];

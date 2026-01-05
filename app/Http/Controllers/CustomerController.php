@@ -64,6 +64,29 @@ class CustomerController extends Controller
             ->route('customers.edit', $customer->id)
             ->with('success', 'Customer created successfully.');
     }
+    public function quickCreate(Request $request)
+    {
+        $data = $request->validate([
+            'name'       => 'required|string|max:255',
+            'email'      => 'nullable|email',
+            'phone'      => 'nullable|string|max:50',
+            'address'    => 'nullable|string|max:255',
+            'is_company' => 'boolean',
+            'active'     => 'boolean',
+        ]);
+
+        $data['customer_rank'] = 1;
+        $data['supplier_rank'] = 0;
+
+        $customer = Partner::create($data);
+
+        return response()->json([
+            'id'    => $customer->id,
+            'name'  => $customer->name,
+            'label' => $customer->name,
+        ]);
+    }
+
 
     public function update(Request $request, Partner $customer)
     {

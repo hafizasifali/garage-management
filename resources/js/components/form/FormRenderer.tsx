@@ -5,6 +5,9 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import Select from 'react-select';
+import { useState } from 'react';
+import OdooMenuList from './OdooMenuList';
+import Many2OneField from './Many2OneField';
 
 type FormRendererProps = {
   fields: Record<string, any>;
@@ -26,6 +29,15 @@ export default function FormRenderer({
       ? 'md:grid-cols-4'
       : 'md:grid-cols-2';
 
+  const [search, setSearch] = useState<Record<string, string>>({});
+if (!fields || Object.keys(fields).length === 0) {
+  return (
+    <div className="text-sm text-muted-foreground p-4">
+      Loading form…
+    </div>
+  );
+}
+    
   return (
     <div className={`grid gap-4 ${gridCols}`}>
       {Object.entries(fields).map(([name, field]: any) => {
@@ -97,26 +109,20 @@ export default function FormRenderer({
               )}
 
               {/* MANY2ONE / MANY2MANY with react-select */}
-              {(field.type === 'many2one' || field.type === 'many2many') && (
-                <Select
-                  options={selectOptions}
-                  value={selectValue}
-                  isMulti={field.type === 'many2many'}
-                  onChange={(selected: any) => {
-                    if (field.type === 'many2one') {
-                      form.setData(name, selected?.value || null);
-                    } else {
-                      form.setData(
-                        name,
-                        selected ? selected.map((s: any) => s.value) : []
-                      );
-                    }
-                  }}
-                  placeholder={`Select ${field.label}`}
-                  className={cn(error && 'border-destructive')}
-                  classNamePrefix="react-select"
-                />
-              )}
+              {field.type === 'many2one' && (
+            <Many2OneField
+              label={field.label}
+              value={form.data[name]}
+              options={options[field.relation] || []}
+              onChange={(val) => form.setData(name, val)}
+              createRoute={`${field.relation}.quickCreate`}
+              createTitle={field.label}
+              fields={options[`${field.relation}_fields`] ?? {}}
+            />
+          )}
+
+
+
             </div>
           </div>
         );

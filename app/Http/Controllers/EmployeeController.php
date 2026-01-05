@@ -11,77 +11,97 @@ use Inertia\Inertia;
 
 class EmployeeController extends Controller
 {
-    /**
-     * Display a listing of employees.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        return Inertia::render('Employees/Index', [
-            'employees' => Employee::with(['company', 'country', 'user'])
-                ->orderBy('name')
-                ->get(),
-            'companies' => Company::where('active', true)->get(),
-            'countries' => Country::orderBy('name')->get(),
-            'users'     => User::orderBy('name')->get(),
+        $employees = Employee::with(['company', 'country', 'user'])
+            ->when(
+                $request->search,
+                fn($q) =>
+                $q->where('name', 'like', "%{$request->search}%")
+                    ->orWhere('email', 'like', "%{$request->search}%")
+            )
+            ->when(
+                $request->active !== null,
+                fn($q) =>
+                $q->where('active', $request->active)
+            )
+            ->paginate($request->per_page ?? 50)
+            ->withQueryString();
+
+        return Inertia::render('employees/index', [
+            'employees' => $employees,
+            'filters' => $request->only(['search', 'active', 'per_page']),
         ]);
     }
 
-    /**
-     * Store a new employee.
-     */
+    public function create()
+    {
+        return Inertia::render('employees/form', [
+            'fields' => Employee::fields(),
+            'record' => null,
+            'companies' => Company::select('id', 'name')->get(),
+            'countries' => Country::select('id', 'name')->get(),
+            'users' => User::select('id', 'name')->get(),
+        ]);
+    }
+
+    public function edit(Employee $employee)
+    {
+        return Inertia::render('employees/form', [
+            'fields' => Employee::fields(),
+            'record' => $employee,
+            'companies' => Company::select('id', 'name')->get(),
+            'countries' => Country::select('id', 'name')->get(),
+            'users' => User::select('id', 'name')->get(),
+        ]);
+    }
+
     public function store(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'name'         => 'required|string|max:255',
-            'email'        => 'nullable|email|unique:employees,email',
+            'email'        => 'required|email|unique:employees,email',
             'phone'        => 'nullable|string|max:50',
             'address'      => 'nullable|string',
-            'joining_date' => 'nullable|date',
+            'joining_date' => 'required|date',
             'birthday'     => 'nullable|date',
             'company_id'   => 'required|exists:companies,id',
             'country_id'   => 'nullable|exists:countries,id',
             'user_id'      => 'nullable|exists:users,id',
+            'active'       => 'boolean',
         ]);
 
-        Employee::create($request->all());
+        $employee = Employee::create($data);
 
-        return redirect()->back()->with('success', 'Employee created successfully.');
+        return redirect()
+            ->route('employees.edit', $employee->id)
+            ->with('success', 'Employee created successfully.');
     }
 
-    /**
-     * Update employee.
-     */
     public function update(Request $request, Employee $employee)
     {
-        $request->validate([
+        $data = $request->validate([
             'name'         => 'required|string|max:255',
-            'email'        => 'nullable|email|unique:employees,email,' . $employee->id,
+            'email'        => 'required|email|unique:employees,email,' . $employee->id,
             'phone'        => 'nullable|string|max:50',
             'address'      => 'nullable|string',
-            'joining_date' => 'nullable|date',
+            'joining_date' => 'required|date',
             'birthday'     => 'nullable|date',
             'company_id'   => 'required|exists:companies,id',
             'country_id'   => 'nullable|exists:countries,id',
             'user_id'      => 'nullable|exists:users,id',
+            'active'       => 'boolean',
         ]);
 
-        $employee->update($request->all());
+        $employee->update($data);
 
         return redirect()->back()->with('success', 'Employee updated successfully.');
     }
 
-    /**
-     * Do NOT hard delete (history matters)
-     */
     public function destroy(Employee $employee)
     {
-        if ($employee->garageJobs()->exists()) {
-            return redirect()->back()
-                ->with('error', 'Cannot delete employee assigned to garage jobs.');
-        }
+        $employee->update(['active' => false]);
 
-        $employee->delete();
-
-        return redirect()->back()->with('success', 'Employee removed successfully.');
+        return redirect()->back()->with('success', 'Employee deactivated successfully.');
     }
 }
