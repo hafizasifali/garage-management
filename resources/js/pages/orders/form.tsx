@@ -27,6 +27,7 @@ export default function GarageJobForm({
     vehicles,
     products,
     employees,
+    states,
     fields,
     customers_fields,
 }: any) {
@@ -114,6 +115,7 @@ export default function GarageJobForm({
     const totalAmount = untaxedAmount + taxAmount;
 
     const options = {
+        states,
         customers,
         vehicles,
         products,

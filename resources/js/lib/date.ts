@@ -1,0 +1,11 @@
+import { format, parseISO, isValid } from 'date-fns';
+
+export function toPickerDate(value?: string | null) {
+  if (!value) return null;
+  const d = parseISO(value);
+  return isValid(d) ? d : null;
+}
+
+export function toBackendDate(date: Date | null) {
+  return date ? format(date, 'yyyy-MM-dd') : null;
+}

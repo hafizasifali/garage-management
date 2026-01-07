@@ -2,13 +2,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import Select from 'react-select';
 import { useState } from 'react';
-import OdooMenuList from './OdooMenuList';
 import Many2OneField from './Many2OneField';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
+import { toPickerDate, toBackendDate } from '@/lib/date';
 type FormRendererProps = {
   fields: Record<string, any>;
   form: any;
@@ -94,13 +95,21 @@ if (!fields || Object.keys(fields).length === 0) {
                         />
                     )}
                     {field.type === 'date' && (
-                        <Input
-                            type="date"
-                            value={form.data[name] || ''}
-                            onChange={(e) => form.setData(name, e.target.value)}
-                            className={cn(error && 'border-destructive')}
-                        />
+                      <DatePicker
+                        selected={toPickerDate(form.data[name])}
+                        onChange={(date: Date | null) =>
+                          form.setData(name, toBackendDate(date))
+                        }
+                        dateFormat="dd-MMM-yyyy"   // 👉 10-Dec-2025
+                        placeholderText="Select date"
+                        className={cn(
+                          'w-full rounded-md border px-3 py-2 text-sm',
+                          error && 'border-destructive'
+                        )}
+                        showPopperArrow={false}
+                      />
                     )}
+
 
                     {/* BOOLEAN */}
                     {field.type === 'boolean' && (

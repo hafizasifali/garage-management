@@ -13,6 +13,7 @@ class Vehicle extends Model
 
     protected $fillable = [
         'customer_id',
+        'name',
         'vin',
         'license_plate',
         'model',
@@ -32,6 +33,11 @@ class Vehicle extends Model
     {
         return [
             'customer_id' => ['label' => 'Customer', 'type' => 'many2one', 'relation' => 'customers', 'quick_create' => true,'edit_route' => 'customers.edit',],
+            'name' => [
+                'type' => 'char',
+                'label' => 'Name',
+                'required' => true,
+            ],
             'vin' => [
                 'type' => 'char',
                 'label' => 'Identification Number (VIN)',

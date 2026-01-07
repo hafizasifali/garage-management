@@ -14,7 +14,7 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $jobs = Order::with(['partner', 'vehicle', 'employees', 'lines.product'])->paginate(10);
+        $jobs = Order::with(['vehicle', 'lines.product'])->paginate(10);
 
         return Inertia::render('orders/index', [
             'jobs' => $jobs,
@@ -33,6 +33,7 @@ class OrderController extends Controller
             }),
             'employees' => Employee::all(),
             'products' => Product::all(),
+            'states' => Order::states(),
             'fields' => Order::fields(),
             'customers_fields' => Customer::fields(),
             'record' => null,
@@ -60,14 +61,15 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'partner_id' => 'required|exists:partners,id',
+            'customer_id' => 'required|exists:customers,id',
             'vehicle_id' => 'required|exists:vehicles,id',
-            'job_date' => 'required|date',
-            'state' => 'required|in:pending,in_progress,completed',
+            'order_date' => 'required|date',
+            'state' => 'required',
             'employees' => 'array',
             'employees.*' => 'exists:employees,id',
             'lines' => 'array',
             'lines.*.product_id' => 'required|exists:products,id',
+            'lines.*.employee_id' => 'nullable|exists:employees,id',
             'lines.*.quantity' => 'required|numeric',
             'lines.*.unit_price' => 'nullable|numeric',
             'lines.*.tax' => 'nullable|numeric',
@@ -75,61 +77,84 @@ class OrderController extends Controller
             'lines.*.subtotal' => 'nullable|numeric',
         ]);
 
-        $job = Order::create($validated);
+        $customer = Customer::find($validated['customer_id']);
+        if ($customer) {
+            $validated['customer_name'] = $customer->name;
+            $validated['customer_email'] = $customer->email;
+            $validated['customer_phone'] = $customer->phone;
+            $validated['customer_address'] = $customer->address;
+        }
+        $vehicle = Vehicle::find($validated['vehicle_id']);
+        if ($vehicle) {
+            $validated['vehicle_name'] = $vehicle->name;
+            $validated['vehicle_model'] = $vehicle->model;
+            $validated['vehicle_license_plate'] = $vehicle->license_plate;
+            $validated['vehicle_vin'] = $vehicle->vin;
+        }
+
+        $order = Order::create($validated);
 
         if (isset($validated['employees'])) {
-            $job->employees()->sync($validated['employees']);
+            $order->employees()->sync($validated['employees']);
         }
 
         if (isset($validated['lines'])) {
             foreach ($validated['lines'] as $line) {
-                $job->lines()->create($line);
+                $order->lines()->create($line);
             }
+            $order->total_amount = $order->lines->sum('subtotal');
+            $order->total_tax = $order->lines->sum('unit_price') * 0.13; // assuming 13% tax
+            $order->total_discount = $order->lines->sum('discount');
         }
 
-        return redirect()->route('garage-jobs.index')->with('success', 'Garage job created.');
+        return redirect()->route('orders.index')->with('success', 'Order created.');
     }
 
-    public function update(Request $request, Order $garageJob)
+    public function update(Request $request, Order $order)
     {
         $validated = $request->validate([
-            'partner_id' => 'required|exists:partners,id',
+            // 'customer_id' => 'required|exists:customers,id',
+            'customer_name' => 'required|string|max:255',
+            'customer_email' => 'nullable|email|max:255',
+            'customer_phone' => 'nullable|string|max:50',
+            'customer_address' => 'nullable|string|max:500',
             'vehicle_id' => 'required|exists:vehicles,id',
-            'job_date' => 'required|date',
-            'state' => 'required|in:pending,in_progress,completed',
+            'order_date' => 'required|date',
+            'state' => 'required',
             'employees' => 'array',
             'employees.*' => 'exists:employees,id',
             'lines' => 'array',
             'lines.*.product_id' => 'required|exists:products,id',
             'lines.*.quantity' => 'required|numeric',
             'lines.*.unit_price' => 'nullable|numeric',
+            'lines.*.employee_id' => 'nullable|exists:employees,id',
             'lines.*.tax' => 'nullable|numeric',
             'lines.*.discount' => 'nullable|numeric',
             'lines.*.subtotal' => 'nullable|numeric',
         ]);
 
-        $garageJob->update($validated);
+        $order->update($validated);
 
         if (isset($validated['employees'])) {
-            $garageJob->employees()->sync($validated['employees']);
+            $order->employees()->sync($validated['employees']);
         }
 
         if (isset($validated['lines'])) {
             // delete old lines and recreate
-            $garageJob->lines()->delete();
+            $order->lines()->delete();
             foreach ($validated['lines'] as $line) {
-                $garageJob->lines()->create($line);
+                $order->lines()->create($line);
             }
         }
 
-        return redirect()->route('garage-jobs.index')->with('success', 'Garage job updated.');
+        return redirect()->route('orders.index')->with('success', 'Order updated.');
     }
 
-    public function destroy(Order $garageJob)
+    public function destroy(Order $order)
     {
-        $garageJob->lines()->delete();
-        $garageJob->delete();
+        $order->lines()->delete();
+        $order->delete();
 
-        return redirect()->route('garage-jobs.index')->with('success', 'Garage job deleted.');
+        return redirect()->route('orders.index')->with('success', 'Order deleted.');
     }
 }

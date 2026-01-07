@@ -12,7 +12,8 @@ class OrderLine extends Model
     protected $table = 'order_lines';
 
     protected $fillable = [
-        'garage_job_id',
+        'order_id',
+        'employee_id',
         'product_id',
         'quantity',
         'unit_price',

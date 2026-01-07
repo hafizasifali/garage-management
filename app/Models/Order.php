@@ -13,8 +13,16 @@ class Order extends Model
 
     protected $fillable = [
         'customer_id',
+        'customer_name',
+        'customer_email',
+        'customer_phone',
+        'customer_address',
+        'vehicle_name',
+        'vehicle_model',
+        'vehicle_license_plate',
+        'vehicle_vin',
         'vehicle_id',
-        'job_date',
+        'order_date',
         'state', // pending, in_progress, completed
         'total_parts_cost',
         'total_labor_cost',
@@ -24,7 +32,7 @@ class Order extends Model
     ];
 
     protected $casts = [
-        'job_date' => 'date',
+        'order_date' => 'date',
         'total_parts_cost' => 'decimal:2',
         'total_labor_cost' => 'decimal:2',
         'total_tax' => 'decimal:2',
@@ -37,12 +45,20 @@ class Order extends Model
         return [
         'customer_id' => ['label' => 'Customer', 'type' => 'many2one', 'relation' => 'customers', 'quick_create' => true,'edit_route' => 'customers.edit',],
         'vehicle_id' => ['label' => 'Vehicle', 'type' => 'many2one', 'relation' => 'vehicles','quick_create' => true,'edit_route' => 'vehicles.edit'],
-        'job_date' => ['label' => 'Order Date', 'type' => 'date'],
+        'order_date' => ['label' => 'Order Date', 'type' => 'date'],
         // 'employee_ids' => ['label' => 'Mechanics', 'type' => 'many2many', 'relation' => 'employees'],
-        'state' => ['label' => 'Order State', 'type' => 'many2one'],
+        'state' => ['label' => 'Order State', 'type' => 'many2one', 'relation' => 'states'],
     ];
     }
 
+    public static function states(): array
+    {
+        return [
+            ['id' => 'pending', 'name' => 'Pending'],
+            ['id' => 'in_progress', 'name' => 'In Progress'],
+            ['id' => 'completed', 'name' => 'Completed'],
+        ];
+    }   
     /* ==========================
      | Relationships
      ========================== */
@@ -55,11 +71,6 @@ class Order extends Model
     public function vehicle()
     {
         return $this->belongsTo(Vehicle::class);
-    }
-
-    public function employees()
-    {
-        return $this->belongsToMany(Employee::class, 'employee_garage_job')->withTimestamps();
     }
 
     public function lines()

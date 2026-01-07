@@ -61,9 +61,9 @@ export default function Index() {
 
   /* ---------------- Table Columns ---------------- */
   const columns = [
-    { label: 'Customer', render: (row: GarageJob) => row.partner.name },
-    { label: 'Vehicle', render: (row: GarageJob) => row.vehicle.name },
-    { label: 'Job Date', render: (row: GarageJob) => row.job_date },
+    { label: 'Customer', render: (row: GarageJob) => row.customer_name },
+    { label: 'Vehicle', render: (row: GarageJob) => row.vehicle_name },
+    { label: 'Order Date', render: (row: GarageJob) => row.order_date },
     { label: 'State', render: (row: GarageJob) => row.state },
     { label: 'Total Amount', render: (row: GarageJob) => row.total_amount },
     {

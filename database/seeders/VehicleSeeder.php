@@ -2,70 +2,92 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 
 class VehicleSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $now = Carbon::now();
 
-        // Fetch all customers from partners table
-        $customers = DB::table('customers')->pluck('id');
+        // Fetch all customers (customers with customer_rank > 0)
+        $customers = DB::table('customers')
+            ->pluck('id');
 
         if ($customers->isEmpty()) {
-            $this->command->info('No customers found. Please run CustomerSeeder first.');
+            $this->command->warn('No customers found. Run PartnerSeeder first.');
             return;
         }
 
-        // Example Canadian vehicle models
+        // Popular vehicles in Canada
         $vehicleModels = [
-            'Honda Civic', 'Toyota Corolla', 'Ford F-150', 'Chevrolet Silverado',
-            'Mazda 3', 'Hyundai Elantra', 'Nissan Rogue', 'Subaru Outback'
+            'Honda Civic',
+            'Toyota Corolla',
+            'Toyota RAV4',
+            'Ford F-150',
+            'Chevrolet Silverado',
+            'Mazda CX-5',
+            'Hyundai Elantra',
+            'Nissan Rogue',
+            'Subaru Outback',
+            'Volkswagen Golf',
         ];
 
-        $provinces = ['ON', 'QC', 'BC', 'AB', 'MB', 'SK', 'NS', 'NB', 'NL', 'PE'];
+        // Canadian provinces & territories
+        $provinces = [
+            'ON',
+            'QC',
+            'BC',
+            'AB',
+            'MB',
+            'SK',
+            'NS',
+            'NB',
+            'NL',
+            'PE',
+        ];
 
         $vehicles = [];
 
         foreach ($customers as $customerId) {
-            // Assign 1–3 vehicles per customer
+            // 1–3 vehicles per customer (realistic)
             $vehicleCount = rand(1, 3);
 
             for ($i = 0; $i < $vehicleCount; $i++) {
                 $model = $vehicleModels[array_rand($vehicleModels)];
-                $year = rand(2005, 2024); // realistic car years
+                $year  = rand(2008, (int) now()->format('Y'));
 
-                // Canadian-style license plate (e.g., ON ABC1234)
+                // Province-based license plate (e.g., ON ABC-123)
                 $province = $provinces[array_rand($provinces)];
-                $plate = $province . ' ' . strtoupper(substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 3))
-                         . rand(1000, 9999);
+                $plate = sprintf(
+                    '%s %s-%03d',
+                    $province,
+                    strtoupper(substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 3)),
+                    rand(100, 999)
+                );
 
-                $province = 'ON';               // 2 chars
-                $letters = strtoupper(substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 11)); // 11 chars
-                $numbers = rand(1000, 9999);    // 4 chars
-                $vin = $province . $letters . $numbers; // 17 chars
+                // VIN (17 chars, Canada/US compatible)
+                $vin = strtoupper(substr(str_shuffle(
+                    'ABCDEFGHJKLMNPRSTUVWXYZ0123456789'
+                ), 0, 17));
 
                 $vehicles[] = [
-                    'customer_id' => $customerId,
-                    'vin' => $vin,
-                    'license_plate' => $plate,
-                    'model' => $model,
-                    'year' => $year,
-                    'created_at' => $now,
-                    'updated_at' => $now,
+                    'name'           => "{$model} {$year}",
+                    'customer_id'     => $customerId,
+                    'vin'            => $vin,
+                    'license_plate'  => $plate,
+                    'model'          => $model,
+                    'year'           => $year,
+                    'created_at'     => $now,
+                    'updated_at'     => $now,
                 ];
             }
         }
 
         DB::table('vehicles')->insert($vehicles);
 
-        $this->command->info('Seeded ' . count($vehicles) . ' vehicles.');
+        $this->command->info('✅ Seeded ' . count($vehicles) . ' Canadian vehicles.');
     }
 }
