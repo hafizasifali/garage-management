@@ -43,4 +43,7 @@ class OrderLine extends Model
     {
         return $this->belongsTo(Product::class);
     }
+    public function employee(){
+        return $this->belongsTo(Employee::class);
+    }
 }

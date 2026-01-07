@@ -16,7 +16,7 @@ class CompanySeeder extends Seeder
             [
                 'id' => 1,
                 'name' => 'Teejay Auto Workshop',
-                'address' => null,
+                'address' => '1161 Queen Street East, Toronto, M4M 1L3',
                 'logo' => null,
                 'email' => 'info@teajayworkshop.uk',
                 'phone' => null,

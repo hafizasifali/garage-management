@@ -77,6 +77,15 @@ if (!fields || Object.keys(fields).length === 0) {
                         />
                     )}
 
+                    {field.type === 'email' && (
+                        <Input
+                            type={field.type}
+                            value={form.data[name] || ''}
+                            onChange={(e) => form.setData(name, e.target.value)}
+                            className={cn(error && 'border-destructive')}
+                        />
+                    )}
+
                     {field.type === 'password' && (
                         <Input
                             type="password"

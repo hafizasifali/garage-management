@@ -13,36 +13,39 @@ import { route } from 'ziggy-js';
 type GarageJobLine = {
     id?: number;
     product_id: number | null;
-    employee_id: number | null; // ✅ USE EXISTING FIELD
+    employee_id: number | null;
     quantity: number;
     unit_price: number;
     tax: number; // kept for backend compatibility
-    discount: number;
     subtotal: number;
 };
 
 export default function GarageJobForm({
-    record,
-    customers,
-    vehicles,
-    products,
-    employees,
-    states,
-    fields,
-    customers_fields,
-}: any) {
+                                          record,
+                                          customers,
+                                          vehicles,
+                                          products,
+                                          employees,
+                                          states,
+                                          fields,
+                                          customers_fields,
+                                      }: any) {
     const form = useForm({
         customer_id: null,
         vehicle_id: null,
-        employee_id: null, // ✅ USE EXISTING FIELD
+        employee_id: null,
         job_date: '',
         state: 'pending',
         total_parts_cost: 0,
         total_labor_cost: 0,
         total_tax: 0,
-        total_discount: 0,
         total_amount: 0,
-        lines: (record?.lines || []) as GarageJobLine[],
+        lines: (record?.lines || []).map((line: any) => ({
+            ...line,
+            quantity: Number(line.quantity || 0),
+            unit_price: Number(line.unit_price || 0),
+            subtotal: Number(line.unit_price || 0) * Number(line.quantity || 0),
+        })),
         ...(record || {}),
     });
 
@@ -65,11 +68,11 @@ export default function GarageJobForm({
 
         record
             ? form.put(route('orders.update', record.id), {
-                  onSuccess: () => toast.success('Order updated successfully!'),
-              })
+                onSuccess: () => toast.success('Order updated successfully!'),
+            })
             : form.post(route('orders.store'), {
-                  onSuccess: () => toast.success('Order created successfully!'),
-              });
+                onSuccess: () => toast.success('Order created successfully!'),
+            });
     };
 
     /* ---------------- Lines Handling ---------------- */
@@ -81,7 +84,6 @@ export default function GarageJobForm({
                 quantity: 1,
                 unit_price: 0,
                 tax: 0,
-                discount: 0,
                 subtotal: 0,
             },
         ]);
@@ -99,15 +101,19 @@ export default function GarageJobForm({
 
         const line = newLines[index];
 
-        // ✅ NO TAX AT LINE LEVEL
-        line.subtotal = (line.unit_price - line.discount) * line.quantity;
+        // Force numeric values
+        const unit_price = Number(line.unit_price || 0);
+        const quantity = Number(line.quantity || 0);
+
+        line.subtotal = unit_price * quantity;
 
         form.setData('lines', newLines);
     };
 
+
     /* ---------------- Totals ---------------- */
     const untaxedAmount = form.data.lines.reduce(
-        (acc, l) => acc + (l.unit_price - l.discount) * l.quantity,
+        (acc, l) => acc + Number(l.unit_price || 0) * Number(l.quantity || 0),
         0,
     );
 
@@ -167,7 +173,6 @@ export default function GarageJobForm({
                                     <th className="p-1">Mechanic</th>
                                     <th className="p-1">Quantity</th>
                                     <th className="p-1">Unit Price</th>
-                                    <th className="p-1">Discount</th>
                                     <th className="p-1">Subtotal</th>
                                     <th className="p-1">Actions</th>
                                 </tr>
@@ -178,42 +183,61 @@ export default function GarageJobForm({
                                     <tr key={index}>
                                         <td className="p-1">
                                             <Select
-                                                options={products.map((p: any) => ({
-                                                    value: p.id,
-                                                    label: p.name,
-                                                }))}
+                                                options={products.map(
+                                                    (p: any) => ({
+                                                        value: p.id,
+                                                        label: p.name,
+                                                    }),
+                                                )}
                                                 value={
                                                     line.product_id
                                                         ? {
-                                                            value: line.product_id,
-                                                            label: products.find(
-                                                                (p: any) => p.id === line.product_id
-                                                            )?.name,
-                                                        }
+                                                              value: line.product_id,
+                                                              label: products.find(
+                                                                  (p: any) =>
+                                                                      p.id ===
+                                                                      line.product_id,
+                                                              )?.name,
+                                                          }
                                                         : null
                                                 }
                                                 onChange={(selected: any) => {
-                                                    const productId = selected?.value || null;
+                                                    const productId =
+                                                        selected?.value || null;
+                                                    const product =
+                                                        products.find(
+                                                            (p: any) =>
+                                                                p.id ===
+                                                                productId,
+                                                        );
 
-                                                    const product = products.find(
-                                                        (p: any) => p.id === productId
-                                                    );
+                                                    const newLines = [
+                                                        ...form.data.lines,
+                                                    ];
+                                                    newLines[index].product_id =
+                                                        productId;
+                                                    newLines[index].unit_price =
+                                                        product
+                                                            ? Number(
+                                                                  product.sale_price ||
+                                                                      0,
+                                                              )
+                                                            : 0;
 
-                                                    const newLines = [...form.data.lines];
-
-                                                    newLines[index].product_id = productId;
-
-                                                    // 🔥 AUTO-BIND sale_price → unit_price
-                                                    newLines[index].unit_price = product
-                                                        ? Number(product.sale_price || 0)
-                                                        : 0;
-
-                                                    // Recalculate subtotal
                                                     newLines[index].subtotal =
-                                                        (newLines[index].unit_price - newLines[index].discount) *
-                                                        newLines[index].quantity;
+                                                        Number(
+                                                            newLines[index]
+                                                                .unit_price,
+                                                        ) *
+                                                        Number(
+                                                            newLines[index]
+                                                                .quantity,
+                                                        );
 
-                                                    form.setData('lines', newLines);
+                                                    form.setData(
+                                                        'lines',
+                                                        newLines,
+                                                    );
                                                 }}
                                                 isClearable
                                             />
@@ -221,25 +245,29 @@ export default function GarageJobForm({
 
                                         <td className="p-1">
                                             <Select
-                                                options={employees.map((e: any) => ({
-                                                    value: e.id,
-                                                    label: e.name,
-                                                }))}
+                                                options={employees.map(
+                                                    (e: any) => ({
+                                                        value: e.id,
+                                                        label: e.name,
+                                                    }),
+                                                )}
                                                 value={
                                                     line.employee_id
                                                         ? {
-                                                            value: line.employee_id,
-                                                            label: employees.find(
-                                                                (e: any) => e.id === line.employee_id
-                                                            )?.name,
-                                                        }
+                                                              value: line.employee_id,
+                                                              label: employees.find(
+                                                                  (e: any) =>
+                                                                      e.id ===
+                                                                      line.employee_id,
+                                                              )?.name,
+                                                          }
                                                         : null
                                                 }
                                                 onChange={(selected: any) =>
                                                     updateLine(
                                                         index,
                                                         'employee_id',
-                                                        selected?.value || null
+                                                        selected?.value || null,
                                                     )
                                                 }
                                                 placeholder="Select mechanic"
@@ -247,11 +275,10 @@ export default function GarageJobForm({
                                             />
                                         </td>
 
-
                                         <td className="p-1">
                                             <Input
                                                 type="number"
-                                                value={line.quantity}
+                                                value={Number(line.quantity || 0).toFixed(0)}
                                                 onChange={(e) =>
                                                     updateLine(
                                                         index,
@@ -265,7 +292,7 @@ export default function GarageJobForm({
                                         <td className="p-1">
                                             <Input
                                                 type="number"
-                                                value={line.unit_price}
+                                                value={Number(line.unit_price || 0).toFixed(0)}
                                                 onChange={(e) =>
                                                     updateLine(
                                                         index,
@@ -276,25 +303,11 @@ export default function GarageJobForm({
                                             />
                                         </td>
 
-                                        <td className="p-1">
-                                            <Input
-                                                type="number"
-                                                value={line.discount}
-                                                onChange={(e) =>
-                                                    updateLine(
-                                                        index,
-                                                        'discount',
-                                                        Number(e.target.value),
-                                                    )
-                                                }
-                                            />
+                                        <td className="p-1 text-center">
+                                            {Number(line.subtotal || 0).toFixed(0)}
                                         </td>
 
-                                        <td className="p-1">
-                                            {line.subtotal.toFixed(2)}
-                                        </td>
-
-                                        <td className="p-1">
+                                        <td className="p-1 text-center">
                                             <Button
                                                 size="sm"
                                                 variant="destructive"
@@ -329,7 +342,7 @@ export default function GarageJobForm({
                                         Untaxed Amount
                                     </td>
                                     <td className="px-2 py-1 text-right">
-                                        ${untaxedAmount.toFixed(2)}
+                                        ${untaxedAmount.toFixed(0)}
                                     </td>
                                 </tr>
                                 <tr>
@@ -337,7 +350,7 @@ export default function GarageJobForm({
                                         Tax 13%
                                     </td>
                                     <td className="px-2 py-1 text-right">
-                                        ${taxAmount.toFixed(2)}
+                                        ${taxAmount.toFixed(0)}
                                     </td>
                                 </tr>
                                 <tr className="border-t">
@@ -345,7 +358,7 @@ export default function GarageJobForm({
                                         Total
                                     </td>
                                     <td className="px-2 py-1 text-right text-lg">
-                                        ${totalAmount.toFixed(2)}
+                                        ${totalAmount.toFixed(0)}
                                     </td>
                                 </tr>
                             </tbody>

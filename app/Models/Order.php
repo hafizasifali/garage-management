@@ -43,12 +43,27 @@ class Order extends Model
     public static function fields(): array
     {
         return [
-        'customer_id' => ['label' => 'Customer', 'type' => 'many2one', 'relation' => 'customers', 'quick_create' => true,'edit_route' => 'customers.edit',],
-        'vehicle_id' => ['label' => 'Vehicle', 'type' => 'many2one', 'relation' => 'vehicles','quick_create' => true,'edit_route' => 'vehicles.edit'],
-        'order_date' => ['label' => 'Order Date', 'type' => 'date'],
-        // 'employee_ids' => ['label' => 'Mechanics', 'type' => 'many2many', 'relation' => 'employees'],
-        'state' => ['label' => 'Order State', 'type' => 'many2one', 'relation' => 'states'],
-    ];
+            'customer_id' => ['label' => 'Customer', 'type' => 'many2one', 'relation' => 'customers', 'quick_create' => true, 'edit_route' => 'customers.edit',],
+            'vehicle_id' => ['label' => 'Vehicle', 'type' => 'many2one', 'relation' => 'vehicles', 'quick_create' => true, 'edit_route' => 'vehicles.edit'],
+            'order_date' => ['label' => 'Order Date', 'type' => 'date'],
+            // 'employee_ids' => ['label' => 'Mechanics', 'type' => 'many2many', 'relation' => 'employees'],
+            'state' => ['label' => 'Order State', 'type' => 'many2one', 'relation' => 'states'],
+        ];
+    }
+        public static function editFields(): array
+    {
+        return [
+            'customer_name' => ['label' => 'Customer Name', 'type' => 'char'],
+            'customer_email' => ['label' => 'Customer Email', 'type' => 'email'],
+            'customer_phone' => ['label' => 'Customer Phone', 'type' => 'char'],
+            'customer_address' => ['label' => 'Customer Address', 'type' => 'char'],
+            'vehicle_name' => ['label' => 'Vehicle Name', 'type' => 'char'],
+            'vehicle_model' => ['label' => 'Vehicle Model', 'type' => 'char'],
+            'vehicle_license_plate' => ['label' => 'Vehicle License', 'type' => 'char'],
+            'vehicle_vin' => ['label' => 'VIN', 'type' => 'char'],
+            'order_date' => ['label' => 'Order Date', 'type' => 'date'],
+            'state' => ['label' => 'Order State', 'type' => 'many2one', 'relation' => 'states'],
+        ];
     }
 
     public static function states(): array
@@ -58,7 +73,7 @@ class Order extends Model
             ['id' => 'in_progress', 'name' => 'In Progress'],
             ['id' => 'completed', 'name' => 'Completed'],
         ];
-    }   
+    }
     /* ==========================
      | Relationships
      ========================== */
@@ -78,8 +93,4 @@ class Order extends Model
         return $this->hasMany(OrderLine::class);
     }
 
-    public function invoices()
-    {
-        return $this->belongsToMany(Invoice::class, 'garage_job_invoice')->withTimestamps();
-    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\Order;
 use App\Models\Customer;
 use App\Models\Vehicle;
@@ -9,7 +10,7 @@ use App\Models\Employee;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 class OrderController extends Controller
 {
     public function index()
@@ -40,11 +41,11 @@ class OrderController extends Controller
         ]);
     }
 
-    public function edit(Order $garageJob)
+    public function edit(Order $order)
     {
-        $garageJob->load(['lines', 'employees']);
+        $order->load(['lines']);
 
-        return Inertia::render('orders/form', [
+        return Inertia::render('orders/edit', [
             'customers' => Customer::select('id','name')->get(),
             'vehicles' => Vehicle::all()->map(function($vehicle) {
                 return [
@@ -54,7 +55,9 @@ class OrderController extends Controller
             }),
             'employees' => Employee::all(),
             'products' => Product::all(),
-            'record' => $garageJob,
+            'states' => Order::states(),
+            'fields' => Order::editFields(),
+            'record' => $order,
         ]);
     }
 
@@ -76,6 +79,7 @@ class OrderController extends Controller
             'lines.*.discount' => 'nullable|numeric',
             'lines.*.subtotal' => 'nullable|numeric',
         ]);
+
 
         $customer = Customer::find($validated['customer_id']);
         if ($customer) {
@@ -156,5 +160,15 @@ class OrderController extends Controller
         $order->delete();
 
         return redirect()->route('orders.index')->with('success', 'Order deleted.');
+    }
+
+    public function downloadInvoice($id)
+    {
+        $order = Order::with(['lines'])->findOrFail($id);
+        $company=Company::first();
+
+        $pdf = Pdf::loadView('invoices.order', compact('order','company'));
+        return $pdf->stream("invoice_order_{$order->id}.pdf"); // opens in browser
+//        return $pdf->download("invoice_order_{$order->id}.pdf");
     }
 }

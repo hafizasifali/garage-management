@@ -39,6 +39,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('product-categories', ProductCategoryController::class);
     Route::resource('products', ProductController::class);
     Route::resource('orders', OrderController::class);
+    Route::get('/orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])->name('orders.invoice');
     Route::resource('invoices', InvoiceController::class);
     Route::resource('employees', EmployeeController::class);
     Route::resource('products', ProductController::class);
