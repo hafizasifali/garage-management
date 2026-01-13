@@ -24,98 +24,63 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Dashboard() {
-    /* =========================
-     * SAMPLE STATIC DATA
-     * ========================= */
-    const kpis = [
-        { label: 'Today Jobs', value: 12 },
-        { label: 'Pending Jobs', value: 5 },
-        { label: 'Completed Jobs', value: 7 },
-        { label: 'Today Revenue', value: '$1,850' },
-    ];
+export default function Dashboard({
+    kpis,
+    statusChart,
+    revenueChart,
+    recentOrders,
+}) {
+   
 
-const jobsStatusChart = {
-    labels: ['Pending', 'In Progress', 'Completed'],
-    datasets: [
-        {
-            label: 'Jobs',
-            data: [5, 4, 7],
-            backgroundColor: [
-                '#F59E0B', // Pending - soft amber
-                '#3B82F6', // In Progress - calm blue
-                '#10B981', // Completed - emerald green
-            ],
-        },
-    ],
-};
-
-
-    const revenueChart = {
-        labels: ['Labor', 'Parts'],
-        datasets: [
-            {
-                data: [1200, 650],
-                backgroundColor: ['#6366f1', '#fb7185'],
-            },
-        ],
-    };
-
-    const recentJobs = [
-        {
-            id: 1,
-            customer: 'John Doe',
-            vehicle: 'Toyota Corolla',
-            status: 'In Progress',
-            amount: '$320',
-        },
-        {
-            id: 2,
-            customer: 'Mr. Lube',
-            vehicle: 'On-site Service',
-            status: 'Completed',
-            amount: '$1,200',
-        },
-        {
-            id: 3,
-            customer: 'Sarah Khan',
-            vehicle: 'Honda Civic',
-            status: 'Pending',
-            amount: '$180',
-        },
-    ];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Garage Dashboard" />
+            <Head title="Dashboard" />
 
             <div className="flex flex-col gap-6 p-4">
                 {/* ================= KPI CARDS ================= */}
                 <div className="grid gap-4 md:grid-cols-4">
-                    {kpis.map((kpi) => (
-                        <Card key={kpi.label}>
-                            <CardHeader className="pb-2">
-                                <CardTitle className="text-sm font-medium text-muted-foreground">
-                                    {kpi.label}
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">
-                                    {kpi.value}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
+                    {kpis.map((kpi) => {
+                        // Map some colors based on label or index
+                        const bgColorClass = (() => {
+                            switch (kpi.label) {
+                                case 'Today Orders':
+                                    return 'bg-indigo-100 text-indigo-800'; // Odoo purple-ish
+                                case 'Pending Orders':
+                                    return 'bg-orange-100 text-orange-800'; // Odoo orange
+                                case 'Completed Orders':
+                                    return 'bg-green-100 text-green-800';  // Odoo green
+                                case 'Today Revenue':
+                                    return 'bg-pink-100 text-pink-800';   // Odoo pink/magenta
+                                default:
+                                    return 'bg-gray-100 text-gray-800';    // fallback neutral
+                            }
+                        })();
+
+                        return (
+                            <Card key={kpi.label} className={`text-center ${bgColorClass}`}>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-sm font-medium">
+                                        {kpi.label}
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-2xl font-bold">{kpi.value}</div>
+                                </CardContent>
+                            </Card>
+                        );
+                    })}
+
                 </div>
 
                 {/* ================= CHARTS ================= */}
                 <div className="grid gap-4 md:grid-cols-2">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Jobs by Status</CardTitle>
+                            <CardTitle>Orders by Status</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Bar data={jobsStatusChart} />
+                            <Bar data={statusChart} />
                         </CardContent>
                     </Card>
 
@@ -131,10 +96,10 @@ const jobsStatusChart = {
                     </Card>
                 </div>
 
-                {/* ================= RECENT JOBS ================= */}
+                {/* ================= RECENT Orders ================= */}
                 <Card>
                     <CardHeader>
-                        <CardTitle>Recent Jobs</CardTitle>
+                        <CardTitle>Recent Orders</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <Table>
@@ -149,7 +114,7 @@ const jobsStatusChart = {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {recentJobs.map((job) => (
+                                {recentOrders.map((job) => (
                                     <TableRow key={job.id}>
                                         <TableCell>{job.customer}</TableCell>
                                         <TableCell>{job.vehicle}</TableCell>
