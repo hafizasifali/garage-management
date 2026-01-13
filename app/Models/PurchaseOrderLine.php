@@ -14,6 +14,8 @@ class PurchaseOrderLine extends Model
         'product_id',
         'quantity',
         'unit_price',
+        'tax',
+        'discount',
         'subtotal',
     ];
 

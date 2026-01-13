@@ -11,46 +11,44 @@ import { Button } from '@/components/ui/button';
 import DataTable from '@/components/index/DataTable';
 import Pagination from '@/components/index/Pagination';
 import { route } from 'ziggy-js';
-import { toDisplayDate } from '@/lib/date';
 
-type GarageJob = {
+type PurchaseOrderType = {
   id: number;
-  partner: { name: string };
-  vehicle: { name: string };
-  job_date: string;
+  supplier: { name: string };
+  order_date: string;
   state: string;
   total_amount: number;
 };
 
 export default function Index() {
-  const { jobs } = usePage().props as any;
+  const { orders } = usePage().props as any;
   const { confirm } = useConfirm();
   const [selected, setSelected] = useState<number[]>([]);
 
   const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Orders', href: '/orders' },
+    { title: 'Purchase Orders', href: '/purchase-orders' },
   ];
 
   /* ---------------- Actions ---------------- */
   const handleDelete = async (id: number) => {
     const ok = await confirm({
-      title: 'Delete Order?',
-      text: `This job will be permanently removed.`,
+      title: 'Delete Purchase Order?',
+      text: `This purchase order will be permanently removed.`,
       confirmText: 'Delete',
     });
     if (!ok) return;
 
-    router.delete(route('orders.destroy', id), {
+    router.delete(route('purchase-orders.destroy', id), {
       preserveScroll: true,
-      onSuccess: () => toast.success('Order deleted'),
+      onSuccess: () => toast.success('Purchase Order deleted'),
     });
   };
 
   const toggleAll = () => {
     setSelected(
-      selected.length === jobs.data.length
+      selected.length === orders.data.length
         ? []
-        : jobs.data.map((j: GarageJob) => j.id)
+        : orders.data.map((o: PurchaseOrderType) => o.id)
     );
   };
 
@@ -62,17 +60,16 @@ export default function Index() {
 
   /* ---------------- Table Columns ---------------- */
   const columns = [
-    { label: 'Customer', render: (row: GarageJob) => row.customer_name },
-    { label: 'Vehicle', render: (row: GarageJob) => row.vehicle_name },
-    { label: 'Order Date', render: (row: GarageJob) => toDisplayDate(row.order_date) },
-    { label: 'State', render: (row: GarageJob) => row.state },
-    { label: 'Total Amount ($)', render: (row: GarageJob) => row.total_amount },
+    { label: 'Supplier', render: (row: PurchaseOrderType) => row.supplier_name },
+    { label: 'Order Date', render: (row: PurchaseOrderType) => row.order_date },
+    { label: 'State', render: (row: PurchaseOrderType) => row.state },
+    { label: 'Total Amount', render: (row: PurchaseOrderType) => row.total_amount },
     {
       label: 'Actions',
-      render: (row: GarageJob) => (
+      render: (row: PurchaseOrderType) => (
         <div className="flex gap-2">
           <Button size="sm" variant="outline" asChild>
-            <Link href={route('orders.edit', row.id)}>
+            <Link href={route('purchase-orders.edit', row.id)}>
               <Edit className="h-4 w-4" />
             </Link>
           </Button>
@@ -90,25 +87,25 @@ export default function Index() {
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title="Orders" />
+      <Head title="Purchase Orders" />
 
       <div className="p-4 space-y-4">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-xl font-bold">Orders</h1>
+          <h1 className="text-xl font-bold">Purchase Orders</h1>
           <Button asChild>
-            <Link href={route('orders.create')}>Create</Link>
+            <Link href={route('purchase-orders.create')}>Create</Link>
           </Button>
         </div>
 
         <DataTable
-          data={jobs.data}
+          data={orders.data}
           selected={selected}
           toggleAll={toggleAll}
           toggleOne={toggleOne}
           columns={columns}
         />
 
-        <Pagination meta={jobs} />
+        <Pagination meta={orders} />
       </div>
     </AppLayout>
   );

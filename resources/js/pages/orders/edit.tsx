@@ -10,17 +10,7 @@ import toast from 'react-hot-toast';
 import Select from 'react-select';
 import { route } from 'ziggy-js';
 
-type GarageJobLine = {
-    id?: number;
-    product_id: number | null;
-    employee_id: number | null;
-    quantity: number;
-    unit_price: number;
-    tax: number; // kept for backend compatibility
-    subtotal: number;
-};
-
-export default function GarageJobForm({
+export default function OrderForm({
                                           record,
                                           customers,
                                           vehicles,

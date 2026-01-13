@@ -2,63 +2,209 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Product;
 use App\Models\ProductCategory;
+
 class ProductSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run()
     {
         $products = [
-            // Brake Service - Labor
-            ['name' => 'All four brakes and rotors replaced', 'type' => 'service', 'category' => 'Brake Service'],
-            ['name' => 'Front pads and rotors replaced', 'type' => 'service', 'category' => 'Brake Service'],
-            ['name' => 'Rear brakes and rotors replaced', 'type' => 'service', 'category' => 'Brake Service'],
-            ['name' => 'Front pads replaced', 'type' => 'service', 'category' => 'Brake Service'],
-            ['name' => 'Rear pads replaced', 'type' => 'service', 'category' => 'Brake Service'],
-            ['name' => 'Front pads and rotors and rear drums replaced', 'type' => 'service', 'category' => 'Brake Service'],
-            ['name' => 'Front pads and rotors and rear drums replaced and shoes serviced', 'type' => 'service', 'category' => 'Brake Service'],
-            ['name' => 'Rear drums replaced and shoes serviced', 'type' => 'service', 'category' => 'Brake Service'],
-            ['name' => 'Rear drums and shoes replaced', 'type' => 'service', 'category' => 'Brake Service'],
-            ['name' => 'All four brakes and rotors serviced', 'type' => 'service', 'category' => 'Brake Service'],
-            ['name' => 'Front pads and rotors replaced and rear pads and rotors replaced', 'type' => 'service', 'category' => 'Brake Service'],
 
-            // Fluids & Miscellaneous
-            ['name' => 'Brakes fluid flush service', 'type' => 'consumable', 'category' => 'Fluids & Miscellaneous'],
+            /*
+            |--------------------------------------------------------------------------
+            | BRAKE SERVICES (LABOR)
+            |--------------------------------------------------------------------------
+            */
+            [
+                'name' => 'Brake Inspection',
+                'type' => 'service',
+                'category' => 'Brake Service',
+                'cost_price' => 25,
+                'sale_price' => 60,
+            ],
+            [
+                'name' => 'Front Brake Pads Replacement (Labour)',
+                'type' => 'service',
+                'category' => 'Brake Service',
+                'cost_price' => 80,
+                'sale_price' => 150,
+            ],
+            [
+                'name' => 'Rear Brake Pads Replacement (Labour)',
+                'type' => 'service',
+                'category' => 'Brake Service',
+                'cost_price' => 80,
+                'sale_price' => 150,
+            ],
+            [
+                'name' => 'Front Pads & Rotors Replacement (Labour)',
+                'type' => 'service',
+                'category' => 'Brake Service',
+                'cost_price' => 120,
+                'sale_price' => 220,
+            ],
+            [
+                'name' => 'All Four Brakes & Rotors Replacement (Labour)',
+                'type' => 'service',
+                'category' => 'Brake Service',
+                'cost_price' => 220,
+                'sale_price' => 420,
+            ],
 
-            // Engine & Transmission - Labor
-            ['name' => 'Engine oil pan replaced', 'type' => 'service', 'category' => 'Engine & Transmission'],
-            ['name' => 'Transmission oil pan replaced', 'type' => 'service', 'category' => 'Engine & Transmission'],
-            ['name' => 'Alternator replaced', 'type' => 'service', 'category' => 'Engine & Transmission'],
+            /*
+            |--------------------------------------------------------------------------
+            | BRAKE PARTS (PRODUCTS)
+            |--------------------------------------------------------------------------
+            */
+            [
+                'name' => 'Brake Pads (Front Set)',
+                'type' => 'product',
+                'category' => 'Brake Parts',
+                'cost_price' => 60,
+                'sale_price' => 120,
+            ],
+            [
+                'name' => 'Brake Pads (Rear Set)',
+                'type' => 'product',
+                'category' => 'Brake Parts',
+                'cost_price' => 55,
+                'sale_price' => 110,
+            ],
+            [
+                'name' => 'Brake Rotors (Pair)',
+                'type' => 'product',
+                'category' => 'Brake Parts',
+                'cost_price' => 120,
+                'sale_price' => 220,
+            ],
 
-            // Shocks & Suspension - Labor
-            ['name' => 'Front shocks replaced', 'type' => 'service', 'category' => 'Shocks & Suspension'],
-            ['name' => 'Rear shock replaced', 'type' => 'service', 'category' => 'Shocks & Suspension'],
+            /*
+            |--------------------------------------------------------------------------
+            | ENGINE & MAINTENANCE SERVICES
+            |--------------------------------------------------------------------------
+            */
+            [
+                'name' => 'Engine Oil Change (Labour)',
+                'type' => 'service',
+                'category' => 'Engine & Maintenance',
+                'cost_price' => 20,
+                'sale_price' => 50,
+            ],
+            [
+                'name' => 'Spark Plugs Replacement (Labour)',
+                'type' => 'service',
+                'category' => 'Engine & Maintenance',
+                'cost_price' => 60,
+                'sale_price' => 120,
+            ],
+            [
+                'name' => 'Alternator Replacement (Labour)',
+                'type' => 'service',
+                'category' => 'Engine & Maintenance',
+                'cost_price' => 150,
+                'sale_price' => 300,
+            ],
 
-            // Steering & Alignment
-            ['name' => 'Our tie rod replaced', 'type' => 'service', 'category' => 'Steering & Alignment'],
-            ['name' => 'Inner tie rod replaced', 'type' => 'service', 'category' => 'Steering & Alignment'],
-            ['name' => 'Sway bar links replaced', 'type' => 'service', 'category' => 'Steering & Alignment'],
+            /*
+            |--------------------------------------------------------------------------
+            | ENGINE PARTS & CONSUMABLES
+            |--------------------------------------------------------------------------
+            */
+            [
+                'name' => 'Engine Oil (5W-30)',
+                'type' => 'consumable',
+                'category' => 'Fluids & Consumables',
+                'cost_price' => 25,
+                'sale_price' => 55,
+            ],
+            [
+                'name' => 'Oil Filter',
+                'type' => 'product',
+                'category' => 'Fluids & Consumables',
+                'cost_price' => 8,
+                'sale_price' => 18,
+            ],
+            [
+                'name' => 'Spark Plug',
+                'type' => 'product',
+                'category' => 'Engine Parts',
+                'cost_price' => 6,
+                'sale_price' => 15,
+            ],
 
-            // Fluids & Consumables
-            ['name' => 'Spare plugs replaced', 'type' => 'consumable', 'category' => 'Fluids & Miscellaneous'],
+            /*
+            |--------------------------------------------------------------------------
+            | SUSPENSION & STEERING
+            |--------------------------------------------------------------------------
+            */
+            [
+                'name' => 'Wheel Alignment',
+                'type' => 'service',
+                'category' => 'Steering & Alignment',
+                'cost_price' => 40,
+                'sale_price' => 110,
+            ],
+            [
+                'name' => 'Front Shock Replacement (Labour)',
+                'type' => 'service',
+                'category' => 'Shocks & Suspension',
+                'cost_price' => 120,
+                'sale_price' => 240,
+            ],
+            [
+                'name' => 'Sway Bar Link',
+                'type' => 'product',
+                'category' => 'Suspension Parts',
+                'cost_price' => 25,
+                'sale_price' => 65,
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | FLUID SERVICES
+            |--------------------------------------------------------------------------
+            */
+            [
+                'name' => 'Brake Fluid Flush',
+                'type' => 'service',
+                'category' => 'Fluids & Miscellaneous',
+                'cost_price' => 40,
+                'sale_price' => 110,
+            ],
+            [
+                'name' => 'Coolant Flush',
+                'type' => 'service',
+                'category' => 'Fluids & Miscellaneous',
+                'cost_price' => 50,
+                'sale_price' => 130,
+            ],
+            [
+                'name' => 'Brake Fluid DOT-4',
+                'type' => 'consumable',
+                'category' => 'Fluids & Miscellaneous',
+                'cost_price' => 12,
+                'sale_price' => 28,
+            ],
         ];
 
         foreach ($products as $prod) {
-            $category = ProductCategory::where('name', $prod['category'])->first();
+            /** ✅ Ensure category always exists */
+            $category = ProductCategory::firstOrCreate(
+                ['name' => $prod['category']],
+                [
+                    'name' => $prod['category'],
+                ]
+            );
 
             Product::updateOrCreate(
                 ['name' => $prod['name']],
                 [
-                    'type' => $prod['type'],
-                    'category_id' => $category ? $category->id : null,
-                    'sale_price' => 0,
-                    'cost_price' => 0,
-                    //'tax' => 15, // default tax percentage
+                    'type'        => $prod['type'],
+                    'category_id' => $category?->id,
+                    'cost_price' => $prod['cost_price'],
+                    'sale_price' => $prod['sale_price'],
                 ]
             );
         }

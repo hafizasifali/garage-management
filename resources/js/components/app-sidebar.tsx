@@ -17,6 +17,7 @@ import {
     BarChart2,
     Building2,
     Car,
+    ClipboardList,
     CreditCard,
     FileText,
     Layers,
@@ -74,20 +75,21 @@ const mainNavItems: NavItem[] = [
         icon: Package, // spare parts/products
     },
     {
-        title: 'Invoices',
-        href: '/invoices',
-        icon: FileText, // invoices
+        title: 'Parts Purchases',
+        href: route('purchase-orders.index'),
+        icon: ClipboardList, // invoices
     },
     {
-        title: 'Payments',
-        href: '/payments',
-        icon: CreditCard, // payments
-    },
-    {
-        title: 'Reports',
-        href: '/reports',
-        icon: BarChart2, // reports/statistics
-    },
+    title: 'Reports',
+    icon: BarChart2,
+    children: [
+        {
+            title: 'Billing Report',
+            href: route('reports.billingReport'),
+        },
+    ],
+}
+
 ];
 const footerNavItems: NavItem[] = [
     {

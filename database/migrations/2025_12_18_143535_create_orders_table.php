@@ -27,6 +27,7 @@ return new class extends Migration
             $table->string('vehicle_vin')->nullable();
             $table->decimal('total_parts_cost', 10, 2)->default(0);
             $table->decimal('total_labor_cost', 10, 2)->default(0);
+            $table->decimal('tax_rate', 10, 2)->default(0);
             $table->decimal('total_tax', 10, 2)->default(0);
             $table->decimal('total_discount', 10, 2)->default(0);
             $table->decimal('total_amount', 10, 2)->default(0);

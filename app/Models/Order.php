@@ -26,6 +26,7 @@ class Order extends Model
         'state', // pending, in_progress, completed
         'total_parts_cost',
         'total_labor_cost',
+        'tax_rate',
         'total_tax',
         'total_discount',
         'total_amount',
@@ -78,7 +79,7 @@ class Order extends Model
      | Relationships
      ========================== */
 
-    public function partner()
+    public function customer()
     {
         return $this->belongsTo(Customer::class);
     }
