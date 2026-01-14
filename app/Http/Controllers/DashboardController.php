@@ -32,10 +32,11 @@ class DashboardController extends Controller
                         Order::where('state', 'in_progress')->count(),
                         Order::where('state', 'completed')->count(),
                     ],
-                    'backgroundColor' => ['#F59E0B', '#3B82F6', '#10B981'],
+                    'backgroundColor' => ['#FBBF24', '#3B82F6', '#10B981'], // Amber, Blue, Green
                 ],
             ],
         ];
+
 
         // Revenue Breakdown
         $revenueChart = [
@@ -46,10 +47,11 @@ class DashboardController extends Controller
                         Order::sum('total_labor_cost'),
                         Order::sum('total_parts_cost'),
                     ],
-                    'backgroundColor' => ['#6366f1', '#fb7185'],
+                    'backgroundColor' => ['#6366F1', '#F472B6'], // Indigo, Pink
                 ],
             ],
         ];
+
 
         // Recent Jobs
         $recentOrders = Order::with(['customer', 'vehicle'])
