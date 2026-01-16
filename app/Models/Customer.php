@@ -17,7 +17,7 @@ class Customer extends Model
         'email',
         'phone',
         'address',
-        'active',
+        'type'
     ];
 
        public static function fields(): array
@@ -25,7 +25,7 @@ class Customer extends Model
         return [
             'name' => [
                 'type' => 'char',
-                'label' => 'Customer Name',
+                'label' => 'Name',
                 'required' => true,
             ],
             'email' => [
@@ -40,13 +40,10 @@ class Customer extends Model
                 'type' => 'char',
                 'label' => 'Address',
             ],
-            'is_company' => [
-                'type' => 'boolean',
-                'label' => 'Is a Company',
-            ],
-            'active' => [
-                'type' => 'boolean',
-                'label' => 'Active',
+            'type' => [
+                'type' => 'many2one',
+                'label' => 'Type',
+                'relation' => 'types'
             ],
         ];
     }

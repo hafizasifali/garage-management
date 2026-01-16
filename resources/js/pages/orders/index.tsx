@@ -62,6 +62,7 @@ export default function Index() {
 
   /* ---------------- Table Columns ---------------- */
   const columns = [
+    { label: 'ID', render: (row: GarageJob) => row.id },
     { label: 'Customer', render: (row: GarageJob) => row.customer_name },
     { label: 'Vehicle', render: (row: GarageJob) => row.vehicle_name },
     { label: 'Order Date', render: (row: GarageJob) => toDisplayDate(row.order_date) },
@@ -76,13 +77,13 @@ export default function Index() {
               <Edit className="h-4 w-4" />
             </Link>
           </Button>
-          <Button
-            size="sm"
-            variant="destructive"
-            onClick={() => handleDelete(row.id)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {/*<Button*/}
+          {/*  size="sm"*/}
+          {/*  variant="destructive"*/}
+          {/*  onClick={() => handleDelete(row.id)}*/}
+          {/*>*/}
+          {/*  <Trash2 className="h-4 w-4" />*/}
+          {/*</Button>*/}
         </div>
       ),
     },
@@ -103,6 +104,7 @@ export default function Index() {
         <DataTable
           data={jobs.data}
           selected={selected}
+          selectable={false}
           toggleAll={toggleAll}
           toggleOne={toggleOne}
           columns={columns}

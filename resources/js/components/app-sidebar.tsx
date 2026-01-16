@@ -40,6 +40,29 @@ const mainNavItems: NavItem[] = [
         href: '/dashboard',
         icon: LayoutGrid, // overview
     },
+
+    {
+        title: 'Orders',
+        href: route('orders.index'),
+        icon: ListOrdered, // garage jobs/work orders
+        isActive: route().current('orders.*'),
+    },
+
+    {
+        title: 'Parts Purchases',
+        href: route('purchase-orders.index'),
+        icon: ClipboardList, // invoices
+    },
+    {
+        title: 'Products',
+        href: route('products.index'),
+        icon: Package, // spare parts/products
+    },
+    {
+        title: 'Suppliers',
+        href: route('suppliers.index'),
+        icon: Layers, // spare parts/products
+    },
     {
         title: 'Customers',
         href: route('customers.index'),
@@ -52,12 +75,7 @@ const mainNavItems: NavItem[] = [
         icon: Car, // vehicles
         isActive: route().current('vehicles.*'),
     },
-    {
-        title: 'Orders',
-        href: route('orders.index'),
-        icon: ListOrdered, // garage jobs/work orders
-        isActive: route().current('orders.*'),
-    },
+
     {
         title: 'Mechanics',
         href: route('employees.index'),
@@ -65,31 +83,15 @@ const mainNavItems: NavItem[] = [
         isActive: route().current('employees.*'),
     },
     {
-        title: 'Suppliers',
-        href: route('suppliers.index'),
-        icon: Layers, // spare parts/products
+        title: 'Reports',
+        icon: BarChart2,
+        children: [
+            {
+                title: 'Billing Report',
+                href: route('reports.billingReport'),
+            },
+        ],
     },
-    {
-        title: 'Products',
-        href: route('products.index'),
-        icon: Package, // spare parts/products
-    },
-    {
-        title: 'Parts Purchases',
-        href: route('purchase-orders.index'),
-        icon: ClipboardList, // invoices
-    },
-    {
-    title: 'Reports',
-    icon: BarChart2,
-    children: [
-        {
-            title: 'Billing Report',
-            href: route('reports.billingReport'),
-        },
-    ],
-}
-
 ];
 const footerNavItems: NavItem[] = [
     {

@@ -50,7 +50,7 @@ class CustomerController extends Controller
             'email' => 'nullable|email',
             'phone' => 'nullable|string|max:50',
             'address' => 'nullable|string|max:255',
-            'active' => 'boolean',
+            'type' => 'required|in:individual,company',
         ]);
 
 
@@ -67,7 +67,7 @@ class CustomerController extends Controller
             'email'      => 'nullable|email',
             'phone'      => 'nullable|string|max:50',
             'address'    => 'nullable|string|max:255',
-            'active'     => 'boolean',
+            'type'       => 'required|in:individual,company',
         ]);
 
         $customer = Customer::create($data);
@@ -88,7 +88,7 @@ class CustomerController extends Controller
             'phone' => 'nullable|string|max:50',
             'address' => 'nullable|string|max:255',
             'is_company' => 'boolean',
-            'active' => 'boolean',
+            'type' => 'required|in:individual,company',
         ]);
 
         $customer->update($data);

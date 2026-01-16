@@ -18,6 +18,7 @@ class Product extends Model
         'cost_price',
         'sale_price',
         'type',
+        'qty_on_hand',
         'active',
     ];
 
@@ -91,6 +92,10 @@ class Product extends Model
                 'type' => 'char',
                 'label' => 'Sale Price',
                 'required' => true,
+            ],
+            'qty_on_hand' => [
+                'type' => 'char',
+                'label' => 'QTY On Hand',
             ],
         ];
     }

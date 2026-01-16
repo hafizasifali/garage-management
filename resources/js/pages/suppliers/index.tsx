@@ -25,10 +25,11 @@ export default function SuppliersIndex() {
     const [selected, setSelected] = useState<number[]>([]);
 
     const columns = [
+        { label: 'ID', render: (row: Supplier) => row.id },
         { label: 'Name', render: (row: Supplier) => row.name },
         { label: 'Email', render: (row: Supplier) => row.email },
         { label: 'Phone', render: (row: Supplier) => row.phone },
-        { label: 'Active', render: (row: Supplier) => (row.active ? 'Yes' : 'No') },
+        // { label: 'Active', render: (row: Supplier) => (row.active ? 'Yes' : 'No') },
         {
             label: 'Actions',
             render: (row: Supplier) => (
@@ -38,17 +39,17 @@ export default function SuppliersIndex() {
                             <Edit className="h-4 w-4" />
                         </Link>
                     </Button>
-                    <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() =>
-                            form.delete(route('suppliers.destroy', row.id), {
-                                onSuccess: () => toast.success('Supplier archived'),
-                            })
-                        }
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {/*<Button*/}
+                    {/*    size="sm"*/}
+                    {/*    variant="destructive"*/}
+                    {/*    onClick={() =>*/}
+                    {/*        form.delete(route('suppliers.destroy', row.id), {*/}
+                    {/*            onSuccess: () => toast.success('Supplier archived'),*/}
+                    {/*        })*/}
+                    {/*    }*/}
+                    {/*>*/}
+                    {/*    <Trash2 className="h-4 w-4" />*/}
+                    {/*</Button>*/}
                 </div>
             ),
         },
@@ -77,6 +78,7 @@ export default function SuppliersIndex() {
                     data={suppliers.data}
                     columns={columns}
                     selected={selected}
+                    selectable={false}
                     toggleAll={() => {}}
                     toggleOne={() => {}}
                 />

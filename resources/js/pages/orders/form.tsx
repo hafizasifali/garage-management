@@ -5,28 +5,29 @@ import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Plus, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import Select from 'react-select';
 import { route } from 'ziggy-js';
 
-
 export default function OrderForm({
-                                          record,
-                                          customers,
-                                          vehicles,
-                                          products,
-                                          employees,
-                                          states,
-                                          fields,
-                                          customers_fields,
-                                      }: any) {
+    record,
+    customers,
+    vehicles,
+    products,
+    employees,
+    states,
+    parts_by,
+    fields,
+    customers_fields,
+    vehicles_fields,
+}: any) {
     const form = useForm({
-        customer_id: null,
-        vehicle_id: null,
+        customer_id: record?.customer_id ?? null,
+        vehicle_id: record?.vehicle_id ?? null,
         employee_id: null,
         job_date: '',
-        state: 'pending',
+        state: record?.state ?? 'pending',
         total_parts_cost: 0,
         total_labor_cost: 0,
         total_tax: 0,
@@ -40,13 +41,34 @@ export default function OrderForm({
         ...(record || {}),
     });
 
-    const [quickCreate, setQuickCreate] = useState<any>(null);
+    /* ---------------- Vehicle filtering (Odoo behavior) ---------------- */
 
+    const filteredVehicles = useMemo(() => {
+        if (!form.data.customer_id) return [];
+        return (vehicles || []).filter(
+            (v: any) => v.customer_id == form.data.customer_id,
+        );
+    }, [vehicles, form.data.customer_id]);
+
+    // Clear vehicle if customer changes and vehicle no longer valid
     useEffect(() => {
-        const handler = (e: any) => setQuickCreate(e.detail);
-        window.addEventListener('quick-create', handler);
-        return () => window.removeEventListener('quick-create', handler);
-    }, []);
+        if (!form.data.customer_id) {
+            if (form.data.vehicle_id !== null) {
+                form.setData('vehicle_id', null);
+            }
+            return;
+        }
+
+        const stillValid = filteredVehicles.some(
+            (v: any) => v.id === form.data.vehicle_id,
+        );
+
+        if (!stillValid && form.data.vehicle_id !== null) {
+            form.setData('vehicle_id', null);
+        }
+    }, [form.data.customer_id, filteredVehicles]);
+
+    /* ---------------- Breadcrumbs ---------------- */
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Order', href: route('orders.index') },
@@ -54,19 +76,21 @@ export default function OrderForm({
     ];
 
     /* ---------------- Form Submit ---------------- */
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
         record
             ? form.put(route('orders.update', record.id), {
-                onSuccess: () => toast.success('Order updated successfully!'),
-            })
+                  onSuccess: () => toast.success('Order updated successfully!'),
+              })
             : form.post(route('orders.store'), {
-                onSuccess: () => toast.success('Order created successfully!'),
-            });
+                  onSuccess: () => toast.success('Order created successfully!'),
+              });
     };
 
     /* ---------------- Lines Handling ---------------- */
+
     const addLine = () => {
         form.setData('lines', [
             ...form.data.lines,
@@ -91,8 +115,6 @@ export default function OrderForm({
         newLines[index][key] = value;
 
         const line = newLines[index];
-
-        // Force numeric values
         const unit_price = Number(line.unit_price || 0);
         const quantity = Number(line.quantity || 0);
 
@@ -101,8 +123,8 @@ export default function OrderForm({
         form.setData('lines', newLines);
     };
 
-
     /* ---------------- Totals ---------------- */
+
     const untaxedAmount = form.data.lines.reduce(
         (acc, l) => acc + Number(l.unit_price || 0) * Number(l.quantity || 0),
         0,
@@ -111,13 +133,17 @@ export default function OrderForm({
     const taxAmount = untaxedAmount * 0.13;
     const totalAmount = untaxedAmount + taxAmount;
 
+    /* ---------------- Options ---------------- */
+
     const options = {
         states,
         customers,
-        vehicles,
+        vehicles: filteredVehicles, // 🔥 filtered list
         products,
         employees,
+        parts_by,
         customers_fields,
+        vehicles_fields,
     };
 
     return (
@@ -147,6 +173,7 @@ export default function OrderForm({
                     </div>
 
                     <FormRenderer
+                        key={`customer-${form.data.customer_id ?? 'none'}`} // 🔥 forces vehicle re-render
                         fields={fields}
                         form={form}
                         options={options}
@@ -269,7 +296,9 @@ export default function OrderForm({
                                         <td className="p-1">
                                             <Input
                                                 type="number"
-                                                value={Number(line.quantity || 0).toFixed(0)}
+                                                value={Number(
+                                                    line.quantity || 0,
+                                                ).toFixed(0)}
                                                 onChange={(e) =>
                                                     updateLine(
                                                         index,
@@ -283,7 +312,9 @@ export default function OrderForm({
                                         <td className="p-1">
                                             <Input
                                                 type="number"
-                                                value={Number(line.unit_price || 0).toFixed(0)}
+                                                value={Number(
+                                                    line.unit_price || 0,
+                                                ).toFixed(0)}
                                                 onChange={(e) =>
                                                     updateLine(
                                                         index,
@@ -295,7 +326,9 @@ export default function OrderForm({
                                         </td>
 
                                         <td className="p-1 text-center">
-                                            {Number(line.subtotal || 0).toFixed(0)}
+                                            {Number(line.subtotal || 0).toFixed(
+                                                0,
+                                            )}
                                         </td>
 
                                         <td className="p-1 text-center">

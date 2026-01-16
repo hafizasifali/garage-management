@@ -100,6 +100,7 @@ export default function Index() {
         <DataTable
           data={orders.data}
           selected={selected}
+          selectable={false}
           toggleAll={toggleAll}
           toggleOne={toggleOne}
           columns={columns}

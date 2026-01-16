@@ -18,6 +18,7 @@ class Vehicle extends Model
         'license_plate',
         'model',
         'year',
+        'make'
     ];
 
     // Accessor for dropdown display
@@ -46,6 +47,11 @@ class Vehicle extends Model
             'license_plate' => [
                 'type' => 'char',
                 'label' => 'License Plate',
+                'required' => true,
+            ],
+            'make' => [
+                'type' => 'char',
+                'label' => 'Make',
                 'required' => true,
             ],
             'model' => [

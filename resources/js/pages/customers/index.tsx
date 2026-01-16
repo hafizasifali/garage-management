@@ -25,10 +25,11 @@ export default function CustomersIndex() {
     const [selected, setSelected] = useState<number[]>([]);
 
     const columns = [
+        { label: 'ID', render: (row: Customer) => row.id },
         { label: 'Name', render: (row: Customer) => row.name },
         { label: 'Email', render: (row: Customer) => row.email },
         { label: 'Phone', render: (row: Customer) => row.phone },
-        { label: 'Active', render: (row: Customer) => (row.active ? 'Yes' : 'No') },
+        { label: 'Type', render: (row: Customer) => row.type },
         {
             label: 'Actions',
             render: (row: Customer) => (
@@ -38,17 +39,17 @@ export default function CustomersIndex() {
                             <Edit className="h-4 w-4" />
                         </Link>
                     </Button>
-                    <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() =>
-                            form.delete(route('customers.destroy', row.id), {
-                                onSuccess: () => toast.success('Customer archived'),
-                            })
-                        }
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {/*<Button*/}
+                    {/*    size="sm"*/}
+                    {/*    variant="destructive"*/}
+                    {/*    onClick={() =>*/}
+                    {/*        form.delete(route('customers.destroy', row.id), {*/}
+                    {/*            onSuccess: () => toast.success('Customer archived'),*/}
+                    {/*        })*/}
+                    {/*    }*/}
+                    {/*>*/}
+                    {/*    <Trash2 className="h-4 w-4" />*/}
+                    {/*</Button>*/}
                 </div>
             ),
         },
@@ -71,12 +72,14 @@ export default function CustomersIndex() {
                     onChange={(k, v) =>
                         router.get(route('customers.index'), { ...filters, [k]: v })
                     }
+                    searchPlaceholder={'Search by Name, Email'}
                 />
 
                 <DataTable
                     data={customers.data}
                     columns={columns}
                     selected={selected}
+                    selectable={false}
                     toggleAll={() => {}}
                     toggleOne={() => {}}
                 />

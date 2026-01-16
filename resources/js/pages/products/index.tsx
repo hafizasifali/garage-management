@@ -48,6 +48,7 @@ export default function ProductIndex() {
     };
 
     const columns = [
+        { label: 'ID', render: (row: Product) => row.id },
         { label: 'Name', render: (row: Product) => row.name },
         { label: 'Category', render: (row: Product) => row.category?.name },
         // { label: 'UOM', render: (row: Product) => row.uom?.name },
@@ -103,6 +104,7 @@ export default function ProductIndex() {
                 <DataTable
                     data={products.data}
                     selected={selected}
+                    selectable={false}
                     toggleAll={() => {}}
                     toggleOne={() => {}}
                     columns={columns}

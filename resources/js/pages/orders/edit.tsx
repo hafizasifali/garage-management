@@ -17,6 +17,7 @@ export default function OrderForm({
                                           products,
                                           employees,
                                           states,
+                                      parts_by,
                                           fields,
                                           customers_fields,
                                       }: any) {
@@ -25,7 +26,7 @@ export default function OrderForm({
         vehicle_id: null,
         employee_id: null,
         job_date: '',
-        state: 'pending',
+        state: 'in_progress',
         total_parts_cost: 0,
         total_labor_cost: 0,
         total_tax: 0,
@@ -38,6 +39,33 @@ export default function OrderForm({
         })),
         ...(record || {}),
     });
+
+    /* ---------------- Vehicle filtering (Odoo behavior) ---------------- */
+
+    const filteredVehicles = useMemo(() => {
+        if (!form.data.customer_id) return [];
+        return (vehicles || []).filter(
+            (v: any) => v.customer_id == form.data.customer_id,
+        );
+    }, [vehicles, form.data.customer_id]);
+
+    // Clear vehicle if customer changes and vehicle no longer valid
+    useEffect(() => {
+        if (!form.data.customer_id) {
+            if (form.data.vehicle_id !== null) {
+                form.setData('vehicle_id', null);
+            }
+            return;
+        }
+
+        const stillValid = filteredVehicles.some(
+            (v: any) => v.id === form.data.vehicle_id,
+        );
+
+        if (!stillValid && form.data.vehicle_id !== null) {
+            form.setData('vehicle_id', null);
+        }
+    }, [form.data.customer_id, filteredVehicles]);
 
     const [quickCreate, setQuickCreate] = useState<any>(null);
 
@@ -113,10 +141,11 @@ export default function OrderForm({
     const options = {
         states,
         customers,
-        vehicles,
+        vehicles:filteredVehicles,
         products,
         employees,
         customers_fields,
+        parts_by
     };
 
     return (
@@ -146,7 +175,7 @@ export default function OrderForm({
                                 variant="outline"
                                 onClick={() => window.history.back()}
                             >
-                                Cancel
+                                Go Back
                             </Button>
                             <Button type="submit">
                                 {record ? 'Update' : 'Create'}

@@ -24,6 +24,7 @@ class Order extends Model
         'vehicle_id',
         'order_date',
         'state', // pending, in_progress, completed
+        'parts_by',
         'total_parts_cost',
         'total_labor_cost',
         'tax_rate',
@@ -48,7 +49,8 @@ class Order extends Model
             'vehicle_id' => ['label' => 'Vehicle', 'type' => 'many2one', 'relation' => 'vehicles', 'quick_create' => true, 'edit_route' => 'vehicles.edit'],
             'order_date' => ['label' => 'Order Date', 'type' => 'date'],
             // 'employee_ids' => ['label' => 'Mechanics', 'type' => 'many2many', 'relation' => 'employees'],
-            'state' => ['label' => 'Order State', 'type' => 'many2one', 'relation' => 'states'],
+            //'state' => ['label' => 'Order State', 'type' => 'many2one', 'relation' => 'states'],
+            'parts_by' => ['label' => 'Parts By', 'type' => 'many2one', 'relation' => 'parts_by'],
         ];
     }
         public static function editFields(): array
@@ -63,6 +65,7 @@ class Order extends Model
             'vehicle_license_plate' => ['label' => 'Vehicle License', 'type' => 'char'],
             'vehicle_vin' => ['label' => 'VIN', 'type' => 'char'],
             'order_date' => ['label' => 'Order Date', 'type' => 'date'],
+            'parts_by' => ['label' => 'Parts By', 'type' => 'many2one', 'relation' => 'parts_by'],
             'state' => ['label' => 'Order State', 'type' => 'many2one', 'relation' => 'states'],
         ];
     }
@@ -73,6 +76,13 @@ class Order extends Model
             ['id' => 'pending', 'name' => 'Pending'],
             ['id' => 'in_progress', 'name' => 'In Progress'],
             ['id' => 'completed', 'name' => 'Completed'],
+        ];
+    }
+    public static function partsBy(): array
+    {
+        return [
+            ['id' => 'customer', 'name' => 'By Customer'],
+            ['id' => 'us', 'name' => 'By Us'],
         ];
     }
     /* ==========================

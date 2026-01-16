@@ -205,6 +205,10 @@ class ProductSeeder extends Seeder
                     'category_id' => $category?->id,
                     'cost_price' => $prod['cost_price'],
                     'sale_price' => $prod['sale_price'],
+                    // ✅ Add qty_on_hand
+                    'qty_on_hand' => $prod['type'] === 'product' || $prod['type'] === 'consumable'
+                        ? rand(5, 50) // random initial stock
+                        : 0,          // services start with 0 stock
                 ]
             );
         }

@@ -12,14 +12,18 @@ export default function CustomerForm({ fields, record }) {
         email: '',
         phone: '',
         address: '',
-        is_company: true,
-        active: true,
         ...(record || {}),
     });
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Customers', href: route('customers.index') },
     ];
+
+    const types=[{id: 'individual',name: 'Individual'},
+        {id: 'company',name: 'Company'}
+    ]
+    const options = { types};
+
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -47,7 +51,7 @@ export default function CustomerForm({ fields, record }) {
                         </h1>
                         <div className="flex gap-2">
                             <Button variant="outline" onClick={() => history.back()}>
-                                Cancel
+                                Go Back
                             </Button>
                             <Button type="submit">
                                 {record ? 'Update' : 'Create'}
@@ -58,6 +62,7 @@ export default function CustomerForm({ fields, record }) {
                     <FormRenderer
                         fields={fields}
                         form={form}
+                        options={options}
                         columns={1}
                     />
                 </form>

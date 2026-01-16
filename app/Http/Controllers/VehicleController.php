@@ -55,6 +55,7 @@ class VehicleController extends Controller
             'vin' => 'required|string|max:50',
             'license_plate' => 'required|string|max:20',
             'model' => 'required|string|max:255',
+            'make' => 'nullable|string|max:255',
             'year' => 'nullable|integer',
             'active' => 'boolean',
         ]);
@@ -74,6 +75,7 @@ class VehicleController extends Controller
             'customer_id' => 'required|exists:customers,id',
             'vin' => 'required|string|max:50',
             'license_plate' => 'required|string|max:20',
+            'make' => 'nullable|string|max:255',
             'model' => 'required|string|max:255',
             'year' => 'nullable|integer',
             'active' => 'boolean',

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('vehicle_id')->nullable()->constrained('vehicles')->nullOnDelete();
             $table->date('order_date');
             $table->string('state')->default('in_progress');
+            $table->string('parts_by')->nullable();
             $table->string('customer_name')->nullable();
             $table->string('customer_email')->nullable();
             $table->string('customer_phone')->nullable();

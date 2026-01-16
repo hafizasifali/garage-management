@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('category_id')->constrained('product_categories')->cascadeOnDelete();
             $table->decimal('cost_price', 10, 2)->default(0);
             $table->decimal('sale_price', 10, 2)->default(0);
+            $table->integer('qty_on_hand')->default(0);
             $table->string('type')->nullable();
             $table->timestamps();
         });

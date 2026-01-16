@@ -15,7 +15,7 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $jobs = Order::with(['vehicle', 'lines.product'])->paginate(10);
+        $jobs = Order::with(['vehicle', 'lines.product'])->paginate(80);
 
         return Inertia::render('orders/index', [
             'jobs' => $jobs,
@@ -29,14 +29,17 @@ class OrderController extends Controller
             'vehicles' => Vehicle::all()->map(function($vehicle) {
                 return [
                     'id' => $vehicle->id,
+                    'customer_id'=>$vehicle->customer_id,
                     'name' => $vehicle->display_name, // computed field
                 ];
             }),
             'employees' => Employee::all(),
             'products' => Product::all(),
             'states' => Order::states(),
+            'parts_by' => Order::partsBy(),
             'fields' => Order::fields(),
             'customers_fields' => Customer::fields(),
+            'vehicles_fields' => Vehicle::fields(),
             'record' => null,
         ]);
     }
@@ -50,12 +53,14 @@ class OrderController extends Controller
             'vehicles' => Vehicle::all()->map(function($vehicle) {
                 return [
                     'id' => $vehicle->id,
+                    'customer_id'=> $vehicle->customer_id,
                     'name' => $vehicle->display_name, // computed field
                 ];
             }),
             'employees' => Employee::all(),
             'products' => Product::all(),
             'states' => Order::states(),
+            'parts_by' => Order::partsBy(),
             'fields' => Order::editFields(),
             'record' => $order,
         ]);
@@ -67,8 +72,7 @@ class OrderController extends Controller
             'customer_id' => 'required|exists:customers,id',
             'vehicle_id' => 'required|exists:vehicles,id',
             'order_date' => 'required|date',
-            'state' => 'required',
-
+            'parts_by' => 'nullable',
             'employees' => 'array',
             'employees.*' => 'exists:employees,id',
 
@@ -167,7 +171,8 @@ class OrderController extends Controller
             'vehicle_license_plate' => 'nullable',
             'vehicle_vin' => 'nullable',
             'order_date' => 'required|date',
-            'state' => 'required',
+            'parts_by' => 'nullable',
+            'state' => 'nullable',
             'lines' => 'required|array',
             'lines.*.product_id' => 'required|exists:products,id',
             'lines.*.employee_id' => 'nullable|exists:employees,id',
@@ -189,6 +194,7 @@ class OrderController extends Controller
             'vehicle_license_plate'=> $validated['vehicle_license_plate'],
             'vehicle_vin'=> $validated['vehicle_vin'],
             'order_date' => $validated['order_date'],
+            'parts_by' => $validated['parts_by'],
             'state' => $validated['state'],
         ]);
 
@@ -266,5 +272,5 @@ class OrderController extends Controller
         return Inertia::render('reports/SalesReport', [
             'reports' => $orders,
         ]);
-    }       
+    }
 }

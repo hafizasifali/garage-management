@@ -15,8 +15,8 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
         $this->call([
-            CurrencySeeder::class,
-            CountrySeeder::class,
+        CurrencySeeder::class,
+        CountrySeeder::class,
         CompanySeeder::class,
         EmployeeSeeder::class,
         UserSeeder::class,
@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
         ProductCategorySeeder::class,
         ProductSeeder::class,
         CustomerSeeder::class,
+        SupplierSeeder::class,
         VehicleSeeder::class,
         OrderSeeder::class,
     ]);

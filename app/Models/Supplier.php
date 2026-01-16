@@ -40,10 +40,6 @@ class Supplier extends Model
                 'type' => 'char',
                 'label' => 'Address',
             ],
-            'active' => [
-                'type' => 'boolean',
-                'label' => 'Active',
-            ],
         ];
     }
 

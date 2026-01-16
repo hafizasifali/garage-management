@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('license_plate')->nullable();
             $table->string('vin')->nullable();
+            $table->string('make')->nullable();
             $table->string('model')->nullable();
             $table->year('year')->nullable();
             $table->timestamps();

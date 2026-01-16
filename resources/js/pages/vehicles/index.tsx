@@ -77,12 +77,13 @@ export default function VehicleIndex() {
         setSelected((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
 
     const columns = [
-        { label: 'Identification Number', render: (row: Vehicle) => row.vin },
+        { label: 'ID', render: (row: Vehicle) => row.id },
+        { label: 'VIN', render: (row: Vehicle) => row.vin },
         { label: 'License Plate', render: (row: Vehicle) => row.license_plate },
         { label: 'Model', render: (row: Vehicle) => row.model },
         { label: 'Year', render: (row: Vehicle) => row.year },
         { label: 'Customer', render: (row: Vehicle) => row.customer?.name },
-        { label: 'Active', render: (row: Vehicle) => (row.active ? 'Yes' : 'No') },
+        // { label: 'Active', render: (row: Vehicle) => (row.active ? 'Yes' : 'No') },
         {
             label: 'Actions',
             render: (row: Vehicle) => (
@@ -92,14 +93,14 @@ export default function VehicleIndex() {
                             <Edit className="h-4 w-4" />
                         </Link>
                     </Button>
-                    <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => handleDelete(row.id, row.license_plate)}
-                        title="Delete"
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {/*<Button*/}
+                    {/*    size="sm"*/}
+                    {/*    variant="destructive"*/}
+                    {/*    onClick={() => handleDelete(row.id, row.license_plate)}*/}
+                    {/*    title="Delete"*/}
+                    {/*>*/}
+                    {/*    <Trash2 className="h-4 w-4" />*/}
+                    {/*</Button>*/}
                 </div>
             ),
         },
@@ -141,6 +142,7 @@ export default function VehicleIndex() {
                     <DataTable
                         data={vehicles.data}
                         selected={selected}
+                        selectable={false}
                         toggleAll={toggleAll}
                         toggleOne={toggleOne}
                         columns={columns}
