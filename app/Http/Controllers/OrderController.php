@@ -8,19 +8,50 @@ use App\Models\Customer;
 use App\Models\Vehicle;
 use App\Models\Employee;
 use App\Models\Product;
+use App\Support\QueryFilter;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Barryvdh\DomPDF\Facade\Pdf;
 class OrderController extends Controller
 {
-    public function index()
-    {
-        $jobs = Order::with(['vehicle', 'lines.product'])->paginate(80);
 
-        return Inertia::render('orders/index', [
-            'jobs' => $jobs,
+    public function index(Request $request)
+    {
+        $filters = session('orders.filters', []);
+        $search  = session('orders.search', '');
+
+        $query = Order::query()->with(['customer', 'vehicle']);
+
+        // Apply structured filters
+        $query = QueryFilter::apply($query, $filters);
+
+        // Apply global search
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('customer_name', 'like', "%$search%")
+                    ->orWhere('vehicle_name', 'like', "%$search%")
+                    ->orWhere('vehicle_license_plate', 'like', "%$search%");
+            });
+        }
+
+        // Cascading vehicle filter
+        $customerId = collect($filters)->firstWhere('field', 'customer_id')['value'] ?? null;
+        $vehicles = Vehicle::when($customerId, fn($q) => $q->where('customer_id', $customerId))
+            ->select('id', 'license_plate', 'name')
+            ->orderBy('license_plate')
+            ->get();
+
+        return inertia('orders/index', [
+            'orders' => $query->latest()->paginate(80),
+            'activeFilters' => $filters,
+            'search' => $search,
+            'customers' => Customer::select('id', 'name')->orderBy('name')->get(),
+            'vehicles' => $vehicles,
+            'states' => Order::states(),
+            'partsBy' => Order::partsBy(),
         ]);
     }
+
 
     public function create()
     {
@@ -272,5 +303,22 @@ class OrderController extends Controller
         return Inertia::render('reports/SalesReport', [
             'reports' => $orders,
         ]);
+    }
+
+    // New filter POST method
+    public function filter(Request $request)
+    {
+        // Ensure filters/search are arrays/strings
+        $filters = $request->input('filters', []);
+        $search  = $request->input('search', '');
+
+        // Store in session
+        session([
+            'orders.filters' => $filters,
+            'orders.search'  => $search,
+        ]);
+
+        // Redirect to index
+        return redirect()->route('orders.index');
     }
 }

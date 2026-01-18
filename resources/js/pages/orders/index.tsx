@@ -1,56 +1,47 @@
-import { Head, Link, usePage, router } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
-import toast from 'react-hot-toast';
-import { useConfirm } from '@/hooks/useConfirm';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-/* Reusable components */
 import DataTable from '@/components/index/DataTable';
 import Pagination from '@/components/index/Pagination';
 import { route } from 'ziggy-js';
 import { toDisplayDate } from '@/lib/date';
+import FilterBar from '@/components/filters/FilterBar';
+import { FilterRule } from '@/types/filter';
 
-type GarageJob = {
+type Order = {
   id: number;
-  partner: { name: string };
-  vehicle: { name: string };
-  job_date: string;
+  order_date: string;
   state: string;
   total_amount: number;
+  customer_name: string;
+  vehicle_name: string;
 };
 
 export default function Index() {
-  const { jobs } = usePage().props as any;
-  const { confirm } = useConfirm();
+  const {
+    orders,
+    activeFilters,
+    search,
+    customers,
+    vehicles,
+    states,
+    partsBy,
+  } = usePage().props as any;
+
   const [selected, setSelected] = useState<number[]>([]);
 
   const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Orders', href: '/orders' },
   ];
 
-  /* ---------------- Actions ---------------- */
-  const handleDelete = async (id: number) => {
-    const ok = await confirm({
-      title: 'Delete Order?',
-      text: `This job will be permanently removed.`,
-      confirmText: 'Delete',
-    });
-    if (!ok) return;
-
-    router.delete(route('orders.destroy', id), {
-      preserveScroll: true,
-      onSuccess: () => toast.success('Order deleted'),
-    });
-  };
-
   const toggleAll = () => {
     setSelected(
-      selected.length === jobs.data.length
+      selected.length === orders.data.length
         ? []
-        : jobs.data.map((j: GarageJob) => j.id)
+        : orders.data.map((j: Order) => j.id)
     );
   };
 
@@ -60,30 +51,22 @@ export default function Index() {
     );
   };
 
-  /* ---------------- Table Columns ---------------- */
   const columns = [
-    { label: 'ID', render: (row: GarageJob) => row.id },
-    { label: 'Customer', render: (row: GarageJob) => row.customer_name },
-    { label: 'Vehicle', render: (row: GarageJob) => row.vehicle_name },
-    { label: 'Order Date', render: (row: GarageJob) => toDisplayDate(row.order_date) },
-    { label: 'State', render: (row: GarageJob) => row.state },
-    { label: 'Total Amount ($)', render: (row: GarageJob) => row.total_amount },
+    { label: 'ID', render: (row: Order) => row.id },
+    { label: 'Customer', render: (row: Order) => row.customer_name },
+    { label: 'Vehicle', render: (row: Order) => row.vehicle_name },
+    { label: 'Order Date', render: (row: Order) => toDisplayDate(row.order_date) },
+    { label: 'State', render: (row: Order) => row.state },
+    { label: 'Total Amount ($)', render: (row: Order) => row.total_amount },
     {
       label: 'Actions',
-      render: (row: GarageJob) => (
+      render: (row: Order) => (
         <div className="flex gap-2">
           <Button size="sm" variant="outline" asChild>
             <Link href={route('orders.edit', row.id)}>
               <Edit className="h-4 w-4" />
             </Link>
           </Button>
-          {/*<Button*/}
-          {/*  size="sm"*/}
-          {/*  variant="destructive"*/}
-          {/*  onClick={() => handleDelete(row.id)}*/}
-          {/*>*/}
-          {/*  <Trash2 className="h-4 w-4" />*/}
-          {/*</Button>*/}
         </div>
       ),
     },
@@ -94,15 +77,72 @@ export default function Index() {
       <Head title="Orders" />
 
       <div className="p-4 space-y-4">
-        <div className="flex justify-between items-center mb-4">
+        {/* Header */}
+        <div className="flex justify-between items-center">
           <h1 className="text-xl font-bold">Orders</h1>
           <Button asChild>
             <Link href={route('orders.create')}>Create</Link>
           </Button>
         </div>
 
+        {/* Filters */}
+        <FilterBar
+          routeName="orders.index"
+          filters={activeFilters as FilterRule[]}
+          search={search}
+          config={[
+            {
+              label: 'Customer',
+              field: 'customer_id',
+              operator: '=',
+              type: 'select',
+              options: customers.map((c: any) => ({
+                label: c.name,
+                value: c.id,
+              })),
+            },
+            {
+              label: 'Vehicle',
+              field: 'vehicle_id',
+              operator: '=',
+              type: 'select',
+              options: vehicles.map((v: any) => ({
+                label: v.plate_no,
+                value: v.id,
+              })),
+            },
+            {
+              label: 'State',
+              field: 'state',
+              operator: '=',
+              type: 'select',
+              options: states.map((s: any) => ({
+                label: s.name,
+                value: s.id,
+              })),
+            },
+            {
+              label: 'Parts By',
+              field: 'parts_by',
+              operator: '=',
+              type: 'select',
+              options: partsBy.map((p: any) => ({
+                label: p.name,
+                value: p.id,
+              })),
+            },
+            {
+              label: 'Order Date',
+              field: 'order_date',
+              operator: 'between',
+              type: 'date-range',
+            },
+          ]}
+        />
+
+        {/* Table */}
         <DataTable
-          data={jobs.data}
+          data={orders.data}
           selected={selected}
           selectable={false}
           toggleAll={toggleAll}
@@ -110,7 +150,7 @@ export default function Index() {
           columns={columns}
         />
 
-        <Pagination meta={jobs} />
+        <Pagination meta={orders} />
       </div>
     </AppLayout>
   );
