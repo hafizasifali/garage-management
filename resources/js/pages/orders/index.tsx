@@ -79,15 +79,11 @@ export default function Index() {
       <div className="p-4 space-y-4">
         {/* Header */}
         <div className="flex justify-between items-center">
-          <h1 className="text-xl font-bold">Orders</h1>
-          <Button asChild>
-            <Link href={route('orders.create')}>Create</Link>
-          </Button>
-        </div>
-
-        {/* Filters */}
+          
+           {/* Filters */}
         <FilterBar
-          routeName="orders.index"
+          routeName="orders.filter"
+          placeholder='Search Orders By Customer, Vehicle, State...'
           filters={activeFilters as FilterRule[]}
           search={search}
           config={[
@@ -139,6 +135,13 @@ export default function Index() {
             },
           ]}
         />
+
+          <Button asChild>
+            <Link href={route('orders.create')}>Create</Link>
+          </Button>
+        </div>
+
+       
 
         {/* Table */}
         <DataTable

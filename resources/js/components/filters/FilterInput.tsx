@@ -1,4 +1,5 @@
 import { X, ChevronDown } from 'lucide-react';
+import { placeholderCSS } from 'node_modules/react-select/dist/declarations/src/components/Placeholder';
 import { useRef } from 'react';
 
 interface Token {
@@ -25,6 +26,7 @@ export default function FilterInput({
   onRemoveToken,
   onKeyDown,
   onToggleDropdown,
+    placeholder = 'Search or add filter...',
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -58,7 +60,7 @@ export default function FilterInput({
           value={value ?? ''}
           onChange={e => onChange(e.target.value)}
           onKeyDown={onKeyDown}
-          placeholder={tokens.length ? '' : 'Search or filter…'}
+          placeholder={tokens.length ? '' : placeholder}
           className="w-full bg-transparent outline-none text-sm py-1 pr-6"
         />
 

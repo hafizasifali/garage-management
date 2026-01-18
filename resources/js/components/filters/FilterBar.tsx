@@ -22,6 +22,7 @@ interface Props {
   filters: FilterRule[];
   search?: string;
   config: FilterConfig[];
+    placeholder?: string;
 }
 
 export default function FilterBar({
@@ -29,6 +30,7 @@ export default function FilterBar({
   filters,
   search = '',
   config,
+placeholder = 'Search or add filter...',
 }: Props) {
   const [tokens, setTokens] = useState<FilterRule[]>(filters || []);
   const [input, setInput] = useState(search ?? '');
@@ -39,7 +41,7 @@ export default function FilterBar({
 
 function sync(nextTokens = tokens, nextSearch = input) {
     router.post(
-        route('orders.filter'), // <-- post to filter route
+        route(routeName), // <-- post to filter route
         { filters: nextTokens, search: nextSearch },
         { preserveState: true }
     );
@@ -94,6 +96,7 @@ function sync(nextTokens = tokens, nextSearch = input) {
           label: t.label || t.field,
           display: t.display ?? String(t.value),
         }))}
+        placeholder={placeholder}
         value={input ?? ''}
         open={open}
         onChange={v => {
