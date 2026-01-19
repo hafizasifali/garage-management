@@ -130,8 +130,8 @@ export default function Index() {
             {
               label: 'Order Date',
               field: 'order_date',
-              operator: 'between',
-              type: 'date-range',
+              operator: '=',
+              type: 'date',
             },
           ]}
         />

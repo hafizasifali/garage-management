@@ -58,6 +58,7 @@ export default function FilterInput({
         <input
           ref={inputRef}
           value={value ?? ''}
+          onFocus={onToggleDropdown}
           onChange={e => onChange(e.target.value)}
           onKeyDown={onKeyDown}
           placeholder={tokens.length ? '' : placeholder}
