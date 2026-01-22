@@ -46,4 +46,15 @@ class OrderLine extends Model
     public function employee(){
         return $this->belongsTo(Employee::class);
     }
+
+    public function scopeParts($q)
+    {
+        return $q->whereHas('product', fn ($p) => $p->where('type', 'product'));
+    }
+
+    public function scopeLabour($q)
+    {
+        return $q->whereHas('product', fn ($p) => $p->where('type', 'service'));
+    }
+
 }

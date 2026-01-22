@@ -98,7 +98,7 @@ export default function PurchaseOrderForm({
             </h1>
             <div className="flex gap-2">
               <Button type="button" variant="outline" onClick={() => window.history.back()}>
-                Cancel
+                Go Back
               </Button>
               <Button type="submit">{record ? 'Update' : 'Create'}</Button>
             </div>

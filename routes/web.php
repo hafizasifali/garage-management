@@ -43,12 +43,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])->name('orders.invoice');
     Route::resource('orders', OrderController::class);
     Route::resource('employees', EmployeeController::class);
+    Route::post('/purchase-orders/filter', [PurchaseOrderController::class, 'filter'])->name('purchase-orders.filter');
     Route::resource('purchase-orders', PurchaseOrderController::class);
+    Route::put('/orders/{order}/state', [OrderController::class, 'updateState'])
+        ->name('orders.update.state');
+
+    Route::put('/purchase-orders/{order}/state', [PurchaseOrderController::class, 'updateState'])
+        ->name('purchase-orders.update.state');
+
     Route::resource('products', ProductController::class);
 
 
     //Reports
-    Route::get('/reports/billing', [OrderController::class, 'salesReport'])->name('reports.billingReport');
+    Route::get('/reports/billing', [OrderController::class, 'billingReport'])->name('reports.billingReport');
+    Route::post('/reports/billing/filter', [OrderController::class, 'filterBillingReport'])->name('reports.billing.filter');
+
 });
 
 require __DIR__.'/settings.php';

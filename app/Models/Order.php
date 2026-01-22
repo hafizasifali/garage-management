@@ -66,7 +66,7 @@ class Order extends Model
             'vehicle_vin' => ['label' => 'VIN', 'type' => 'char'],
             'order_date' => ['label' => 'Order Date', 'type' => 'date'],
             'parts_by' => ['label' => 'Parts By', 'type' => 'many2one', 'relation' => 'parts_by'],
-            'state' => ['label' => 'Order State', 'type' => 'many2one', 'relation' => 'states'],
+//            'state' => ['label' => 'Order State', 'type' => 'many2one', 'relation' => 'states'],
         ];
     }
 
@@ -76,6 +76,7 @@ class Order extends Model
             ['id' => 'pending', 'name' => 'Pending'],
             ['id' => 'in_progress', 'name' => 'In Progress'],
             ['id' => 'completed', 'name' => 'Completed'],
+            ['id' => 'paid', 'name' => 'Paid'],
         ];
     }
     public static function partsBy(): array

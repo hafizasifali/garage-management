@@ -61,7 +61,7 @@ class PurchaseOrder extends Model
             'supplier_phone' => ['label' => 'Supplier Phone', 'type' => 'char'],
             'supplier_address' => ['label' => 'Supplier Address', 'type' => 'char'],
             'order_date' => ['label' => 'Order Date', 'type' => 'date'],
-            'state' => ['label' => 'Status', 'type' => 'many2one', 'relation' => 'states'],
+//            'state' => ['label' => 'Status', 'type' => 'many2one', 'relation' => 'states'],
         ];
     }
 

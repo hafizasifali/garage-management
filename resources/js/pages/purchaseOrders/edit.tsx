@@ -5,10 +5,11 @@ import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Plus, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import Select from 'react-select';
 import { route } from 'ziggy-js';
+import StateBarWithActions from '@/components/ui/StateBarWithActions';
 
 export default function PurchaseOrderEdit({
   record,
@@ -33,7 +34,25 @@ export default function PurchaseOrderEdit({
     ...(record || {}),
   });
 
-  const breadcrumbs: BreadcrumbItem[] = [
+    const [currentState, setCurrentState] = useState(
+        form.data.state || 'draft',
+    );
+    const workflowActions: WorkflowAction[] = [
+        { value: 'confirmed', label: 'Confirm', visibleInStates: ['draft'] },
+        { value: 'received', label: 'Receive', visibleInStates: ['confirmed'] },
+        {
+            value: 'cancelled',
+            label: 'Cancel',
+            visibleInStates: ['draft', 'confirmed'],
+        },
+    ];
+
+    const handleStateChange = (newState: string) => {
+        // Optionally make an API call to update state
+        setCurrentState(newState);
+    };
+
+    const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Purchase Orders', href: route('purchase-orders.index') },
     { title: record ? `Edit PO #${record.id}` : 'New Purchase Order', href: '#' },
   ];
@@ -86,120 +105,220 @@ export default function PurchaseOrderEdit({
   const options = { suppliers, products, states };
 
   return (
-    <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title={record ? `Edit PO #${record.id}` : 'New Purchase Order'} />
+      <AppLayout breadcrumbs={breadcrumbs}>
+          <Head
+              title={record ? `Edit PO #${record.id}` : 'New Purchase Order'}
+          />
 
-      <div className="p-4">
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4 flex items-center justify-between">
-            <h1 className="text-xl font-bold">
-              {record ? `Edit PO #${record.id}` : 'Create Purchase Order'}
-            </h1>
-            <div className="flex gap-2">
-              <Button type="button" variant="outline" onClick={() => window.history.back()}>
-                Cancel
-              </Button>
-              <Button type="submit">{record ? 'Update' : 'Create'}</Button>
-            </div>
-          </div>
-
-          {/* ---------------- Main Fields ---------------- */}
-          <FormRenderer fields={fields} form={form} options={options} columns={2} />
-
-          {/* ---------------- Lines Table ---------------- */}
-          <div className="mt-6">
-            <h2 className="mb-2 text-lg font-semibold">Purchase Lines</h2>
-
-            <table className="w-full rounded border">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="p-1">Product</th>
-                  <th className="p-1">Quantity</th>
-                  <th className="p-1">Unit Price</th>
-                  <th className="p-1">Subtotal</th>
-                  <th className="p-1">Actions</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {form.data.lines.map((line, index) => (
-                  <tr key={index}>
-                    <td className="p-1">
-                      <Select
-                        options={products.map((p: any) => ({ value: p.id, label: p.name }))}
-                        value={
-                          line.product_id
-                            ? { value: line.product_id, label: products.find((p: any) => p.id === line.product_id)?.name }
-                            : null
-                        }
-                        onChange={(selected: any) => {
-                          const productId = selected?.value || null;
-                          const product = products.find((p: any) => p.id === productId);
-
-                          const newLines = [...form.data.lines];
-                          newLines[index].product_id = productId;
-                          newLines[index].unit_price = product ? Number(product.cost_price || 0) : 0;
-                          newLines[index].subtotal = newLines[index].unit_price * newLines[index].quantity;
-                          form.setData('lines', newLines);
-                        }}
-                        isClearable
+          <div className="p-4">
+              <form onSubmit={handleSubmit}>
+                  <div className="mb-4 flex flex-col gap-2">
+                      <div className="mb-4 flex items-center justify-between">
+                      <h1 className="text-xl font-bold">
+                          {record
+                              ? `Edit PO #${record.id}`
+                              : 'Create Purchase Order'}
+                      </h1>
+                      <div className="flex gap-2">
+                          <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => window.history.back()}
+                          >
+                              Go Back
+                          </Button>
+                          <Button type="submit">
+                              {record ? 'Update' : 'Create'}
+                          </Button>
+                      </div>
+                      </div>
+                      <StateBarWithActions
+                          states={states}
+                          currentState={currentState}
+                          actions={workflowActions}
+                          onStateChange={(newState) => {
+                              setCurrentState(newState);
+                              form.setData('state', newState);
+                          }}
                       />
-                    </td>
+                  </div>
 
-                    <td className="p-1">
-                      <Input
-                        type="number"
-                        value={Number(line.quantity || 0).toFixed(0)}
-                        onChange={(e) => updateLine(index, 'quantity', Number(e.target.value))}
-                      />
-                    </td>
+                  {/* ---------------- Main Fields ---------------- */}
+                  <FormRenderer
+                      fields={fields}
+                      form={form}
+                      options={options}
+                      columns={2}
+                  />
 
-                    <td className="p-1">
-                      <Input
-                        type="number"
-                        value={Number(line.unit_price || 0).toFixed(2)}
-                        onChange={(e) => updateLine(index, 'unit_price', Number(e.target.value))}
-                      />
-                    </td>
+                  {/* ---------------- Lines Table ---------------- */}
+                  <div className="mt-6">
+                      <h2 className="mb-2 text-lg font-semibold">
+                          Purchase Lines
+                      </h2>
 
-                    <td className="p-1 text-center">{Number(line.subtotal || 0).toFixed(2)}</td>
+                      <table className="w-full rounded border">
+                          <thead>
+                              <tr className="bg-gray-100">
+                                  <th className="p-1">Product</th>
+                                  <th className="p-1">Quantity</th>
+                                  <th className="p-1">Unit Price</th>
+                                  <th className="p-1">Subtotal</th>
+                                  <th className="p-1">Actions</th>
+                              </tr>
+                          </thead>
 
-                    <td className="p-1 text-center">
-                      <Button size="sm" variant="destructive" onClick={() => removeLine(index)}>
-                        <Trash2 className="h-4 w-4" />
+                          <tbody>
+                              {form.data.lines.map((line, index) => (
+                                  <tr key={index}>
+                                      <td className="p-1">
+                                          <Select
+                                              options={products.map(
+                                                  (p: any) => ({
+                                                      value: p.id,
+                                                      label: p.name,
+                                                  }),
+                                              )}
+                                              value={
+                                                  line.product_id
+                                                      ? {
+                                                            value: line.product_id,
+                                                            label: products.find(
+                                                                (p: any) =>
+                                                                    p.id ===
+                                                                    line.product_id,
+                                                            )?.name,
+                                                        }
+                                                      : null
+                                              }
+                                              onChange={(selected: any) => {
+                                                  const productId =
+                                                      selected?.value || null;
+                                                  const product = products.find(
+                                                      (p: any) =>
+                                                          p.id === productId,
+                                                  );
+
+                                                  const newLines = [
+                                                      ...form.data.lines,
+                                                  ];
+                                                  newLines[index].product_id =
+                                                      productId;
+                                                  newLines[index].unit_price =
+                                                      product
+                                                          ? Number(
+                                                                product.cost_price ||
+                                                                    0,
+                                                            )
+                                                          : 0;
+                                                  newLines[index].subtotal =
+                                                      newLines[index]
+                                                          .unit_price *
+                                                      newLines[index].quantity;
+                                                  form.setData(
+                                                      'lines',
+                                                      newLines,
+                                                  );
+                                              }}
+                                              isClearable
+                                          />
+                                      </td>
+
+                                      <td className="p-1">
+                                          <Input
+                                              type="number"
+                                              value={Number(
+                                                  line.quantity || 0,
+                                              ).toFixed(0)}
+                                              onChange={(e) =>
+                                                  updateLine(
+                                                      index,
+                                                      'quantity',
+                                                      Number(e.target.value),
+                                                  )
+                                              }
+                                          />
+                                      </td>
+
+                                      <td className="p-1">
+                                          <Input
+                                              type="number"
+                                              value={Number(
+                                                  line.unit_price || 0,
+                                              ).toFixed(2)}
+                                              onChange={(e) =>
+                                                  updateLine(
+                                                      index,
+                                                      'unit_price',
+                                                      Number(e.target.value),
+                                                  )
+                                              }
+                                          />
+                                      </td>
+
+                                      <td className="p-1 text-center">
+                                          {Number(line.subtotal || 0).toFixed(
+                                              2,
+                                          )}
+                                      </td>
+
+                                      <td className="p-1 text-center">
+                                          <Button
+                                              size="sm"
+                                              variant="destructive"
+                                              onClick={() => removeLine(index)}
+                                          >
+                                              <Trash2 className="h-4 w-4" />
+                                          </Button>
+                                      </td>
+                                  </tr>
+                              ))}
+                          </tbody>
+                      </table>
+
+                      <Button
+                          type="button"
+                          onClick={addLine}
+                          variant="outline"
+                          className="mt-2"
+                      >
+                          <Plus className="mr-1" /> Add Line
                       </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                  </div>
 
-            <Button type="button" onClick={addLine} variant="outline" className="mt-2">
-              <Plus className="mr-1" /> Add Line
-            </Button>
+                  {/* ---------------- Summary ---------------- */}
+                  <div className="float-right mt-4">
+                      <table className="border-collapse border">
+                          <tbody>
+                              <tr>
+                                  <td className="px-2 py-1 font-semibold">
+                                      Untaxed Amount
+                                  </td>
+                                  <td className="px-2 py-1 text-right">
+                                      ${untaxedAmount.toFixed(2)}
+                                  </td>
+                              </tr>
+                              <tr>
+                                  <td className="px-2 py-1 font-semibold">
+                                      Tax 13%
+                                  </td>
+                                  <td className="px-2 py-1 text-right">
+                                      ${taxAmount.toFixed(2)}
+                                  </td>
+                              </tr>
+                              <tr className="border-t">
+                                  <td className="px-2 py-1 font-semibold">
+                                      Total
+                                  </td>
+                                  <td className="px-2 py-1 text-right text-lg">
+                                      ${totalAmount.toFixed(2)}
+                                  </td>
+                              </tr>
+                          </tbody>
+                      </table>
+                  </div>
+              </form>
           </div>
-
-          {/* ---------------- Summary ---------------- */}
-          <div className="float-right mt-4">
-            <table className="border-collapse border">
-              <tbody>
-                <tr>
-                  <td className="px-2 py-1 font-semibold">Untaxed Amount</td>
-                  <td className="px-2 py-1 text-right">${untaxedAmount.toFixed(2)}</td>
-                </tr>
-                <tr>
-                  <td className="px-2 py-1 font-semibold">Tax 13%</td>
-                  <td className="px-2 py-1 text-right">${taxAmount.toFixed(2)}</td>
-                </tr>
-                <tr className="border-t">
-                  <td className="px-2 py-1 font-semibold">Total</td>
-                  <td className="px-2 py-1 text-right text-lg">${totalAmount.toFixed(2)}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </form>
-      </div>
-    </AppLayout>
+      </AppLayout>
   );
 }

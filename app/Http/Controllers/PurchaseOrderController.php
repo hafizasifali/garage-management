@@ -6,20 +6,41 @@ use App\Models\Company;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
 use App\Models\Product;
+use App\Support\QueryFilter;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class PurchaseOrderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $orders = PurchaseOrder::with(['supplier', 'lines.product'])->paginate(10);
+        $filters = session('purchase_orders.filters', []);
+        $search  = session('purchase_orders.search', '');
 
-        return Inertia::render('purchaseOrders/index', [
-            'orders' => $orders,
+        $query = PurchaseOrder::query()->with(['supplier']);
+
+        // Apply structured filters
+        $query = QueryFilter::apply($query, $filters);
+
+        // Apply global search
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('supplier_name', 'like', "%$search%")
+                    ->orWhere('supplier_email', 'like', "%$search%")
+                    ->orWhere('supplier_phone', 'like', "%$search%");
+            });
+        }
+
+        return inertia('purchaseOrders/index', [
+            'orders' => $query->latest()->paginate(80),
+            'activeFilters' => $filters,
+            'search' => $search,
+            'suppliers' => Supplier::select('id', 'name')->orderBy('name')->get(),
+            'states' => PurchaseOrder::states(),
         ]);
     }
+
 
     public function create()
     {
@@ -130,4 +151,35 @@ class PurchaseOrderController extends Controller
         return $pdf->stream("invoice_purchase_order_{$purchaseOrder->id}.pdf");
         // return $pdf->download("invoice_purchase_order_{$purchaseOrder->id}.pdf");
     }
+
+    public function updateState(Request $request, PurchaseOrder $order)
+    {
+        $request->validate([
+            'state' => 'required|string', // use your states
+        ]);
+
+        $order->update(['state' => $request->state]);
+
+        return redirect()->back()->with('success', 'Order state updated!');
+    }
+
+
+    public function filter(Request $request)
+    {
+        // Ensure filters/search are arrays/strings
+        $filters = $request->input('filters', []);
+        $search  = $request->input('search', '');
+
+        // Store in session
+        session([
+            'purchase_orders.filters' => $filters,
+            'purchase_orders.search'  => $search,
+        ]);
+
+        // Redirect to index
+        return redirect()->route('purchase-orders.index');
+    }
+
+
+
 }

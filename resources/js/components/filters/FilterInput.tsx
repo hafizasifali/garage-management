@@ -32,7 +32,7 @@ export default function FilterInput({
 
   return (
     <div
-      className="flex items-center flex-wrap gap-1 border rounded-lg px-2 py-1 min-h-[42px] bg-background"
+      className="flex items-center flex-wrap gap-1 border-2 border-gray-400 rounded-lg px-2 py-1 min-h-[42px] bg-background"
       onClick={() => inputRef.current?.focus()}
     >
       {/* Tokens */}

@@ -46,7 +46,6 @@ class OrderController extends Controller
             'activeFilters' => $filters,
             'search' => $search,
             'customers' => Customer::select('id', 'name')->orderBy('name')->get(),
-            'vehicles' => $vehicles,
             'states' => Order::states(),
             'partsBy' => Order::partsBy(),
         ]);
@@ -296,14 +295,95 @@ class OrderController extends Controller
 //        return $pdf->download("invoice_order_{$order->id}.pdf");
     }
 
-    public function salesReport()
+    public function billingReport(Request $request)
     {
-        $orders = Order::with(['lines'])->orderBy('order_date', 'desc')->where('id',0)->paginate(80);
+        $filters = session('reports.billing.filters', []);
+        $search  = session('reports.billing.search', '');
 
-        return Inertia::render('reports/SalesReport', [
+        $query = Order::query()->with([
+            'lines.product',
+            'vehicle',
+            'customer',
+        ]);
+
+        // Apply structured filters
+        $query = QueryFilter::apply($query, $filters);
+
+        // Global search
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('customer_name', 'like', "%$search%")
+                    ->orWhere('vehicle_license_plate', 'like', "%$search%")
+                    ->orWhereHas('vehicle', fn ($v) =>
+                    $v->where('license_plate', 'like', "%$search%")
+                    );
+            });
+        }
+
+        $orders = $query
+            ->orderBy('order_date', 'desc')
+            ->paginate(80)
+            ->through(function ($order) {
+
+                $partsLines = $order->lines->filter(fn ($l) => $l->product?->type === 'part');
+                $labourLines = $order->lines->filter(fn ($l) => $l->product?->type === 'labour');
+
+                $brakeFluidLines = $order->lines->filter(fn ($l) =>
+                str_contains(strtolower($l->product?->name ?? ''), 'brake')
+                );
+
+                $otherLines = $order->lines->diff($partsLines)->diff($labourLines);
+
+                $partsCost = $partsLines->sum('subtotal');
+                $labourTotal = $labourLines->sum('subtotal');
+                $labourPerHour = $labourLines->avg('unit_price') ?? 0;
+                $brakeFluidCost = $brakeFluidLines->sum('subtotal');
+                $otherCost = $otherLines->sum('subtotal');
+
+                return [
+                    'id' => $order->id,
+                    'date' => optional($order->order_date)->format('Y-m-d'),
+                    'invoice_number' => 'INV-' . str_pad($order->id, 6, '0', STR_PAD_LEFT),
+                    'license_plate' => $order->vehicle_license_plate ?? $order->vehicle?->license_plate ?? '-',
+                    'description' => $order->lines->pluck('product.name')->filter()->implode(', '),
+                    'parts_cost' => round($partsCost, 2),
+                    'brake_fluid_cost' => round($brakeFluidCost, 2),
+                    'mention' => ucfirst(str_replace('_', ' ', $order->state)),
+                    'other_cost' => round($otherCost, 2),
+                    'labour_per_hour' => round($labourPerHour, 2),
+                    'total_labour' => round($labourTotal, 2),
+                    'subtotal' => round($partsCost + $labourTotal, 2),
+                    'parts' => round($partsCost, 2),
+                    'hst' => round($order->total_tax ?? 0, 2),
+                    'invoice_total' => round($order->total_amount ?? ($partsCost + $labourTotal + ($order->total_tax ?? 0)), 2),
+                    'parts_teejay' => $order->parts_by === 'us' ? 'Yes' : 'No',
+                ];
+            });
+
+        return inertia('reports/BillingReport', [
             'reports' => $orders,
+            'activeFilters' => $filters,
+            'search' => $search,
+            'customers' => Customer::select('id', 'name')->orderBy('name')->get(),
+            'vehicles' => Vehicle::select('id', 'license_plate', 'name')->orderBy('license_plate')->get(),
+            'states' => Order::states(),
+            'partsBy' => Order::partsBy(),
         ]);
     }
+
+
+
+    public function updateState(Request $request, Order $order)
+    {
+        $request->validate([
+            'state' => 'required|string', // use your states
+        ]);
+
+        $order->update(['state' => $request->state]);
+
+        return redirect()->back()->with('success', 'Order state updated!');
+    }
+
 
     // New filter POST method
     public function filter(Request $request)
@@ -320,5 +400,21 @@ class OrderController extends Controller
 
         // Redirect to index
         return redirect()->route('orders.index');
+    }
+
+    public function filterBillingReport(Request $request)
+    {
+        // Ensure filters/search are arrays/strings
+        $filters = $request->input('filters', []);
+        $search  = $request->input('search', '');
+
+        // Store in session
+        session([
+            'reports.billing.filters' => $filters,
+            'reports.billing.search'  => $search,
+        ]);
+
+        // Redirect to index
+        return redirect()->route('reports.billingReport');
     }
 }

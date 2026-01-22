@@ -53,6 +53,7 @@ export default function ProductIndex() {
         { label: 'Category', render: (row: Product) => row.category?.name },
         // { label: 'UOM', render: (row: Product) => row.uom?.name },
         { label: 'Type', render: (row: Product) => row.type },
+        { label: 'Quantity', render: (row: Product) => row.qty_on_hand },
         { label: 'Sale Price', render: (row: Product) => row.sale_price },
         {
             label: 'Active',
@@ -67,13 +68,13 @@ export default function ProductIndex() {
                             <Edit className="h-4 w-4" />
                         </Link>
                     </Button>
-                    <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => handleDelete(row.id, row.name)}
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {/*<Button*/}
+                    {/*    size="sm"*/}
+                    {/*    variant="destructive"*/}
+                    {/*    onClick={() => handleDelete(row.id, row.name)}*/}
+                    {/*>*/}
+                    {/*    <Trash2 className="h-4 w-4" />*/}
+                    {/*</Button>*/}
                 </div>
             ),
         },
