@@ -42,6 +42,7 @@ class Vehicle extends Model
             'vin' => [
                 'type' => 'char',
                 'label' => 'Identification Number (VIN)',
+                'length' => 17,
                 'required' => true,
             ],
             'license_plate' => [

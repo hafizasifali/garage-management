@@ -5,11 +5,12 @@ import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Plus, Trash2 } from 'lucide-react';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import Select from 'react-select';
 import { route } from 'ziggy-js';
 
+const today = new Date().toISOString().slice(0, 10);
 export default function OrderForm({
     record,
     customers,
@@ -23,11 +24,11 @@ export default function OrderForm({
     vehicles_fields,
 }: any) {
     const form = useForm({
-        customer_id: record?.customer_id ?? null,
-        vehicle_id: record?.vehicle_id ?? null,
-        employee_id: null,
-        job_date: '',
-        state: record?.state ?? 'pending',
+        customer_id: null,
+        vehicle_id:  null,
+        order_date: '',
+        state: 'in_progress',
+        parts_by: 'us',
         total_parts_cost: 0,
         total_labor_cost: 0,
         total_tax: 0,
@@ -38,9 +39,12 @@ export default function OrderForm({
             unit_price: Number(line.unit_price || 0),
             subtotal: Number(line.unit_price || 0) * Number(line.quantity || 0),
         })),
-        ...(record || {}),
+        ...(record || {
+            order_date: today, // ✅ dynamic,
+            state: 'in_progress',
+            parts_by: 'us',
+        }),
     });
-
     /* ---------------- Vehicle filtering (Odoo behavior) ---------------- */
 
     const filteredVehicles = useMemo(() => {
@@ -80,13 +84,14 @@ export default function OrderForm({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        record
-            ? form.put(route('orders.update', record.id), {
-                  onSuccess: () => toast.success('Order updated successfully!'),
-              })
-            : form.post(route('orders.store'), {
-                  onSuccess: () => toast.success('Order created successfully!'),
-              });
+        form.post(route('orders.store'), {
+            onSuccess: () => toast.success('Order created successfully!'),
+            onError: (errors) => {
+                Object.values(errors).forEach((error) => {
+                    toast.error(error);
+                });
+            },
+        });
     };
 
     /* ---------------- Lines Handling ---------------- */
@@ -134,16 +139,39 @@ export default function OrderForm({
     const totalAmount = untaxedAmount + taxAmount;
 
     /* ---------------- Options ---------------- */
+    const types = [
+        { id: 'individual', name: 'Individual' },
+        { id: 'company', name: 'Company' },
+    ];
+    const [localCustomers, setLocalCustomers] = useState(customers || []);
 
-    const options = {
-        states,
-        customers,
-        vehicles: filteredVehicles, // 🔥 filtered list
-        products,
-        employees,
-        parts_by,
-        customers_fields,
-        vehicles_fields,
+    const options = useMemo(
+        () => ({
+            types,
+            states,
+            customers: localCustomers,
+            vehicles: filteredVehicles,
+            products,
+            employees,
+            parts_by,
+            customers_fields,
+            vehicles_fields,
+        }),
+        [
+            types,
+            states,
+            localCustomers,
+            filteredVehicles,
+            products,
+            employees,
+            parts_by,
+            customers_fields,
+            vehicles_fields,
+        ],
+    );
+
+    const handleCustomerCreated = (newCustomer: any) => {
+        setLocalCustomers((prev) => [...prev, newCustomer]);
     };
 
     return (
@@ -173,8 +201,11 @@ export default function OrderForm({
                     </div>
 
                     <FormRenderer
-                        key={`customer-${form.data.customer_id ?? 'none'}`} // 🔥 forces vehicle re-render
                         fields={fields}
+                        onOptionsUpdate={(relation, record) => {
+                            if (relation === 'customers')
+                                handleCustomerCreated(record);
+                        }}
                         form={form}
                         options={options}
                         columns={2}
@@ -187,12 +218,14 @@ export default function OrderForm({
                         <table className="w-full rounded border">
                             <thead>
                                 <tr className="bg-gray-100">
-                                    <th className="p-1">Product</th>
-                                    <th className="p-1">Mechanic</th>
-                                    <th className="p-1">Quantity</th>
-                                    <th className="p-1">Unit Price</th>
-                                    <th className="p-1">Subtotal</th>
-                                    <th className="p-1">Actions</th>
+                                    <th className="w-[40%] p-1">Product</th>
+                                    <th className="w-[25%] p-1">Mechanic</th>
+                                    <th className="w-[8.75%] p-1">Quantity</th>
+                                    <th className="w-[8.75%] p-1">
+                                        Unit Price
+                                    </th>
+                                    <th className="w-[8.75%] p-1">Subtotal</th>
+                                    <th className="w-[8.75%] p-1">Actions</th>
                                 </tr>
                             </thead>
 

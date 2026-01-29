@@ -10,7 +10,7 @@ import AppLayout from '@/layouts/app-layout';
 import FormRenderer from '@/components/form/FormRenderer';
 import StateBarWithActions, { WorkflowAction, WorkflowState } from '@/components/ui/StateBarWithActions';
 import { BreadcrumbItem } from '@/types';
-import { LucideDownloadCloud, Plus, Trash2 } from 'lucide-react';
+import { LucideDownloadCloud, Plus, Send, Trash2 } from 'lucide-react';
 
 export default function OrderForm({
                                       record,
@@ -160,34 +160,82 @@ export default function OrderForm({
                                     ? `Edit Order #${record.id}`
                                     : 'Create Order'}
                             </h1>
-
                             <div className="mt-6 flex justify-end gap-2">
-                                <Button type="submit">
-                                    {record ? 'Update' : 'Create'}
-                                </Button>
                                 {record && (
-                                    <Button
-                                        type="button"
-                                        variant="secondary"
-                                        onClick={() =>
-                                            window.open(
-                                                route(
-                                                    'orders.invoice',
-                                                    record.id,
-                                                ),
-                                                '_blank',
-                                            )
-                                        }
-                                        className="flex items-center gap-1"
-                                    >
-                                        <LucideDownloadCloud className="h-4 w-4" />{' '}
-                                        Invoice
-                                    </Button>
+                                    <>
+                                        {/* Send Invoice */}
+                                        <Button
+                                            type="button"
+                                            variant="destructive" // red for important action
+                                            onClick={() => {
+                                                Swal.fire({
+                                                    title: 'Send invoice to customer?',
+                                                    text: 'The invoice PDF will be emailed.',
+                                                    icon: 'question',
+                                                    showCancelButton: true,
+                                                    confirmButtonText: 'Send',
+                                                    cancelButtonText: 'Cancel',
+                                                }).then((result) => {
+                                                    if (result.isConfirmed) {
+                                                        router.post(
+                                                            route(
+                                                                'orders.send-invoice',
+                                                                record.id,
+                                                            ),
+                                                            {},
+                                                            {
+                                                                preserveScroll: true,
+                                                                onSuccess: () =>
+                                                                    toast.success(
+                                                                        'Invoice sent successfully!',
+                                                                    ),
+                                                                onError: () =>
+                                                                    toast.error(
+                                                                        'Failed to send invoice.',
+                                                                    ),
+                                                            },
+                                                        );
+                                                    }
+                                                });
+                                            }}
+                                            className="flex items-center gap-1 border-none bg-red-600 text-white hover:bg-red-700"
+                                        >
+                                            <Send className="h-4 w-4" />
+                                            Send Invoice
+                                        </Button>
+
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                            onClick={() =>
+                                                window.open(
+                                                    route(
+                                                        'orders.invoice',
+                                                        record.id,
+                                                    ),
+                                                    '_blank',
+                                                )
+                                            }
+                                            className="flex items-center gap-1 border-none bg-blue-600 text-white hover:bg-blue-700"
+                                        >
+                                            <LucideDownloadCloud className="h-4 w-4" />{' '}
+                                            Invoice
+                                        </Button>
+                                    </>
                                 )}
+
+                                <Button
+                                    type="submit"
+                                    className="flex items-center gap-1 border-none bg-gray-700 text-white hover:bg-gray-800"
+                                >
+                                    Update
+                                </Button>
+
                                 <Button
                                     type="button"
                                     variant="outline"
                                     onClick={() => window.history.back()}
+                                    className="flex items-center gap-1 border-gray-400 text-gray-700 hover:bg-gray-100"
                                 >
                                     Go Back
                                 </Button>
@@ -217,12 +265,14 @@ export default function OrderForm({
                         <table className="w-full rounded border">
                             <thead>
                                 <tr className="bg-gray-100">
-                                    <th className="p-1">Product</th>
-                                    <th className="p-1">Mechanic</th>
-                                    <th className="p-1">Quantity</th>
-                                    <th className="p-1">Unit Price</th>
-                                    <th className="p-1">Subtotal</th>
-                                    <th className="p-1">Actions</th>
+                                    <th className="w-[40%] p-1">Product</th>
+                                    <th className="w-[25%] p-1">Mechanic</th>
+                                    <th className="w-[8.75%] p-1">Quantity</th>
+                                    <th className="w-[8.75%] p-1">
+                                        Unit Price
+                                    </th>
+                                    <th className="w-[8.75%] p-1">Subtotal</th>
+                                    <th className="w-[8.75%] p-1">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>

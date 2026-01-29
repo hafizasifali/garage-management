@@ -17,7 +17,6 @@ class Customer extends Model
         'email',
         'phone',
         'address',
-        'type'
     ];
 
        public static function fields(): array

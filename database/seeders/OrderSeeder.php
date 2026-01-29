@@ -36,7 +36,7 @@ class OrderSeeder extends Seeder
                 $employee = $employees->random();
 
                 $orderDate = Carbon::now()->subDays(rand(0, 30));
-                $state = collect(['pending', 'in_progress', 'completed'])->random();
+                $state = collect(['in_progress', 'completed'])->random();
 
                 /*
                 |--------------------------------------------------------------------------

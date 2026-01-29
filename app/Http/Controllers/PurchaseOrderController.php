@@ -46,7 +46,7 @@ class PurchaseOrderController extends Controller
     {
         return Inertia::render('purchaseOrders/create', [
             'suppliers' => Supplier::select('id', 'name')->get(),
-            'products' => Product::all(),
+            'products' => Product::where('type','=','product')->get(),
             'states' => PurchaseOrder::states(),
             'fields' => PurchaseOrder::fields(),
             'suppliers_fields' => Supplier::fields(),
@@ -60,7 +60,7 @@ class PurchaseOrderController extends Controller
 
         return Inertia::render('purchaseOrders/edit', [
             'suppliers' => Supplier::select('id', 'name')->get(),
-            'products' => Product::all(),
+            'products' => Product::where('type','=','product')->get(),
             'states' => PurchaseOrder::states(),
             'fields' => PurchaseOrder::editFields(),
             'record' => $purchaseOrder,

@@ -36,11 +36,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('suppliers/quick-create', [SupplierController::class, 'quickCreate'])->name('suppliers.quickCreate');
     Route::post('customers/quick-create', [CustomerController::class, 'quickCreate'])->name('customers.quickCreate');
     Route::resource('vehicles', VehicleController::class);
+    Route::post('vehicles/quick-create', [VehicleController::class, 'quickCreate'])->name('vehicles.quickCreate');
+
     Route::resource('product-categories', ProductCategoryController::class);
     Route::resource('products', ProductController::class);
     Route::post('/orders/filter', [OrderController::class, 'filter'])->name('orders.filter');
     Route::resource('orders', OrderController::class);
     Route::get('/orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])->name('orders.invoice');
+    Route::post('/orders/{order}/send-invoice', [OrderController::class, 'sendInvoice'])
+        ->name('orders.send-invoice');
+
     Route::resource('orders', OrderController::class);
     Route::resource('employees', EmployeeController::class);
     Route::post('/purchase-orders/filter', [PurchaseOrderController::class, 'filter'])->name('purchase-orders.filter');

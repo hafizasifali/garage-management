@@ -123,4 +123,20 @@ class Product extends Model
     {
         return $this->hasMany(InvoiceLine::class);
     }
+
+    // App\Models\Product.php
+
+    public function increaseStock($qty)
+    {
+//        dd($qty,$this->type);
+        if ($this->type !== 'product') return;
+        $this->increment('qty_on_hand', $qty);
+    }
+
+    public function decreaseStock($qty)
+    {
+        if ($this->type !== 'product') return;
+        $this->decrement('qty_on_hand', $qty);
+    }
+
 }

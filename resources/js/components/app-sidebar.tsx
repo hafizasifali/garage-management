@@ -26,6 +26,7 @@ import {
     LucideWrench,
     Package,
     PenTool,
+    PlusCircle,
     UserCog,
     Users,
     Wrench,
@@ -34,18 +35,26 @@ import AppLogo from './app-logo';
 import { route } from 'ziggy-js';
 
 
+
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: '/dashboard',
         icon: LayoutGrid, // overview
     },
-
+    {
+        title: 'New Order',
+        href: route('orders.create'),
+        icon: PlusCircle,
+        isActive: route().current('orders.create'),
+        exact: true,
+    },
     {
         title: 'Orders',
         href: route('orders.index'),
-        icon: ListOrdered, // garage jobs/work orders
-        isActive: route().current('orders.*'),
+        icon: ListOrdered,
+        isActive: route().current('orders.index'), // only active on index
+        exact: true,
     },
 
     {

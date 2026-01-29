@@ -1,8 +1,15 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
-import { Edit } from 'lucide-react';
+import {
+    CheckCircle,
+    Edit,
+    Eye,
+    MoreVertical,
+    Send,
+    Trash2,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import DataTable from '@/components/index/DataTable';
 import Pagination from '@/components/index/Pagination';
@@ -11,6 +18,15 @@ import { toDisplayDate } from '@/lib/date';
 import FilterBar from '@/components/filters/FilterBar';
 import { FilterRule } from '@/types/filter';
 import StatusBadge from '@/components/ui/status-badge';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import Swal from 'sweetalert2';
+import toast from 'react-hot-toast';
 
 type Order = {
   id: number;
@@ -71,13 +87,140 @@ export default function Index() {
       {
           label: 'Actions',
           render: (row: Order) => (
-              <div className="flex gap-2">
-                  <Button size="sm" variant="outline" asChild>
-                      <Link href={route('orders.edit', row.id)}>
-                          <Edit className="h-4 w-4" />
-                      </Link>
-                  </Button>
-              </div>
+              <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                      <Button size="icon" variant="ghost">
+                          <MoreVertical className="h-4 w-4" />
+                      </Button>
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent align="end" className="w-44">
+                      <DropdownMenuItem asChild>
+                          <Link href={route('orders.edit', row.id)}>
+                              <Edit className="mr-2 h-4 w-4" /> Edit
+                          </Link>
+                      </DropdownMenuItem>
+                      {row.state === 'in_progress' && (
+                          <DropdownMenuItem
+                              onClick={() => {
+                                  Swal.fire({
+                                      title: 'Mark order as completed?',
+                                      text: 'This action cannot be undone.',
+                                      icon: 'warning',
+                                      showCancelButton: true,
+                                      confirmButtonText: 'Yes, complete it',
+                                      cancelButtonText: 'Cancel',
+                                  }).then((result) => {
+                                      if (result.isConfirmed) {
+                                          router.put(
+                                              route(
+                                                  'orders.update.state',
+                                                  row.id,
+                                              ),
+                                              { state: 'completed' },
+                                              {
+                                                  preserveScroll: true,
+                                                  preserveState: true,
+                                                  onSuccess: () => {
+                                                      // Show success message
+                                                      toast.success(
+                                                          'Order state updated successfully!',
+                                                      );
+                                                  },
+                                                  onError: (errors) => {
+                                                      // Optionally revert UI change if error
+                                                      toast.error(
+                                                          'Failed to update state.',
+                                                      );
+                                                  },
+                                              },
+                                          );
+                                      }
+                                  });
+                              }}
+                          >
+                              <CheckCircle className="mr-2 h-4 w-4" />
+                              Mark as Complete
+                          </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem
+                          onClick={() => {
+                              Swal.fire({
+                                  title: 'Send invoice to customer?',
+                                  text: 'The invoice PDF will be emailed.',
+                                  icon: 'question',
+                                  showCancelButton: true,
+                                  confirmButtonText: 'Send',
+                                  cancelButtonText: 'Cancel',
+                              }).then((result) => {
+                                  if (result.isConfirmed) {
+                                      router.post(
+                                          route('orders.send-invoice', row.id),
+                                          {},
+                                          {
+                                              preserveScroll: true,
+                                              onSuccess: () =>
+                                                  toast.success(
+                                                      'Invoice sent successfully!',
+                                                  ),
+                                              onError: () =>
+                                                  toast.error(
+                                                      'Failed to send invoice.',
+                                                  ),
+                                          },
+                                      );
+                                  }
+                              });
+                          }}
+                      >
+                          <Send className="mr-2 h-4 w-4" />
+                          Send Invoice
+                      </DropdownMenuItem>
+                      {row.state !== 'completed' && (
+                          <>
+                              <DropdownMenuSeparator />
+
+                              <DropdownMenuItem
+                                  className="text-red-600 focus:text-red-600"
+                                  onClick={() => {
+                                      Swal.fire({
+                                          title: 'Are you sure?',
+                                          text: 'This order will be permanently deleted!',
+                                          icon: 'warning',
+                                          showCancelButton: true,
+                                          confirmButtonText: 'Yes, delete it!',
+                                          cancelButtonText: 'Cancel',
+                                          confirmButtonColor: '#dc2626', // red
+                                      }).then((result) => {
+                                          if (result.isConfirmed) {
+                                              router.delete(
+                                                  route(
+                                                      'orders.destroy',
+                                                      row.id,
+                                                  ),
+                                                  {
+                                                      preserveScroll: true,
+                                                      onSuccess: () =>
+                                                          toast.success(
+                                                              'Order deleted successfully!',
+                                                          ),
+                                                      onError: () =>
+                                                          toast.error(
+                                                              'Failed to delete order.',
+                                                          ),
+                                                  },
+                                              );
+                                          }
+                                      });
+                                  }}
+                              >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Delete
+                              </DropdownMenuItem>
+                          </>
+                      )}
+                  </DropdownMenuContent>
+              </DropdownMenu>
           ),
       },
   ];
@@ -148,7 +291,7 @@ export default function Index() {
                   {/* Right aligned Create button */}
                   <div className="flex flex-1 justify-end">
                       <Button asChild>
-                          <Link href={route('purchase-orders.create')}>
+                          <Link href={route('orders.create')}>
                               Create
                           </Link>
                       </Button>

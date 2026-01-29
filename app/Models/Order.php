@@ -73,7 +73,7 @@ class Order extends Model
     public static function states(): array
     {
         return [
-            ['id' => 'pending', 'name' => 'Pending'],
+//            ['id' => 'pending', 'name' => 'Pending'],
             ['id' => 'in_progress', 'name' => 'In Progress'],
             ['id' => 'completed', 'name' => 'Completed'],
             ['id' => 'paid', 'name' => 'Paid'],

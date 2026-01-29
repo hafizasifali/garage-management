@@ -17,22 +17,27 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
     const page = usePage();
     const [openMenu, setOpenMenu] = useState<string | null>(null);
 
-   const isUrlActive = (href?: string) => {
-    if (!href) return false;
+    const isUrlActive = (href?: string, exact = false) => {
+        if (!href) return false;
 
-    try {
-        const currentPath = page.url.split('?')[0];
-        const targetPath = new URL(resolveUrl(href), window.location.origin)
-            .pathname;
+        try {
+            const currentPath = page.url.split('?')[0];
+            const targetPath = new URL(resolveUrl(href), window.location.origin)
+                .pathname;
 
-        return (
-            currentPath === targetPath ||
-            currentPath.startsWith(targetPath + '/')
-        );
-    } catch {
-        return false;
-    }
-};
+            if (exact) {
+                return currentPath === targetPath;
+            }
+
+            // previous behavior
+            return (
+                currentPath === targetPath ||
+                currentPath.startsWith(targetPath + '/')
+            );
+        } catch {
+            return false;
+        }
+    };
 
 
     /**
@@ -54,7 +59,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                 {items.map((item) => {
                     const hasChildren = !!item.children?.length;
 
-                    const selfActive = isUrlActive(item.href);
+                    const selfActive = isUrlActive(item.href, item.exact);
                     const childActive = item.children?.some((child) =>
                         isUrlActive(child.href)
                     );

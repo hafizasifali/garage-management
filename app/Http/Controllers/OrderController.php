@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OrderInvoiceMail;
 use App\Models\Company;
 use App\Models\Order;
 use App\Models\Customer;
@@ -10,6 +11,7 @@ use App\Models\Employee;
 use App\Models\Product;
 use App\Support\QueryFilter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Barryvdh\DomPDF\Facade\Pdf;
 class OrderController extends Controller
@@ -102,6 +104,7 @@ class OrderController extends Controller
             'customer_id' => 'required|exists:customers,id',
             'vehicle_id' => 'required|exists:vehicles,id',
             'order_date' => 'required|date',
+            'state' => 'required',
             'parts_by' => 'nullable',
             'employees' => 'array',
             'employees.*' => 'exists:employees,id',
@@ -139,6 +142,7 @@ class OrderController extends Controller
             'vehicle_license_plate' => $validated['vehicle_license_plate']?? null,
             'vehicle_vin' => $validated['vehicle_vin']?? null,
             'order_date' => $validated['order_date'],
+            'parts_by'=> $validated['parts_by']?? null,
             'state' => $validated['state'],
         ]);
 
@@ -293,6 +297,20 @@ class OrderController extends Controller
         $pdf = Pdf::loadView('invoices.order', compact('order','company'));
         return $pdf->stream("invoice_order_{$order->id}.pdf"); // opens in browser
 //        return $pdf->download("invoice_order_{$order->id}.pdf");
+    }
+
+
+    public function sendInvoice(Order $order)
+    {
+        $order->load('lines', 'customer');
+        $company = Company::first();
+
+        $pdf = Pdf::loadView('invoices.order', compact('order', 'company'));
+
+        Mail::to($order->customer->email)
+            ->send(new OrderInvoiceMail($order, $company, $pdf->output()));
+
+        return back()->with('success', 'Invoice sent successfully.');
     }
 
     public function billingReport(Request $request)

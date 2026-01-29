@@ -46,7 +46,7 @@ class PurchaseOrder extends Model
                 'edit_route' => 'suppliers.edit',
             ],
             'order_date' => ['label' => 'Order Date', 'type' => 'date'],
-            'state' => ['label' => 'Status', 'type' => 'many2one', 'relation' => 'states'],
+//            'state' => ['label' => 'Status', 'type' => 'many2one', 'relation' => 'states'],
         ];
     }
 

@@ -37,7 +37,31 @@ class VehicleController extends Controller
             'customers_fields' => Customer::fields(),
         ]);
     }
+    public function quickCreate(Request $request)
+    {
+        $data = $request->validate([
+            'customer_id' => 'required|exists:customers,id',
+            'vin' => 'required|string|max:17',
+            'name' => 'required|string|max:50',
+            'license_plate' => 'required|string|max:20',
+            'model' => 'required|string|max:255',
+            'make' => 'nullable|string|max:255',
+            'year' => 'nullable|integer',
+        ]);
 
+        $vehicle = Vehicle::create($data);
+
+        return response()->json([
+            'id'    => $vehicle->id,
+            'name'  => $vehicle->name,
+            'label' => $vehicle->name,
+            'record' => [
+                'id' => $vehicle->id,
+                'name' => $vehicle->name,
+                'customer_id' => $vehicle->customer_id,
+            ],
+        ]);
+    }
     public function edit(Vehicle $vehicle)
     {
         return Inertia::render('vehicles/form', [

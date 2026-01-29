@@ -114,23 +114,23 @@ export default function PurchaseOrderEdit({
               <form onSubmit={handleSubmit}>
                   <div className="mb-4 flex flex-col gap-2">
                       <div className="mb-4 flex items-center justify-between">
-                      <h1 className="text-xl font-bold">
-                          {record
-                              ? `Edit PO #${record.id}`
-                              : 'Create Purchase Order'}
-                      </h1>
-                      <div className="flex gap-2">
-                          <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() => window.history.back()}
-                          >
-                              Go Back
-                          </Button>
-                          <Button type="submit">
-                              {record ? 'Update' : 'Create'}
-                          </Button>
-                      </div>
+                          <h1 className="text-xl font-bold">
+                              {record
+                                  ? `Edit PO #${record.id}`
+                                  : 'Create Purchase Order'}
+                          </h1>
+                          <div className="flex gap-2">
+                              <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => window.history.back()}
+                              >
+                                  Go Back
+                              </Button>
+                              <Button type="submit">
+                                  {record ? 'Update' : 'Create'}
+                              </Button>
+                          </div>
                       </div>
                       <StateBarWithActions
                           states={states}
@@ -159,12 +159,14 @@ export default function PurchaseOrderEdit({
 
                       <table className="w-full rounded border">
                           <thead>
-                              <tr className="bg-gray-100">
-                                  <th className="p-1">Product</th>
-                                  <th className="p-1">Quantity</th>
-                                  <th className="p-1">Unit Price</th>
-                                  <th className="p-1">Subtotal</th>
-                                  <th className="p-1">Actions</th>
+                              <tr className="bg-gray-100 text-left">
+                                  <th className="w-2/5 p-1">Product</th>
+                                  <th className="w-1/6 p-1">Quantity</th>
+                                  <th className="w-1/6 p-1">Unit Price</th>
+                                  <th className="w-1/6 p-1 text-center">
+                                      Subtotal
+                                  </th>
+                                  <th className="w-1/6 p-1">Actions</th>
                               </tr>
                           </thead>
 
