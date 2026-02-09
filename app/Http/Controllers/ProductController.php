@@ -44,7 +44,7 @@ class ProductController extends Controller
             'record' => null,
             'categories' => ProductCategory::select('id', 'name')->get(),
             'product_types'=> Product::productTypes(),
-            'uoms' => Uom::select('id', 'name')->get(),
+//            'uoms' => Uom::select('id', 'name')->get(),
         ]);
     }
 
@@ -67,12 +67,13 @@ class ProductController extends Controller
             'type'        => 'required|in:product,service',
             'cost_price'  => 'nullable|numeric',
             'sale_price'  => 'required|numeric',
+            'qty_on_hand'=> 'nullable|numeric',
         ]);
 
         $product = Product::create($data);
 
         return redirect()
-            ->route('products.edit', $product->id)
+            ->route('products.index')
             ->with('success', 'Product created successfully.');
     }
 

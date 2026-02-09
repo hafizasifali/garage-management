@@ -53,7 +53,7 @@ class Product extends Model
             ],
             [
                 'id' => 'product',
-                'name' => 'Storable Product',
+                'name' => 'Product',
             ],
         ];
     }

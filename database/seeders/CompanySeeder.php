@@ -18,7 +18,7 @@ class CompanySeeder extends Seeder
                 'name' => 'Teejay Auto Workshop',
                 'address' => '1161 Queen Street East, Toronto, M4M 1L3',
                 'logo' => null,
-                'email' => 'info@teajayworkshop.uk',
+                'email' => 'info@teejaysautos.com',
                 'phone' => null,
                 'mobile' => 'htts://teajayworkshop.uk',
                 'vat' => null,

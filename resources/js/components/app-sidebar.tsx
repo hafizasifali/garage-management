@@ -57,21 +57,21 @@ const mainNavItems: NavItem[] = [
         exact: true,
     },
 
-    {
-        title: 'Parts Purchases',
-        href: route('purchase-orders.index'),
-        icon: ClipboardList, // invoices
-    },
+    // {
+    //     title: 'Parts Purchases',
+    //     href: route('purchase-orders.index'),
+    //     icon: ClipboardList, // invoices
+    // },
     {
         title: 'Products',
         href: route('products.index'),
         icon: Package, // spare parts/products
     },
-    {
-        title: 'Suppliers',
-        href: route('suppliers.index'),
-        icon: Layers, // spare parts/products
-    },
+    // {
+    //     title: 'Suppliers',
+    //     href: route('suppliers.index'),
+    //     icon: Layers, // spare parts/products
+    // },
     {
         title: 'Customers',
         href: route('customers.index'),
@@ -91,16 +91,16 @@ const mainNavItems: NavItem[] = [
         icon: UserCog, // staff/mechanics
         isActive: route().current('employees.*'),
     },
-    {
-        title: 'Reports',
-        icon: BarChart2,
-        children: [
-            {
-                title: 'Billing Report',
-                href: route('reports.billingReport'),
-            },
-        ],
-    },
+    // {
+    //     title: 'Reports',
+    //     icon: BarChart2,
+    //     children: [
+    //         {
+    //             title: 'Billing Report',
+    //             href: route('reports.billingReport'),
+    //         },
+    //     ],
+    // },
 ];
 const footerNavItems: NavItem[] = [
     {

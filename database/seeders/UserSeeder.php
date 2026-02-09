@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
 
         // Admin user
         $admin = User::firstOrCreate(
-            ['email' => 'admin@garage.test'],
+            ['email' => 'admin@teejaysautos.com'],
             [
                 'name' => 'System Admin',
                 'password' => Hash::make('password'),
@@ -32,7 +32,7 @@ class UserSeeder extends Seeder
 
         // Mechanic user
         $mechanic = User::firstOrCreate(
-            ['email' => 'mechanic@garage.test'],
+            ['email' => 'mechanic@teejaysautos.com'],
             [
                 'name' => 'Garage Mechanic',
                 'password' => Hash::make('password'),
@@ -42,7 +42,7 @@ class UserSeeder extends Seeder
 
         // Accountant user
         $accountant = User::firstOrCreate(
-            ['email' => 'accountant@garage.test'],
+            ['email' => 'accountant@teejaysautos.com'],
             [
                 'name' => 'Accountant',
                 'password' => Hash::make('password'),

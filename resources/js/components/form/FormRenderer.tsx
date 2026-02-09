@@ -99,6 +99,20 @@ export default function FormRenderer({
                                 />
                             )}
 
+                            {field.type === 'password' && (
+                                <Input
+                                    type={`password`}
+                                    maxLength={field.length}
+                                    value={form.data[name] || ''}
+                                    onChange={(e) =>
+                                        form.setData(name, e.target.value)
+                                    }
+                                    className={cn(
+                                        error && 'border-destructive',
+                                    )}
+                                />
+                            )}
+
                             {field.type === 'text' && (
                                 <Textarea
                                     value={form.data[name] || ''}

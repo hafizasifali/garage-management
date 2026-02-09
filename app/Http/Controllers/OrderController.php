@@ -307,7 +307,7 @@ class OrderController extends Controller
 
         $pdf = Pdf::loadView('invoices.order', compact('order', 'company'));
 
-        Mail::to($order->customer->email)
+        Mail::to($order->customer_email)
             ->send(new OrderInvoiceMail($order, $company, $pdf->output()));
 
         return back()->with('success', 'Invoice sent successfully.');
