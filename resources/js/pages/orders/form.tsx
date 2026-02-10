@@ -399,7 +399,7 @@ export default function OrderForm({
                                         Untaxed Amount
                                     </td>
                                     <td className="px-2 py-1 text-right">
-                                        ${untaxedAmount.toFixed(0)}
+                                        ${untaxedAmount.toFixed(2)}
                                     </td>
                                 </tr>
                                 <tr>
@@ -407,7 +407,7 @@ export default function OrderForm({
                                         Tax 13%
                                     </td>
                                     <td className="px-2 py-1 text-right">
-                                        ${taxAmount.toFixed(0)}
+                                        ${taxAmount.toFixed(2)}
                                     </td>
                                 </tr>
                                 <tr className="border-t">
@@ -415,7 +415,7 @@ export default function OrderForm({
                                         Total
                                     </td>
                                     <td className="px-2 py-1 text-right text-lg">
-                                        ${totalAmount.toFixed(0)}
+                                        ${totalAmount.toFixed(2)}
                                     </td>
                                 </tr>
                             </tbody>

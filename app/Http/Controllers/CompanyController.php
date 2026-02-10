@@ -15,6 +15,10 @@ class CompanyController extends Controller
      */
     public function index(Request $request)
     {
+        $company=Company::first();
+        if($company){
+            return redirect()->route('companies.edit', $company->id);
+        }
         $companies = Company::with(['country', 'currency'])
             ->when(
                 $request->search,
@@ -39,6 +43,10 @@ class CompanyController extends Controller
 
     public function create()
     {
+        $company=Company::first();
+        if($company){
+            return redirect()->route('companies.edit', $company->id);
+        }
         return inertia('companies/form', [
             'fields' => Company::fields(),
             'record' => null,
@@ -88,6 +96,7 @@ class CompanyController extends Controller
             'country_id',
             'currency_id',
         ]);
+        $data['active'] =1;
 
         if ($request->hasFile('logo')) {
             $data['logo'] = $request->file('logo')->store('company-logos', 'public');
@@ -131,7 +140,7 @@ class CompanyController extends Controller
             'country_id',
             'currency_id',
         ]);
-
+        $data['active'] =1;
         if ($request->hasFile('logo')) {
             $data['logo'] = $request->file('logo')->store('company-logos', 'public');
         }

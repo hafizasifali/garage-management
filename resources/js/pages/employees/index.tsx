@@ -12,6 +12,7 @@ import DataTable from '@/components/index/DataTable';
 import Pagination from '@/components/index/Pagination';
 import { Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { toDisplayDate } from '@/lib/date';
 
 type Employee = {
     id: number;
@@ -49,11 +50,16 @@ export default function EmployeeIndex() {
     const columns = [
         { label: 'Name', render: (row: Employee) => row.name },
         { label: 'Email', render: (row: Employee) => row.email },
-        { label: 'Company', render: (row: Employee) => row.company?.name },
+
         {
-            label: 'Active',
-            render: (row: Employee) => (row.active ? 'Yes' : 'No'),
+            label: 'Joining Date',
+            render: (row: Employee) => toDisplayDate(row.joining_date),
         },
+        { label: 'Company', render: (row: Employee) => row.company?.name },
+        // {
+        //     label: 'Active',
+        //     render: (row: Employee) => (row.active ? 'Yes' : 'No'),
+        // },
         {
             label: 'Actions',
             render: (row: Employee) => (

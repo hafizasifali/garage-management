@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -46,16 +47,14 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
-            'roles' => 'nullable|array',
             'roles.*' => 'exists:roles,id',
             'active' => 'boolean',
         ]);
-        
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -64,8 +63,17 @@ class UserController extends Controller
         ]);
 
         if ($request->filled('roles')) {
-            $user->syncRoles($request->roles);
+            $role=Role::where(['id' => $request->roles])->first();
+            $user->assignRole($role['name']);
         }
+
+        // Creating employee
+        Employee::create([
+            'user_id' => $user->id,
+            'name' => $request->name,
+            'email' => $request->email,
+            'company_id' => 1,
+        ]);
     return redirect()->route('users.edit', $user->id)->with('success', 'User created successfully.');
     }
 

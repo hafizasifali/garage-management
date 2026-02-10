@@ -63,7 +63,7 @@ export default function ProductForm({ fields, record, categories, uoms,product_t
                                 variant="outline"
                                 onClick={() => history.back()}
                             >
-                                Cancel
+                                Go Back
                             </Button>
                             <Button type="submit">
                                 {record ? 'Update' : 'Create'}

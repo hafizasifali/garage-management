@@ -37,11 +37,11 @@ import { route } from 'ziggy-js';
 
 
 const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutGrid, // overview
-    },
+    // {
+    //     title: 'Dashboard',
+    //     href: '/dashboard',
+    //     icon: LayoutGrid, // overview
+    // },
     {
         title: 'New Order',
         href: route('orders.create'),
@@ -104,8 +104,8 @@ const mainNavItems: NavItem[] = [
 ];
 const footerNavItems: NavItem[] = [
     {
-        title: 'Companies',
-        href: route('companies.index'),
+        title: 'Company',
+        href: route('companies.create'),
         icon: Building2,
         isActive: route().current('companies.*'),
     },

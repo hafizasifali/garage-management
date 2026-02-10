@@ -68,9 +68,9 @@ class EmployeeController extends Controller
             'company_id'   => 'required|exists:companies,id',
             'country_id'   => 'nullable|exists:countries,id',
             'user_id'      => 'nullable|exists:users,id',
-            'active'       => 'boolean',
         ]);
 
+        $data['active'] = 1;
         $employee = Employee::create($data);
 
         return redirect()
@@ -90,9 +90,7 @@ class EmployeeController extends Controller
             'company_id'   => 'required|exists:companies,id',
             'country_id'   => 'nullable|exists:countries,id',
             'user_id'      => 'nullable|exists:users,id',
-            'active'       => 'boolean',
         ]);
-
         $employee->update($data);
 
         return redirect()->back()->with('success', 'Employee updated successfully.');

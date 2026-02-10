@@ -69,7 +69,18 @@ export default function Index() {
   };
 
   const columns = [
-      { label: 'ID', render: (row: Order) => row.id },
+      {
+          label: 'ID',
+          render: (row: Order) => (
+              <Link
+                  href={route('orders.edit', row.id)}
+                  className="text-blue-600 hover:underline font-medium"
+              >
+                  {row.id}
+              </Link>
+          ),
+      },
+
       { label: 'Customer', render: (row: Order) => row.customer_name },
       { label: 'Vehicle', render: (row: Order) => row.vehicle_name },
       {
