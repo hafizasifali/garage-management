@@ -302,24 +302,233 @@ export default function Index() {
                   {/* Right aligned Create button */}
                   <div className="flex flex-1 justify-end">
                       <Button asChild>
-                          <Link href={route('orders.create')}>
-                              Create
-                          </Link>
+                          <Link href={route('orders.create')}>Create</Link>
                       </Button>
                   </div>
               </div>
 
               {/* Table */}
-              <DataTable
-                  data={orders.data}
-                  selected={selected}
-                  selectable={false}
-                  toggleAll={toggleAll}
-                  toggleOne={toggleOne}
-                  columns={columns}
-              />
+              <div className="hidden overflow-x-auto md:block">
+                  <DataTable
+                      data={orders.data}
+                      selected={selected}
+                      selectable={false}
+                      toggleAll={toggleAll}
+                      toggleOne={toggleOne}
+                      columns={columns}
+                  />
 
-              <Pagination meta={orders} />
+                  <Pagination meta={orders} />
+              </div>
+
+              {/* Mobile Cards */}
+              <div className="space-y-3 md:hidden">
+                  {orders.data.map((row: Order) => (
+                      <div
+                          key={row.id}
+                          className="space-y-2 rounded-lg border bg-white p-4 shadow-sm"
+                      >
+                          {/* Top row: ID + State */}
+                          <div className="flex items-center justify-between">
+                              <Link
+                                  href={route('orders.edit', row.id)}
+                                  className="font-medium text-blue-600 hover:underline"
+                              >
+                                  Order #{row.id}
+                              </Link>
+                              <StatusBadge value={row.state} states={states} />
+                          </div>
+
+                          {/* Middle row: Customer + Vehicle + Date */}
+                          <div className="space-y-1 text-sm text-gray-600">
+                              <div>
+                                  <span className="font-semibold">
+                                      Customer:
+                                  </span>{' '}
+                                  {row.customer_name}
+                              </div>
+                              <div>
+                                  <span className="font-semibold">
+                                      Vehicle:
+                                  </span>{' '}
+                                  {row.vehicle_name}
+                              </div>
+                              <div>
+                                  <span className="font-semibold">
+                                      Order Date:
+                                  </span>{' '}
+                                  {toDisplayDate(row.order_date)}
+                              </div>
+                              <div>
+                                  <span className="font-semibold">Total:</span>{' '}
+                                  ${row.total_amount}
+                              </div>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="mt-2 flex flex-wrap justify-end gap-2">
+                              <Link href={route('orders.edit', row.id)}>
+                                  <Button
+                                      size="sm"
+                                      className="flex items-center gap-1"
+                                  >
+                                      <Edit className="h-4 w-4" /> Edit
+                                  </Button>
+                              </Link>
+
+                              <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                      <Button
+                                          size="sm"
+                                          className="flex items-center gap-1"
+                                      >
+                                          <MoreVertical className="h-4 w-4" />{' '}
+                                          Actions
+                                      </Button>
+                                  </DropdownMenuTrigger>
+
+                                  <DropdownMenuContent
+                                      align="end"
+                                      className="w-44"
+                                  >
+                                      {row.state === 'in_progress' && (
+                                          <DropdownMenuItem
+                                              onClick={() => {
+                                                  Swal.fire({
+                                                      title: 'Mark order as completed?',
+                                                      text: 'This action cannot be undone.',
+                                                      icon: 'warning',
+                                                      showCancelButton: true,
+                                                      confirmButtonText:
+                                                          'Yes, complete it',
+                                                      cancelButtonText:
+                                                          'Cancel',
+                                                  }).then((result) => {
+                                                      if (result.isConfirmed) {
+                                                          router.put(
+                                                              route(
+                                                                  'orders.update.state',
+                                                                  row.id,
+                                                              ),
+                                                              {
+                                                                  state: 'completed',
+                                                              },
+                                                              {
+                                                                  preserveScroll: true,
+                                                                  preserveState: true,
+                                                                  onSuccess:
+                                                                      () =>
+                                                                          toast.success(
+                                                                              'Order state updated successfully!',
+                                                                          ),
+                                                                  onError: () =>
+                                                                      toast.error(
+                                                                          'Failed to update state.',
+                                                                      ),
+                                                              },
+                                                          );
+                                                      }
+                                                  });
+                                              }}
+                                          >
+                                              <CheckCircle className="mr-2 h-4 w-4" />{' '}
+                                              Mark as Complete
+                                          </DropdownMenuItem>
+                                      )}
+
+                                      <DropdownMenuItem
+                                          onClick={() => {
+                                              Swal.fire({
+                                                  title: 'Send invoice to customer?',
+                                                  text: 'The invoice PDF will be emailed.',
+                                                  icon: 'question',
+                                                  showCancelButton: true,
+                                                  confirmButtonText: 'Send',
+                                                  cancelButtonText: 'Cancel',
+                                              }).then((result) => {
+                                                  if (result.isConfirmed) {
+                                                      router.post(
+                                                          route(
+                                                              'orders.send-invoice',
+                                                              row.id,
+                                                          ),
+                                                          {},
+                                                          {
+                                                              preserveScroll: true,
+                                                              onSuccess: () =>
+                                                                  toast.success(
+                                                                      'Invoice sent successfully!',
+                                                                  ),
+                                                              onError: () =>
+                                                                  toast.error(
+                                                                      'Failed to send invoice.',
+                                                                  ),
+                                                          },
+                                                      );
+                                                  }
+                                              });
+                                          }}
+                                      >
+                                          <Send className="mr-2 h-4 w-4" /> Send
+                                          Invoice
+                                      </DropdownMenuItem>
+
+                                      {row.state !== 'completed' && (
+                                          <>
+                                              <DropdownMenuSeparator />
+                                              <DropdownMenuItem
+                                                  className="text-red-600 focus:text-red-600"
+                                                  onClick={() => {
+                                                      Swal.fire({
+                                                          title: 'Are you sure?',
+                                                          text: 'This order will be permanently deleted!',
+                                                          icon: 'warning',
+                                                          showCancelButton: true,
+                                                          confirmButtonText:
+                                                              'Yes, delete it!',
+                                                          cancelButtonText:
+                                                              'Cancel',
+                                                          confirmButtonColor:
+                                                              '#dc2626',
+                                                      }).then((result) => {
+                                                          if (
+                                                              result.isConfirmed
+                                                          ) {
+                                                              router.delete(
+                                                                  route(
+                                                                      'orders.destroy',
+                                                                      row.id,
+                                                                  ),
+                                                                  {
+                                                                      preserveScroll: true,
+                                                                      onSuccess:
+                                                                          () =>
+                                                                              toast.success(
+                                                                                  'Order deleted successfully!',
+                                                                              ),
+                                                                      onError:
+                                                                          () =>
+                                                                              toast.error(
+                                                                                  'Failed to delete order.',
+                                                                              ),
+                                                                  },
+                                                              );
+                                                          }
+                                                      });
+                                                  }}
+                                              >
+                                                  <Trash2 className="mr-2 h-4 w-4" />{' '}
+                                                  Delete
+                                              </DropdownMenuItem>
+                                          </>
+                                      )}
+                                  </DropdownMenuContent>
+                              </DropdownMenu>
+                          </div>
+                      </div>
+                  ))}
+                  <Pagination meta={orders} />
+              </div>
           </div>
       </AppLayout>
   );

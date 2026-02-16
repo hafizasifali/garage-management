@@ -152,11 +152,11 @@ export default function OrderForm({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={record ? `Edit Order #${record.id}` : 'New Order'} />
 
-            <div className="p-4">
+            <div className="p-4 pb-28 md:pb-4">
                 <form onSubmit={handleSubmit}>
                     {/* Header + Workflow */}
-                    <div className="mb-4 flex flex-col gap-2">
-                        <div className="mb-4 flex items-center justify-between">
+                    <div className="sticky top-0 z-20 mb-4 flex flex-col gap-3 bg-white pb-3 md:static md:flex-row md:items-center md:justify-between">
+
                             <h1 className="text-xl font-bold">
                                 {record
                                     ? `Edit Order #${record.id}`
@@ -249,7 +249,6 @@ export default function OrderForm({
                             actions={workflowActions}
                             onStateChange={handleStateChange}
                         />
-                    </div>
 
                     {/* Form Fields */}
                     <FormRenderer
@@ -261,10 +260,11 @@ export default function OrderForm({
 
                     {/* Lines Table */}
                     <div className="mt-6">
+                        <div className="overflow-x-auto">
                         <h2 className="mb-2 text-lg font-semibold">
                             Repairs / Products
                         </h2>
-                        <table className="w-full rounded border">
+                        <table className="hidden w-full rounded border md:table">
                             <thead>
                                 <tr className="bg-gray-100">
                                     <th className="w-[40%] p-1">Product</th>
@@ -409,6 +409,167 @@ export default function OrderForm({
                                 ))}
                             </tbody>
                         </table>
+                        {/* MOBILE VIEW */}
+                        <div className="space-y-4 md:hidden">
+                            {form.data.lines.map((line, index) => (
+                                <div
+                                    key={index}
+                                    className="space-y-2 rounded border p-3 shadow-sm"
+                                >
+                                    {/* Product */}
+                                    <div>
+                                        <label className="text-xs font-semibold text-gray-500">
+                                            Product
+                                        </label>
+                                        <Select
+                                            className="text-sm"
+                                            options={products.map((p: any) => ({
+                                                value: p.id,
+                                                label: p.name,
+                                            }))}
+                                            value={
+                                                line.product_id
+                                                    ? {
+                                                          value: line.product_id,
+                                                          label: products.find(
+                                                              (p: any) =>
+                                                                  p.id ===
+                                                                  line.product_id,
+                                                          )?.name,
+                                                      }
+                                                    : null
+                                            }
+                                            onChange={(selected: any) => {
+                                                const productId =
+                                                    selected?.value || null;
+                                                const product = products.find(
+                                                    (p: any) =>
+                                                        p.id === productId,
+                                                );
+
+                                                const newLines = [
+                                                    ...form.data.lines,
+                                                ];
+                                                newLines[index].product_id =
+                                                    productId;
+                                                newLines[index].unit_price =
+                                                    product
+                                                        ? Number(
+                                                              product.sale_price ||
+                                                                  0,
+                                                          )
+                                                        : 0;
+
+                                                newLines[index].subtotal =
+                                                    newLines[index].unit_price *
+                                                    Number(
+                                                        newLines[index]
+                                                            .quantity,
+                                                    );
+
+                                                form.setData('lines', newLines);
+                                            }}
+                                            isClearable
+                                        />
+                                    </div>
+
+                                    {/* Mechanic */}
+                                    <div>
+                                        <label className="text-xs font-semibold text-gray-500">
+                                            Mechanic
+                                        </label>
+                                        <Select
+                                            className="text-sm"
+                                            options={employees.map(
+                                                (e: any) => ({
+                                                    value: e.id,
+                                                    label: e.name,
+                                                }),
+                                            )}
+                                            value={
+                                                line.employee_id
+                                                    ? {
+                                                          value: line.employee_id,
+                                                          label: employees.find(
+                                                              (e: any) =>
+                                                                  e.id ===
+                                                                  line.employee_id,
+                                                          )?.name,
+                                                      }
+                                                    : null
+                                            }
+                                            onChange={(selected: any) =>
+                                                updateLine(
+                                                    index,
+                                                    'employee_id',
+                                                    selected?.value || null,
+                                                )
+                                            }
+                                            isClearable
+                                        />
+                                    </div>
+
+                                    {/* Quantity + Price */}
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label className="text-xs font-semibold text-gray-500">
+                                                Qty
+                                            </label>
+                                            <Input
+                                                className="h-9 text-sm"
+                                                type="number"
+                                                value={line.quantity}
+                                                onChange={(e) =>
+                                                    updateLine(
+                                                        index,
+                                                        'quantity',
+                                                        Number(e.target.value),
+                                                    )
+                                                }
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="text-xs font-semibold text-gray-500">
+                                                Price
+                                            </label>
+                                            <Input
+                                                className="h-9 text-sm"
+                                                type="number"
+                                                value={line.unit_price}
+                                                onChange={(e) =>
+                                                    updateLine(
+                                                        index,
+                                                        'unit_price',
+                                                        Number(e.target.value),
+                                                    )
+                                                }
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Subtotal */}
+                                    <div className="flex justify-between font-semibold">
+                                        <span>Subtotal</span>
+                                        <span>
+                                            ${Number(line.subtotal).toFixed(2)}
+                                        </span>
+                                    </div>
+
+                                    {/* Delete */}
+                                    <div className="text-right">
+                                        <Button
+                                            size="sm"
+                                            variant="destructive"
+                                            onClick={() => removeLine(index)}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        </div>
                         <Button
                             type="button"
                             onClick={addLine}
@@ -419,8 +580,9 @@ export default function OrderForm({
                         </Button>
                     </div>
 
-                    {/* Summary */}
-                    <div className="float-right mt-4">
+                    {/* ---------------- Summary ---------------- */}
+                    {/* DESKTOP TOTALS */}
+                    <div className="mt-6 hidden justify-end md:flex">
                         <table className="border-collapse border">
                             <tbody>
                                 <tr>
@@ -449,6 +611,23 @@ export default function OrderForm({
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                    {/* MOBILE STICKY TOTALS */}
+                    <div className="fixed right-0 bottom-0 left-0 z-30 border-t bg-white p-3 shadow-lg md:hidden">
+                        <div className="flex justify-between text-sm">
+                            <span>Untaxed</span>
+                            <span>${untaxedAmount.toFixed(2)}</span>
+                        </div>
+
+                        <div className="flex justify-between text-sm">
+                            <span>Tax</span>
+                            <span>${taxAmount.toFixed(2)}</span>
+                        </div>
+
+                        <div className="mt-2 flex justify-between border-t pt-2 text-lg font-semibold">
+                            <span>Total</span>
+                            <span>${totalAmount.toFixed(2)}</span>
+                        </div>
                     </div>
                 </form>
             </div>

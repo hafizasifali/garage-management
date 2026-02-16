@@ -310,7 +310,8 @@ class OrderController extends Controller
         Mail::to($order->customer_email)
             ->send(new OrderInvoiceMail($order, $company, $pdf->output()));
 
-        return back()->with('success', 'Invoice sent successfully.');
+        $order->update(['state' => 'invoiced']);
+        return redirect()->back()->with('success', 'Invoice sent successfully.');
     }
 
     public function billingReport(Request $request)

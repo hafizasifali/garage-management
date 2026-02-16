@@ -178,9 +178,9 @@ export default function OrderForm({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={record ? `Edit Order #${record.id}` : 'New Order'} />
 
-            <div className="p-4">
+            <div className="p-4 pb-28 md:pb-4">
                 <form onSubmit={handleSubmit}>
-                    <div className="mb-4 flex items-center justify-between">
+                    <div className="sticky top-0 z-20 mb-4 flex flex-col gap-3 bg-white pb-3 md:static md:flex-row md:items-center md:justify-between">
                         <h1 className="text-xl font-bold">
                             {record
                                 ? `Edit Order #${record.id}`
@@ -213,27 +213,216 @@ export default function OrderForm({
 
                     {/* ---------------- Lines Table ---------------- */}
                     <div className="mt-6">
-                        <h2 className="mb-2 text-lg font-semibold">Repairs</h2>
+                        <div className="overflow-x-auto">
+                            <h2 className="mb-2 text-lg font-semibold">
+                                Repairs
+                            </h2>
 
-                        <table className="w-full rounded border">
-                            <thead>
-                                <tr className="bg-gray-100">
-                                    <th className="w-[40%] p-1">Product</th>
-                                    <th className="w-[25%] p-1">Mechanic</th>
-                                    <th className="w-[8.75%] p-1">Quantity</th>
-                                    <th className="w-[8.75%] p-1">
-                                        Unit Price
-                                    </th>
-                                    <th className="w-[8.75%] p-1">Subtotal</th>
-                                    <th className="w-[8.75%] p-1">Actions</th>
-                                </tr>
-                            </thead>
+                            <table className="hidden w-full rounded border md:table">
+                                <thead>
+                                    <tr className="bg-gray-100 text-xs md:text-sm">
+                                        <th className="min-w-[200px] p-2">
+                                            Product
+                                        </th>
+                                        <th className="min-w-[180px] p-2">
+                                            Mechanic
+                                        </th>
+                                        <th className="min-w-[90px] p-2">
+                                            Qty
+                                        </th>
+                                        <th className="min-w-[110px] p-2">
+                                            Price
+                                        </th>
+                                        <th className="min-w-[110px] p-2">
+                                            Subtotal
+                                        </th>
+                                        <th className="min-w-[70px] p-2">
+                                            Action
+                                        </th>
+                                    </tr>
+                                </thead>
 
-                            <tbody>
+                                <tbody>
+                                    {form.data.lines.map((line, index) => (
+                                        <tr key={index}>
+                                            <td className="p-1">
+                                                <Select
+                                                    options={products.map(
+                                                        (p: any) => ({
+                                                            value: p.id,
+                                                            label: p.name,
+                                                        }),
+                                                    )}
+                                                    value={
+                                                        line.product_id
+                                                            ? {
+                                                                  value: line.product_id,
+                                                                  label: products.find(
+                                                                      (
+                                                                          p: any,
+                                                                      ) =>
+                                                                          p.id ===
+                                                                          line.product_id,
+                                                                  )?.name,
+                                                              }
+                                                            : null
+                                                    }
+                                                    onChange={(
+                                                        selected: any,
+                                                    ) => {
+                                                        const productId =
+                                                            selected?.value ||
+                                                            null;
+                                                        const product =
+                                                            products.find(
+                                                                (p: any) =>
+                                                                    p.id ===
+                                                                    productId,
+                                                            );
+
+                                                        const newLines = [
+                                                            ...form.data.lines,
+                                                        ];
+                                                        newLines[
+                                                            index
+                                                        ].product_id =
+                                                            productId;
+                                                        newLines[
+                                                            index
+                                                        ].unit_price = product
+                                                            ? Number(
+                                                                  product.sale_price ||
+                                                                      0,
+                                                              )
+                                                            : 0;
+
+                                                        newLines[
+                                                            index
+                                                        ].subtotal =
+                                                            Number(
+                                                                newLines[index]
+                                                                    .unit_price,
+                                                            ) *
+                                                            Number(
+                                                                newLines[index]
+                                                                    .quantity,
+                                                            );
+
+                                                        form.setData(
+                                                            'lines',
+                                                            newLines,
+                                                        );
+                                                    }}
+                                                    isClearable
+                                                />
+                                            </td>
+
+                                            <td className="p-1">
+                                                <Select
+                                                    options={employees.map(
+                                                        (e: any) => ({
+                                                            value: e.id,
+                                                            label: e.name,
+                                                        }),
+                                                    )}
+                                                    value={
+                                                        line.employee_id
+                                                            ? {
+                                                                  value: line.employee_id,
+                                                                  label: employees.find(
+                                                                      (
+                                                                          e: any,
+                                                                      ) =>
+                                                                          e.id ===
+                                                                          line.employee_id,
+                                                                  )?.name,
+                                                              }
+                                                            : null
+                                                    }
+                                                    onChange={(selected: any) =>
+                                                        updateLine(
+                                                            index,
+                                                            'employee_id',
+                                                            selected?.value ||
+                                                                null,
+                                                        )
+                                                    }
+                                                    placeholder="Select mechanic"
+                                                    isClearable
+                                                />
+                                            </td>
+
+                                            <td className="p-1">
+                                                <Input
+                                                    type="number"
+                                                    value={Number(
+                                                        line.quantity || 0,
+                                                    ).toFixed(0)}
+                                                    onChange={(e) =>
+                                                        updateLine(
+                                                            index,
+                                                            'quantity',
+                                                            Number(
+                                                                e.target.value,
+                                                            ),
+                                                        )
+                                                    }
+                                                />
+                                            </td>
+
+                                            <td className="p-1">
+                                                <Input
+                                                    type="number"
+                                                    value={Number(
+                                                        line.unit_price || 0,
+                                                    ).toFixed(0)}
+                                                    onChange={(e) =>
+                                                        updateLine(
+                                                            index,
+                                                            'unit_price',
+                                                            Number(
+                                                                e.target.value,
+                                                            ),
+                                                        )
+                                                    }
+                                                />
+                                            </td>
+
+                                            <td className="p-1 text-center">
+                                                {Number(
+                                                    line.subtotal || 0,
+                                                ).toFixed(0)}
+                                            </td>
+
+                                            <td className="p-1 text-center">
+                                                <Button
+                                                    size="sm"
+                                                    variant="destructive"
+                                                    onClick={() =>
+                                                        removeLine(index)
+                                                    }
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            {/* MOBILE VIEW */}
+                            <div className="space-y-4 md:hidden">
                                 {form.data.lines.map((line, index) => (
-                                    <tr key={index}>
-                                        <td className="p-1">
+                                    <div
+                                        key={index}
+                                        className="space-y-2 rounded border p-3 shadow-sm"
+                                    >
+                                        {/* Product */}
+                                        <div>
+                                            <label className="text-xs font-semibold text-gray-500">
+                                                Product
+                                            </label>
                                             <Select
+                                                className="text-sm"
                                                 options={products.map(
                                                     (p: any) => ({
                                                         value: p.id,
@@ -276,10 +465,8 @@ export default function OrderForm({
                                                             : 0;
 
                                                     newLines[index].subtotal =
-                                                        Number(
-                                                            newLines[index]
-                                                                .unit_price,
-                                                        ) *
+                                                        newLines[index]
+                                                            .unit_price *
                                                         Number(
                                                             newLines[index]
                                                                 .quantity,
@@ -292,10 +479,15 @@ export default function OrderForm({
                                                 }}
                                                 isClearable
                                             />
-                                        </td>
+                                        </div>
 
-                                        <td className="p-1">
+                                        {/* Mechanic */}
+                                        <div>
+                                            <label className="text-xs font-semibold text-gray-500">
+                                                Mechanic
+                                            </label>
                                             <Select
+                                                className="text-sm"
                                                 options={employees.map(
                                                     (e: any) => ({
                                                         value: e.id,
@@ -321,50 +513,66 @@ export default function OrderForm({
                                                         selected?.value || null,
                                                     )
                                                 }
-                                                placeholder="Select mechanic"
                                                 isClearable
                                             />
-                                        </td>
+                                        </div>
 
-                                        <td className="p-1">
-                                            <Input
-                                                type="number"
-                                                value={Number(
-                                                    line.quantity || 0,
-                                                ).toFixed(0)}
-                                                onChange={(e) =>
-                                                    updateLine(
-                                                        index,
-                                                        'quantity',
-                                                        Number(e.target.value),
-                                                    )
-                                                }
-                                            />
-                                        </td>
+                                        {/* Quantity + Price */}
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label className="text-xs font-semibold text-gray-500">
+                                                    Qty
+                                                </label>
+                                                <Input
+                                                    className="h-9 text-sm"
+                                                    type="number"
+                                                    value={line.quantity}
+                                                    onChange={(e) =>
+                                                        updateLine(
+                                                            index,
+                                                            'quantity',
+                                                            Number(
+                                                                e.target.value,
+                                                            ),
+                                                        )
+                                                    }
+                                                />
+                                            </div>
 
-                                        <td className="p-1">
-                                            <Input
-                                                type="number"
-                                                value={Number(
-                                                    line.unit_price || 0,
-                                                ).toFixed(0)}
-                                                onChange={(e) =>
-                                                    updateLine(
-                                                        index,
-                                                        'unit_price',
-                                                        Number(e.target.value),
-                                                    )
-                                                }
-                                            />
-                                        </td>
+                                            <div>
+                                                <label className="text-xs font-semibold text-gray-500">
+                                                    Price
+                                                </label>
+                                                <Input
+                                                    className="h-9 text-sm"
+                                                    type="number"
+                                                    value={line.unit_price}
+                                                    onChange={(e) =>
+                                                        updateLine(
+                                                            index,
+                                                            'unit_price',
+                                                            Number(
+                                                                e.target.value,
+                                                            ),
+                                                        )
+                                                    }
+                                                />
+                                            </div>
+                                        </div>
 
-                                        <td className="p-1 text-center">
-                                            {Number(line.subtotal || 0).toFixed(
-                                                0,
-                                            )}
-                                        </td>
+                                        {/* Subtotal */}
+                                        <div className="flex justify-between font-semibold">
+                                            <span>Subtotal</span>
+                                            <span>
+                                                $
+                                                {Number(line.subtotal).toFixed(
+                                                    2,
+                                                )}
+                                            </span>
+                                        </div>
 
-                                        <td className="p-1 text-center">
+                                        {/* Delete */}
+                                        <div className="text-right">
                                             <Button
                                                 size="sm"
                                                 variant="destructive"
@@ -374,12 +582,11 @@ export default function OrderForm({
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
-                                        </td>
-                                    </tr>
+                                        </div>
+                                    </div>
                                 ))}
-                            </tbody>
-                        </table>
-
+                            </div>
+                        </div>
                         <Button
                             type="button"
                             onClick={addLine}
@@ -391,7 +598,8 @@ export default function OrderForm({
                     </div>
 
                     {/* ---------------- Summary ---------------- */}
-                    <div className="float-right mt-4">
+                    {/* DESKTOP TOTALS */}
+                    <div className="mt-6 hidden justify-end md:flex">
                         <table className="border-collapse border">
                             <tbody>
                                 <tr>
@@ -420,6 +628,23 @@ export default function OrderForm({
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                    {/* MOBILE STICKY TOTALS */}
+                    <div className="fixed right-0 bottom-0 left-0 z-30 border-t bg-white p-3 shadow-lg md:hidden">
+                        <div className="flex justify-between text-sm">
+                            <span>Untaxed</span>
+                            <span>${untaxedAmount.toFixed(2)}</span>
+                        </div>
+
+                        <div className="flex justify-between text-sm">
+                            <span>Tax</span>
+                            <span>${taxAmount.toFixed(2)}</span>
+                        </div>
+
+                        <div className="mt-2 flex justify-between border-t pt-2 text-lg font-semibold">
+                            <span>Total</span>
+                            <span>${totalAmount.toFixed(2)}</span>
+                        </div>
                     </div>
                 </form>
             </div>

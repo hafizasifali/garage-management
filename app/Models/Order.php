@@ -76,6 +76,7 @@ class Order extends Model
 //            ['id' => 'pending', 'name' => 'Pending'],
             ['id' => 'in_progress', 'name' => 'In Progress'],
             ['id' => 'completed', 'name' => 'Completed'],
+            ['id' => 'invoiced', 'name' => 'Invoiced'],
             ['id' => 'paid', 'name' => 'Paid'],
         ];
     }
