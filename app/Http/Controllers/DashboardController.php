@@ -11,6 +11,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        return redirect()->route('orders.index');
         $today = Carbon::today();
 
         // KPIs
