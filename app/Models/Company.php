@@ -23,11 +23,17 @@ class Company extends Model
         'active',
         'country_id',
         'currency_id',
+        'logo'
     ];
 
     public static function fields(): array
     {
         return [
+            'logo'=>[
+                'label' => 'Logo',
+                'type' => 'image',
+
+            ],
             'name' => [
                 'type' => 'char',
                 'label' => 'Company Name',

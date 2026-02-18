@@ -6,6 +6,7 @@ use App\Models\Company;
 use App\Models\Country;
 use App\Models\Currency;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class CompanyController extends Controller
@@ -117,7 +118,6 @@ class CompanyController extends Controller
         $request->validate([
             'name'        => 'required|string|max:255',
             'address'     => 'nullable|string|max:255',
-            'logo'        => 'nullable|image|max:2048',
             'email'       => 'nullable|email|max:255',
             'phone'       => 'nullable|string|max:50',
             'mobile'      => 'nullable|string|max:50',
@@ -141,13 +141,30 @@ class CompanyController extends Controller
             'currency_id',
         ]);
         $data['active'] =1;
+        // Case 1 — Upload new image
         if ($request->hasFile('logo')) {
-            $data['logo'] = $request->file('logo')->store('company-logos', 'public');
+
+            // delete old file
+            if ($company->logo && Storage::disk('public')->exists($company->logo)) {
+                Storage::disk('public')->delete($company->logo);
+            }
+
+            $data['logo'] = $request->file('logo')
+                ->store('company-logos', 'public');
+        }
+
+        // Case 2 — Logo removed from frontend
+        if ($request->logo === null && $company->logo) {
+            Storage::disk('public')->delete($company->logo);
+            $data['logo'] = null;
         }
 
         $company->update($data);
 
-        return redirect()->back()->with('success', 'Company updated successfully.');
+
+        // ✅ Redirect back using Inertia with flash
+        return redirect()->back()
+            ->with('success', 'Company updated successfully!');
     }
 
     /**

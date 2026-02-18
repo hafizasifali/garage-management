@@ -8,6 +8,7 @@ import { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Many2OneField from './Many2OneField';
+import ImageField from '@/components/form/ImageField';
 
 type FormRendererProps = {
     fields: Record<string, any>;
@@ -146,6 +147,17 @@ export default function FormRenderer({
                                     checked={form.data[name]}
                                     onCheckedChange={(val) =>
                                         form.setData(name, val)
+                                    }
+                                />
+                            )}
+                            {field.type === 'image' && (
+                                <ImageField
+                                    name={name}
+                                    label={field.label}
+                                    value={form.data[name]}
+                                    error={error}
+                                    onChange={(file) =>
+                                        form.setData(name, file)
                                     }
                                 />
                             )}

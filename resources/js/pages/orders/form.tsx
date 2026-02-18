@@ -213,7 +213,7 @@ export default function OrderForm({
 
                     {/* ---------------- Lines Table ---------------- */}
                     <div className="mt-6">
-                        <div className="overflow-x-auto">
+                        <div className="">
                             <h2 className="mb-2 text-lg font-semibold">
                                 Repairs
                             </h2>

@@ -1,10 +1,11 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import FormRenderer from '@/components/form/FormRenderer';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { route } from 'ziggy-js';
 import toast from 'react-hot-toast';
+import { useEffect } from 'react';
 
 export default function CompanyForm({ fields, record, countries, currencies }) {
     const form = useForm({
@@ -21,6 +22,7 @@ export default function CompanyForm({ fields, record, countries, currencies }) {
         ...(record || {}),
     });
 
+
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Companies',
@@ -28,29 +30,40 @@ export default function CompanyForm({ fields, record, countries, currencies }) {
         },
     ];
 
+    const { flash } = usePage().props as any;
+
+    useEffect(() => {
+        if (flash.success) toast.success(flash.success);
+        if (flash.error) toast.error(flash.error);
+    }, [flash]);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        const submitAction = record
-            ? form.put(route('companies.update', record.id), {
-                  onSuccess: () => toast.success('Company updated successfully!'),
-                  onError: (errors) => {
-                      Object.values(errors).forEach((err) => toast.error(err));
-                  },
-              })
-            : form.post(route('companies.store'), {
-                  onSuccess: () => toast.success('Company created successfully!'),
-                  onError: (errors) => {
-                      Object.values(errors).forEach((err) => toast.error(err));
-                  },
-              });
+        const options = {
+            forceFormData: true,
+            method: record ? 'put' : 'post', // ✅ proper HTTP method
+            url: record
+                ? route('companies.update', record.id)
+                : route('companies.store'),
+            onSuccess: () =>
+                toast.success(
+                    record
+                        ? 'Company updated successfully!'
+                        : 'Company created successfully!',
+                ),
+            onError: (errors: any) =>
+                Object.values(errors).forEach((err: any) => toast.error(err)),
+        };
+
+        form.submit(options);
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={record ? `Edit Company - ${record.name}` : 'New Company'} />
             <div className="p-4">
-                            
+
 
                 <form onSubmit={handleSubmit}>
                     <div className="flex items-center justify-between mb-4">

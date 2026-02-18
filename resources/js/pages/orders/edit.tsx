@@ -50,7 +50,7 @@ export default function OrderForm({
     const workflowActions: WorkflowAction[] = [
         { value: 'in_progress', label: 'Start Work', visibleInStates: ['pending'] },
         { value: 'completed', label: 'Complete', visibleInStates: ['in_progress'] },
-        { value: 'paid', label: 'Mark Paid', visibleInStates: ['completed'] },
+        { value: 'paid', label: 'Mark Paid', visibleInStates: ['completed','invoiced'] },
     ];
     const handleStateChange = (newState: string) => {
         // Optimistically update the UI
@@ -260,7 +260,7 @@ export default function OrderForm({
 
                     {/* Lines Table */}
                     <div className="mt-6">
-                        <div className="overflow-x-auto">
+                        <div className="">
                         <h2 className="mb-2 text-lg font-semibold">
                             Repairs / Products
                         </h2>
