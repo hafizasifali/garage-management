@@ -23,7 +23,7 @@ export default function ImageField({
         value instanceof File
             ? URL.createObjectURL(value)
             : value
-                ? `/storage/${value}`  // ✅ points to Laravel public disk
+                ? `/${value}`  // ✅ points to Laravel public disk
                 : null;
 
 

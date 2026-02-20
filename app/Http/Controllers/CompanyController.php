@@ -100,8 +100,13 @@ class CompanyController extends Controller
         $data['active'] =1;
 
         if ($request->hasFile('logo')) {
-            $data['logo'] = $request->file('logo')->store('company-logos', 'public');
-        }
+            $file = $request->file('logo');
+            $filename = time().'_'.$file->getClientOriginalName();
+
+            // Save directly to public folder
+            $file->move(public_path('company-logos'), $filename);
+
+            $data['logo'] = 'company-logos/'.$filename;        }
 
         $company=Company::create($data);
 
@@ -141,21 +146,31 @@ class CompanyController extends Controller
             'currency_id',
         ]);
         $data['active'] =1;
-        // Case 1 — Upload new image
         if ($request->hasFile('logo')) {
 
-            // delete old file
-            if ($company->logo && Storage::disk('public')->exists($company->logo)) {
-                Storage::disk('public')->delete($company->logo);
+            // Delete old image
+            if ($company->logo && file_exists(public_path($company->logo))) {
+                unlink(public_path($company->logo));
             }
 
-            $data['logo'] = $request->file('logo')
-                ->store('company-logos', 'public');
+            $file = $request->file('logo');
+            $filename = time().'_'.$file->getClientOriginalName();
+
+            // Save directly to public folder
+            $file->move(public_path('company-logos'), $filename);
+
+            $data['logo'] = 'company-logos/'.$filename;
         }
 
-        // Case 2 — Logo removed from frontend
+        /*
+        =========================
+        Remove logo
+        =========================
+        */
         if ($request->logo === null && $company->logo) {
-            Storage::disk('public')->delete($company->logo);
+            if (file_exists(public_path($company->logo))) {
+                unlink(public_path($company->logo));
+            }
             $data['logo'] = null;
         }
 
