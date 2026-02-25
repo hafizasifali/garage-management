@@ -20,6 +20,14 @@
     </style>
 </head>
 <body>
+@if($company->logo)
+    <div style="text-align: center; margin-bottom: 10px;">
+        <img
+            src="{{ public_path($company->logo) }}"
+            style="max-height: 100px;"
+        >
+    </div>
+@endif
 <h1 style="text-align: center;">{{strtoupper($company->name)}}</h1>
 <h3 style="text-align: center">{{$company->address}}</h3>
 <div class="header">
