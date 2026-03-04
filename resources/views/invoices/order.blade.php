@@ -34,9 +34,9 @@
     <table class="header-table">
         <tr>
             <td style="font-weight: bold">Invoice #:</td>
-            <td>{{$order->id}}</td>
+            <td>{{$order->customer->shop_no}}-{{date('ym',strtotime($order->order_date))}}-{{$order->id}}</td>
             <td style="font-weight: bold">Date:</td>
-            <td>{{$order->order_date}}</td>
+            <td>{{date('d-M-Y',strtotime($order->order_date))}}</td>
         </tr>
         <tr>
             <td style="font-weight: bold">Name:</td>

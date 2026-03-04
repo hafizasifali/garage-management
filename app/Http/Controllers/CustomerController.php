@@ -50,6 +50,7 @@ class CustomerController extends Controller
             'email' => 'nullable|email',
             'phone' => 'nullable|string|max:50',
             'address' => 'nullable|string|max:255',
+            'shop_no' => 'nullable|string|max:50',
             'type' => 'required|in:individual,company',
         ]);
 
@@ -67,6 +68,7 @@ class CustomerController extends Controller
             'email'      => 'nullable|email',
             'phone'      => 'nullable|string|max:50',
             'address'    => 'nullable|string|max:255',
+            'shop_no'    => 'nullable|string|max:50',
             'type'       => 'required|in:individual,company',
         ]);
 
@@ -87,6 +89,7 @@ class CustomerController extends Controller
             'email' => 'nullable|email',
             'phone' => 'nullable|string|max:50',
             'address' => 'nullable|string|max:255',
+            'shop_no' => 'nullable|string|max:50',
             'is_company' => 'boolean',
             'type' => 'required|in:individual,company',
         ]);

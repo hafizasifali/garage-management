@@ -291,7 +291,7 @@ class OrderController extends Controller
 
     public function downloadInvoice($id)
     {
-        $order = Order::with(['lines'])->findOrFail($id);
+        $order = Order::with(['lines','customer'])->findOrFail($id);
         $company=Company::first();
 
         $pdf = Pdf::loadView('invoices.order', compact('order','company'));

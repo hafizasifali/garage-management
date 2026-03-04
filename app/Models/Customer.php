@@ -17,6 +17,7 @@ class Customer extends Model
         'email',
         'phone',
         'address',
+        'shop_no',
     ];
 
        public static function fields(): array
@@ -34,6 +35,10 @@ class Customer extends Model
             'phone' => [
                 'type' => 'char',
                 'label' => 'Phone',
+            ],
+            'shop_no' => [
+                'type' => 'char',
+                'label' => 'Shop No',
             ],
             'address' => [
                 'type' => 'char',
