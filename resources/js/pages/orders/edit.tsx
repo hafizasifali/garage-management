@@ -15,16 +15,17 @@ import Swal from 'sweetalert2';
 
 
 export default function OrderForm({
-                                      record,
-                                      customers,
-                                      vehicles,
-                                      products,
-                                      employees,
-                                      states,
-                                      parts_by,
-                                      fields,
-                                      customers_fields,
-                                  }: any) {
+    record,
+    customers,
+    vehicles,
+    products,
+    employees,
+    states,
+    parts_by,
+    fields,
+    customers_fields,
+    customer_prices, // customer-specific prices passed from controller
+}: any) {
     const form = useForm({
         customer_id: null,
         vehicle_id: null,
@@ -44,13 +45,27 @@ export default function OrderForm({
         ...(record || {}),
     });
 
-    const [currentState, setCurrentState] = useState(form.data.state || 'pending');
+    const [currentState, setCurrentState] = useState(
+        form.data.state || 'pending',
+    );
 
     /* ---------------- Workflow Actions ---------------- */
     const workflowActions: WorkflowAction[] = [
-        { value: 'in_progress', label: 'Start Work', visibleInStates: ['pending'] },
-        { value: 'completed', label: 'Complete', visibleInStates: ['in_progress'] },
-        { value: 'paid', label: 'Mark Paid', visibleInStates: ['completed','invoiced'] },
+        {
+            value: 'in_progress',
+            label: 'Start Work',
+            visibleInStates: ['pending'],
+        },
+        {
+            value: 'completed',
+            label: 'Complete',
+            visibleInStates: ['in_progress'],
+        },
+        {
+            value: 'paid',
+            label: 'Mark Paid',
+            visibleInStates: ['completed', 'invoiced'],
+        },
     ];
     const handleStateChange = (newState: string) => {
         // Optimistically update the UI
@@ -78,7 +93,9 @@ export default function OrderForm({
     /* ---------------- Vehicle Filtering (Odoo-style) ---------------- */
     const filteredVehicles = useMemo(() => {
         if (!form.data.customer_id) return [];
-        return (vehicles || []).filter((v: any) => v.customer_id == form.data.customer_id);
+        return (vehicles || []).filter(
+            (v: any) => v.customer_id == form.data.customer_id,
+        );
     }, [vehicles, form.data.customer_id]);
 
     useEffect(() => {
@@ -87,7 +104,9 @@ export default function OrderForm({
             return;
         }
 
-        const stillValid = filteredVehicles.some((v: any) => v.id === form.data.vehicle_id);
+        const stillValid = filteredVehicles.some(
+            (v: any) => v.id === form.data.vehicle_id,
+        );
         if (!stillValid) form.setData('vehicle_id', null);
     }, [form.data.customer_id, filteredVehicles]);
 
@@ -116,7 +135,14 @@ export default function OrderForm({
     const addLine = () => {
         form.setData('lines', [
             ...form.data.lines,
-            { product_id: null, quantity: 1, unit_price: 0, tax: 0, subtotal: 0, employee_id: null },
+            {
+                product_id: null,
+                quantity: 1,
+                unit_price: 0,
+                tax: 0,
+                subtotal: 0,
+                employee_id: null,
+            },
         ]);
     };
 
@@ -141,12 +167,20 @@ export default function OrderForm({
     /* ---------------- Totals ---------------- */
     const untaxedAmount = form.data.lines.reduce(
         (acc, l) => acc + Number(l.unit_price || 0) * Number(l.quantity || 0),
-        0
+        0,
     );
     const taxAmount = untaxedAmount * 0.13;
     const totalAmount = untaxedAmount + taxAmount;
 
-    const options = { states, customers, vehicles: filteredVehicles, products, employees, customers_fields, parts_by };
+    const options = {
+        states,
+        customers,
+        vehicles: filteredVehicles,
+        products,
+        employees,
+        customers_fields,
+        parts_by,
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -156,99 +190,98 @@ export default function OrderForm({
                 <form onSubmit={handleSubmit}>
                     {/* Header + Workflow */}
                     <div className="sticky top-0 z-20 mb-4 flex flex-col gap-3 bg-white pb-3 md:static md:flex-row md:items-center md:justify-between">
+                        <h1 className="text-xl font-bold">
+                            {record
+                                ? `Edit Order #${record.id}`
+                                : 'Create Order'}
+                        </h1>
+                        <div className="mt-6 flex justify-end gap-2">
+                            {record && (
+                                <>
+                                    {/* Send Invoice */}
+                                    <Button
+                                        type="button"
+                                        variant="destructive" // red for important action
+                                        onClick={() => {
+                                            Swal.fire({
+                                                title: 'Send invoice to customer?',
+                                                text: 'The invoice PDF will be emailed.',
+                                                icon: 'question',
+                                                showCancelButton: true,
+                                                confirmButtonText: 'Send',
+                                                cancelButtonText: 'Cancel',
+                                            }).then((result) => {
+                                                if (result.isConfirmed) {
+                                                    router.post(
+                                                        route(
+                                                            'orders.send-invoice',
+                                                            record.id,
+                                                        ),
+                                                        {},
+                                                        {
+                                                            preserveScroll: true,
+                                                            onSuccess: () =>
+                                                                toast.success(
+                                                                    'Invoice sent successfully!',
+                                                                ),
+                                                            onError: () =>
+                                                                toast.error(
+                                                                    'Failed to send invoice.',
+                                                                ),
+                                                        },
+                                                    );
+                                                }
+                                            });
+                                        }}
+                                        className="flex items-center gap-1 border-none bg-red-600 text-white hover:bg-red-700"
+                                    >
+                                        <Send className="h-4 w-4" />
+                                        Send Invoice
+                                    </Button>
 
-                            <h1 className="text-xl font-bold">
-                                {record
-                                    ? `Edit Order #${record.id}`
-                                    : 'Create Order'}
-                            </h1>
-                            <div className="mt-6 flex justify-end gap-2">
-                                {record && (
-                                    <>
-                                        {/* Send Invoice */}
-                                        <Button
-                                            type="button"
-                                            variant="destructive" // red for important action
-                                            onClick={() => {
-                                                Swal.fire({
-                                                    title: 'Send invoice to customer?',
-                                                    text: 'The invoice PDF will be emailed.',
-                                                    icon: 'question',
-                                                    showCancelButton: true,
-                                                    confirmButtonText: 'Send',
-                                                    cancelButtonText: 'Cancel',
-                                                }).then((result) => {
-                                                    if (result.isConfirmed) {
-                                                        router.post(
-                                                            route(
-                                                                'orders.send-invoice',
-                                                                record.id,
-                                                            ),
-                                                            {},
-                                                            {
-                                                                preserveScroll: true,
-                                                                onSuccess: () =>
-                                                                    toast.success(
-                                                                        'Invoice sent successfully!',
-                                                                    ),
-                                                                onError: () =>
-                                                                    toast.error(
-                                                                        'Failed to send invoice.',
-                                                                    ),
-                                                            },
-                                                        );
-                                                    }
-                                                });
-                                            }}
-                                            className="flex items-center gap-1 border-none bg-red-600 text-white hover:bg-red-700"
-                                        >
-                                            <Send className="h-4 w-4" />
-                                            Send Invoice
-                                        </Button>
+                                    <Button
+                                        type="button"
+                                        variant="secondary"
+                                        onClick={() =>
+                                            window.open(
+                                                route(
+                                                    'orders.invoice',
+                                                    record.id,
+                                                ),
+                                                '_blank',
+                                            )
+                                        }
+                                        className="flex items-center gap-1 border-none bg-blue-600 text-white hover:bg-blue-700"
+                                    >
+                                        <LucideDownloadCloud className="h-4 w-4" />{' '}
+                                        Invoice
+                                    </Button>
+                                </>
+                            )}
 
-                                        <Button
-                                            type="button"
-                                            variant="secondary"
-                                            onClick={() =>
-                                                window.open(
-                                                    route(
-                                                        'orders.invoice',
-                                                        record.id,
-                                                    ),
-                                                    '_blank',
-                                                )
-                                            }
-                                            className="flex items-center gap-1 border-none bg-blue-600 text-white hover:bg-blue-700"
-                                        >
-                                            <LucideDownloadCloud className="h-4 w-4" />{' '}
-                                            Invoice
-                                        </Button>
-                                    </>
-                                )}
+                            <Button
+                                type="submit"
+                                className="flex items-center gap-1 border-none bg-gray-700 text-white hover:bg-gray-800"
+                            >
+                                Update
+                            </Button>
 
-                                <Button
-                                    type="submit"
-                                    className="flex items-center gap-1 border-none bg-gray-700 text-white hover:bg-gray-800"
-                                >
-                                    Update
-                                </Button>
-
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => window.history.back()}
-                                    className="flex items-center gap-1 border-gray-400 text-gray-700 hover:bg-gray-100"
-                                >
-                                    Go Back
-                                </Button>
-                            </div>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => window.history.back()}
+                                className="flex items-center gap-1 border-gray-400 text-gray-700 hover:bg-gray-100"
+                            >
+                                Go Back
+                            </Button>
                         </div>
-                        <StateBarWithActions
-                            states={states}
-                            currentState={currentState}
-                            actions={workflowActions}
-                            onStateChange={handleStateChange}
-                        />
+                    </div>
+                    <StateBarWithActions
+                        states={states}
+                        currentState={currentState}
+                        actions={workflowActions}
+                        onStateChange={handleStateChange}
+                    />
 
                     {/* Form Fields */}
                     <FormRenderer
@@ -261,27 +294,189 @@ export default function OrderForm({
                     {/* Lines Table */}
                     <div className="mt-6">
                         <div className="">
-                        <h2 className="mb-2 text-lg font-semibold">
-                            Repairs / Products
-                        </h2>
-                        <table className="hidden w-full rounded border md:table">
-                            <thead>
-                                <tr className="bg-gray-100">
-                                    <th className="w-[40%] p-1">Product</th>
-                                    <th className="w-[25%] p-1">Mechanic</th>
-                                    <th className="w-[8.75%] p-1">Quantity</th>
-                                    <th className="w-[8.75%] p-1">
-                                        Unit Price
-                                    </th>
-                                    <th className="w-[8.75%] p-1">Subtotal</th>
-                                    <th className="w-[8.75%] p-1">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                            <h2 className="mb-2 text-lg font-semibold">
+                                Repairs / Products
+                            </h2>
+                            <table className="hidden w-full rounded border md:table">
+                                <thead>
+                                    <tr className="bg-gray-100">
+                                        <th className="w-[40%] p-1">Product</th>
+                                        <th className="w-[25%] p-1">
+                                            Mechanic
+                                        </th>
+                                        <th className="w-[8.75%] p-1">
+                                            Quantity
+                                        </th>
+                                        <th className="w-[8.75%] p-1">
+                                            Unit Price
+                                        </th>
+                                        <th className="w-[8.75%] p-1">
+                                            Subtotal
+                                        </th>
+                                        <th className="w-[8.75%] p-1">
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {form.data.lines.map((line, index) => (
+                                        <tr key={index}>
+                                            <td className="p-1">
+                                                <Select
+                                                    options={products.map(
+                                                        (p: any) => ({
+                                                            value: p.id,
+                                                            label: p.name,
+                                                        }),
+                                                    )}
+                                                    value={
+                                                        line.product_id
+                                                            ? {
+                                                                  value: line.product_id,
+                                                                  label: products.find(
+                                                                      (p) =>
+                                                                          p.id ===
+                                                                          line.product_id,
+                                                                  )?.name,
+                                                              }
+                                                            : null
+                                                    }
+                                                    onChange={(
+                                                        selected: any,
+                                                    ) => {
+                                                        const productId =
+                                                            selected?.value ||
+                                                            null;
+                                                        const product =
+                                                            products.find(
+                                                                (p) =>
+                                                                    p.id ===
+                                                                    productId,
+                                                            );
+
+                                                        // Compute customer-specific price
+                                                        const key = `${form.data.customer_id}_${productId}`;
+                                                        const price =
+                                                            customer_prices?.[
+                                                                key
+                                                            ] ??
+                                                            product?.sale_price ??
+                                                            0;
+
+                                                        updateLine(
+                                                            index,
+                                                            'product_id',
+                                                            productId,
+                                                        );
+                                                        updateLine(
+                                                            index,
+                                                            'unit_price',
+                                                            Number(price),
+                                                        );
+                                                    }}
+                                                    isClearable
+                                                />
+                                            </td>
+                                            <td className="p-1">
+                                                <Select
+                                                    options={employees.map(
+                                                        (e: any) => ({
+                                                            value: e.id,
+                                                            label: e.name,
+                                                        }),
+                                                    )}
+                                                    value={
+                                                        line.employee_id
+                                                            ? {
+                                                                  value: line.employee_id,
+                                                                  label: employees.find(
+                                                                      (e) =>
+                                                                          e.id ===
+                                                                          line.employee_id,
+                                                                  )?.name,
+                                                              }
+                                                            : null
+                                                    }
+                                                    onChange={(selected: any) =>
+                                                        updateLine(
+                                                            index,
+                                                            'employee_id',
+                                                            selected?.value ||
+                                                                null,
+                                                        )
+                                                    }
+                                                    placeholder="Select mechanic"
+                                                    isClearable
+                                                />
+                                            </td>
+                                            <td className="p-1">
+                                                <Input
+                                                    type="number"
+                                                    value={Number(
+                                                        line.quantity || 0,
+                                                    ).toFixed(0)}
+                                                    onChange={(e) =>
+                                                        updateLine(
+                                                            index,
+                                                            'quantity',
+                                                            Number(
+                                                                e.target.value,
+                                                            ),
+                                                        )
+                                                    }
+                                                />
+                                            </td>
+                                            <td className="p-1">
+                                                <Input
+                                                    type="number"
+                                                    value={Number(
+                                                        line.unit_price || 0,
+                                                    ).toFixed(0)}
+                                                    onChange={(e) =>
+                                                        updateLine(
+                                                            index,
+                                                            'unit_price',
+                                                            Number(
+                                                                e.target.value,
+                                                            ),
+                                                        )
+                                                    }
+                                                />
+                                            </td>
+                                            <td className="p-1 text-center">
+                                                {Number(
+                                                    line.subtotal || 0,
+                                                ).toFixed(0)}
+                                            </td>
+                                            <td className="p-1 text-center">
+                                                <Button
+                                                    size="sm"
+                                                    variant="destructive"
+                                                    onClick={() =>
+                                                        removeLine(index)
+                                                    }
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            {/* MOBILE VIEW */}
+                            <div className="space-y-4 md:hidden">
                                 {form.data.lines.map((line, index) => (
-                                    <tr key={index}>
-                                        <td className="p-1">
+                                    <div
+                                        key={index}
+                                        className="space-y-2 rounded border p-3 shadow-sm"
+                                    >
+                                        {/* Product */}
+                                        <div>
+                                            <label className="text-xs font-semibold text-gray-500">
+                                                Product
+                                            </label>
                                             <Select
+                                                className="text-sm"
                                                 options={products.map(
                                                     (p: any) => ({
                                                         value: p.id,
@@ -293,7 +488,7 @@ export default function OrderForm({
                                                         ? {
                                                               value: line.product_id,
                                                               label: products.find(
-                                                                  (p) =>
+                                                                  (p: any) =>
                                                                       p.id ===
                                                                       line.product_id,
                                                               )?.name,
@@ -305,31 +500,50 @@ export default function OrderForm({
                                                         selected?.value || null;
                                                     const product =
                                                         products.find(
-                                                            (p) =>
+                                                            (p: any) =>
                                                                 p.id ===
                                                                 productId,
                                                         );
-                                                    updateLine(
-                                                        index,
-                                                        'product_id',
-                                                        productId,
-                                                    );
-                                                    updateLine(
-                                                        index,
-                                                        'unit_price',
-                                                        product
-                                                            ? Number(
-                                                                  product.sale_price ||
-                                                                      0,
-                                                              )
-                                                            : 0,
+
+                                                    // Customer-specific price
+                                                    const key = `${form.data.customer_id}_${productId}`;
+                                                    const price =
+                                                        customer_prices?.[
+                                                            key
+                                                        ] ??
+                                                        product?.sale_price ??
+                                                        0;
+
+                                                    const newLines = [
+                                                        ...form.data.lines,
+                                                    ];
+                                                    newLines[index].product_id =
+                                                        productId;
+                                                    newLines[index].unit_price =
+                                                        Number(price);
+                                                    newLines[index].subtotal =
+                                                        Number(price) *
+                                                        Number(
+                                                            newLines[index]
+                                                                .quantity,
+                                                        );
+
+                                                    form.setData(
+                                                        'lines',
+                                                        newLines,
                                                     );
                                                 }}
                                                 isClearable
                                             />
-                                        </td>
-                                        <td className="p-1">
+                                        </div>
+
+                                        {/* Mechanic */}
+                                        <div>
+                                            <label className="text-xs font-semibold text-gray-500">
+                                                Mechanic
+                                            </label>
                                             <Select
+                                                className="text-sm"
                                                 options={employees.map(
                                                     (e: any) => ({
                                                         value: e.id,
@@ -341,7 +555,7 @@ export default function OrderForm({
                                                         ? {
                                                               value: line.employee_id,
                                                               label: employees.find(
-                                                                  (e) =>
+                                                                  (e: any) =>
                                                                       e.id ===
                                                                       line.employee_id,
                                                               )?.name,
@@ -355,46 +569,66 @@ export default function OrderForm({
                                                         selected?.value || null,
                                                     )
                                                 }
-                                                placeholder="Select mechanic"
                                                 isClearable
                                             />
-                                        </td>
-                                        <td className="p-1">
-                                            <Input
-                                                type="number"
-                                                value={Number(
-                                                    line.quantity || 0,
-                                                ).toFixed(0)}
-                                                onChange={(e) =>
-                                                    updateLine(
-                                                        index,
-                                                        'quantity',
-                                                        Number(e.target.value),
-                                                    )
-                                                }
-                                            />
-                                        </td>
-                                        <td className="p-1">
-                                            <Input
-                                                type="number"
-                                                value={Number(
-                                                    line.unit_price || 0,
-                                                ).toFixed(0)}
-                                                onChange={(e) =>
-                                                    updateLine(
-                                                        index,
-                                                        'unit_price',
-                                                        Number(e.target.value),
-                                                    )
-                                                }
-                                            />
-                                        </td>
-                                        <td className="p-1 text-center">
-                                            {Number(line.subtotal || 0).toFixed(
-                                                0,
-                                            )}
-                                        </td>
-                                        <td className="p-1 text-center">
+                                        </div>
+
+                                        {/* Quantity + Price */}
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label className="text-xs font-semibold text-gray-500">
+                                                    Qty
+                                                </label>
+                                                <Input
+                                                    className="h-9 text-sm"
+                                                    type="number"
+                                                    value={line.quantity}
+                                                    onChange={(e) =>
+                                                        updateLine(
+                                                            index,
+                                                            'quantity',
+                                                            Number(
+                                                                e.target.value,
+                                                            ),
+                                                        )
+                                                    }
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="text-xs font-semibold text-gray-500">
+                                                    Price
+                                                </label>
+                                                <Input
+                                                    className="h-9 text-sm"
+                                                    type="number"
+                                                    value={line.unit_price}
+                                                    onChange={(e) =>
+                                                        updateLine(
+                                                            index,
+                                                            'unit_price',
+                                                            Number(
+                                                                e.target.value,
+                                                            ),
+                                                        )
+                                                    }
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Subtotal */}
+                                        <div className="flex justify-between font-semibold">
+                                            <span>Subtotal</span>
+                                            <span>
+                                                $
+                                                {Number(line.subtotal).toFixed(
+                                                    2,
+                                                )}
+                                            </span>
+                                        </div>
+
+                                        {/* Delete */}
+                                        <div className="text-right">
                                             <Button
                                                 size="sm"
                                                 variant="destructive"
@@ -404,171 +638,10 @@ export default function OrderForm({
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
-                                        </td>
-                                    </tr>
+                                        </div>
+                                    </div>
                                 ))}
-                            </tbody>
-                        </table>
-                        {/* MOBILE VIEW */}
-                        <div className="space-y-4 md:hidden">
-                            {form.data.lines.map((line, index) => (
-                                <div
-                                    key={index}
-                                    className="space-y-2 rounded border p-3 shadow-sm"
-                                >
-                                    {/* Product */}
-                                    <div>
-                                        <label className="text-xs font-semibold text-gray-500">
-                                            Product
-                                        </label>
-                                        <Select
-                                            className="text-sm"
-                                            options={products.map((p: any) => ({
-                                                value: p.id,
-                                                label: p.name,
-                                            }))}
-                                            value={
-                                                line.product_id
-                                                    ? {
-                                                          value: line.product_id,
-                                                          label: products.find(
-                                                              (p: any) =>
-                                                                  p.id ===
-                                                                  line.product_id,
-                                                          )?.name,
-                                                      }
-                                                    : null
-                                            }
-                                            onChange={(selected: any) => {
-                                                const productId =
-                                                    selected?.value || null;
-                                                const product = products.find(
-                                                    (p: any) =>
-                                                        p.id === productId,
-                                                );
-
-                                                const newLines = [
-                                                    ...form.data.lines,
-                                                ];
-                                                newLines[index].product_id =
-                                                    productId;
-                                                newLines[index].unit_price =
-                                                    product
-                                                        ? Number(
-                                                              product.sale_price ||
-                                                                  0,
-                                                          )
-                                                        : 0;
-
-                                                newLines[index].subtotal =
-                                                    newLines[index].unit_price *
-                                                    Number(
-                                                        newLines[index]
-                                                            .quantity,
-                                                    );
-
-                                                form.setData('lines', newLines);
-                                            }}
-                                            isClearable
-                                        />
-                                    </div>
-
-                                    {/* Mechanic */}
-                                    <div>
-                                        <label className="text-xs font-semibold text-gray-500">
-                                            Mechanic
-                                        </label>
-                                        <Select
-                                            className="text-sm"
-                                            options={employees.map(
-                                                (e: any) => ({
-                                                    value: e.id,
-                                                    label: e.name,
-                                                }),
-                                            )}
-                                            value={
-                                                line.employee_id
-                                                    ? {
-                                                          value: line.employee_id,
-                                                          label: employees.find(
-                                                              (e: any) =>
-                                                                  e.id ===
-                                                                  line.employee_id,
-                                                          )?.name,
-                                                      }
-                                                    : null
-                                            }
-                                            onChange={(selected: any) =>
-                                                updateLine(
-                                                    index,
-                                                    'employee_id',
-                                                    selected?.value || null,
-                                                )
-                                            }
-                                            isClearable
-                                        />
-                                    </div>
-
-                                    {/* Quantity + Price */}
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <div>
-                                            <label className="text-xs font-semibold text-gray-500">
-                                                Qty
-                                            </label>
-                                            <Input
-                                                className="h-9 text-sm"
-                                                type="number"
-                                                value={line.quantity}
-                                                onChange={(e) =>
-                                                    updateLine(
-                                                        index,
-                                                        'quantity',
-                                                        Number(e.target.value),
-                                                    )
-                                                }
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="text-xs font-semibold text-gray-500">
-                                                Price
-                                            </label>
-                                            <Input
-                                                className="h-9 text-sm"
-                                                type="number"
-                                                value={line.unit_price}
-                                                onChange={(e) =>
-                                                    updateLine(
-                                                        index,
-                                                        'unit_price',
-                                                        Number(e.target.value),
-                                                    )
-                                                }
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* Subtotal */}
-                                    <div className="flex justify-between font-semibold">
-                                        <span>Subtotal</span>
-                                        <span>
-                                            ${Number(line.subtotal).toFixed(2)}
-                                        </span>
-                                    </div>
-
-                                    {/* Delete */}
-                                    <div className="text-right">
-                                        <Button
-                                            size="sm"
-                                            variant="destructive"
-                                            onClick={() => removeLine(index)}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                            </div>
                         </div>
                         <Button
                             type="button"

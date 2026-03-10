@@ -43,30 +43,49 @@ export default function CustomerForm({ fields, record }) {
 
             <div className="p-4">
                 <div className="grid grid-cols-12">
-                <div className="col-span-12 md:col-span-6">
-                <form onSubmit={handleSubmit}>
-                    <div className="flex justify-between mb-4">
-                        <h1 className="text-xl font-bold">
-                            {record ? `Edit Customer #${record.id}` : 'Create Customer'}
-                        </h1>
-                        <div className="flex gap-2">
-                            <Button variant="outline" onClick={() => history.back()}>
-                                Go Back
-                            </Button>
-                            <Button type="submit">
-                                {record ? 'Update' : 'Create'}
-                            </Button>
-                        </div>
-                    </div>
+                    <div className="col-span-12 md:col-span-6">
+                        <form onSubmit={handleSubmit}>
+                            <div className="mb-4 flex justify-between">
+                                <h1 className="text-xl font-bold">
+                                    {record
+                                        ? `Edit Customer #${record.id}`
+                                        : 'Create Customer'}
+                                </h1>
+                                <div className="flex gap-2">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => history.back()}
+                                    >
+                                        Go Back
+                                    </Button>
+                                    <Button type="submit">
+                                        {record ? 'Update' : 'Create'}
+                                    </Button>
+                                    {record && (
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() =>
+                                                (window.location.href = route(
+                                                    'customers.prices.index',
+                                                    record.id,
+                                                ))
+                                            }
+                                        >
+                                            Pricing
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
 
-                    <FormRenderer
-                        fields={fields}
-                        form={form}
-                        options={options}
-                        columns={1}
-                    />
-                </form>
-                </div>
+                            <FormRenderer
+                                fields={fields}
+                                form={form}
+                                options={options}
+                                columns={1}
+                            />
+                        </form>
+                    </div>
                 </div>
             </div>
         </AppLayout>

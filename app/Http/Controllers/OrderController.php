@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\OrderInvoiceMail;
 use App\Models\Company;
+use App\Models\CustomerPrice;
 use App\Models\Order;
 use App\Models\Customer;
 use App\Models\Vehicle;
@@ -56,6 +57,14 @@ class OrderController extends Controller
 
     public function create()
     {
+        $products = Product::all();
+        // Load customer prices
+        $customerPrices = CustomerPrice::all()->mapWithKeys(function($cp) {
+            return [
+                $cp->customer_id.'_'.$cp->product_id => $cp->price
+            ];
+        });
+
         return Inertia::render('orders/form', [
             'customers' => Customer::select('id','name')->get(), // only customers,
             'vehicles' => Vehicle::all()->map(function($vehicle) {
@@ -66,12 +75,13 @@ class OrderController extends Controller
                 ];
             }),
             'employees' => Employee::all(),
-            'products' => Product::all(),
+            'products' => $products,
             'states' => Order::states(),
             'parts_by' => Order::partsBy(),
             'fields' => Order::fields(),
             'customers_fields' => Customer::fields(),
             'vehicles_fields' => Vehicle::fields(),
+            'customer_prices' => $customerPrices, // new
             'record' => null,
         ]);
     }
@@ -79,6 +89,14 @@ class OrderController extends Controller
     public function edit(Order $order)
     {
         $order->load(['lines']);
+
+        $products = Product::all();
+        // Load customer prices
+        $customerPrices = CustomerPrice::all()->mapWithKeys(function($cp) {
+            return [
+                $cp->customer_id.'_'.$cp->product_id => $cp->price
+            ];
+        });
 
         return Inertia::render('orders/edit', [
             'customers' => Customer::select('id','name')->get(),
@@ -90,10 +108,11 @@ class OrderController extends Controller
                 ];
             }),
             'employees' => Employee::all(),
-            'products' => Product::all(),
+            'products' => $products,
             'states' => Order::states(),
             'parts_by' => Order::partsBy(),
             'fields' => Order::editFields(),
+            'customer_prices' => $customerPrices,
             'record' => $order,
         ]);
     }

@@ -139,4 +139,9 @@ class Product extends Model
         $this->decrement('qty_on_hand', $qty);
     }
 
+    public function customerPrices()
+    {
+        return $this->hasMany(CustomerPrice::class);
+    }
+
 }

@@ -13,6 +13,7 @@ use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\VehicleController;
+use App\Models\Customer;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -32,6 +33,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('companies', CompanyController::class);
     Route::resource('users', UserController::class);
     Route::resource('customers', CustomerController::class);
+    Route::get('/customers/{customer}/prices',[\App\Http\Controllers\CustomerPriceController::class,'index'] )->name('customers.prices.index');
+    Route::post('/customers/{customer}/prices',
+        [\App\Http\Controllers\CustomerPriceController::class,'bulkUpdate']
+    )->name('customers.prices.bulk');
     Route::resource('suppliers', SupplierController::class);
     Route::post('suppliers/quick-create', [SupplierController::class, 'quickCreate'])->name('suppliers.quickCreate');
     Route::post('customers/quick-create', [CustomerController::class, 'quickCreate'])->name('customers.quickCreate');
