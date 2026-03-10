@@ -64,7 +64,7 @@ export default function CustomerForm({ fields, record }) {
                                     {record && (
                                         <Button
                                             type="button"
-                                            variant="outline"
+                                            variant="default" // or remove variant to use className
                                             onClick={() =>
                                                 (window.location.href = route(
                                                     'customers.prices.index',
