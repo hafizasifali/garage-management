@@ -44,26 +44,28 @@ export default function OrderForm({
         ...(record || {}),
     });
 
+    const filteredVehicles=vehicles;
+
     /* ---------------- Vehicle Filtering ---------------- */
-    const filteredVehicles = useMemo(() => {
-        if (!form.data.customer_id) return [];
-        return (vehicles || []).filter(
-            (v: any) => v.customer_id == form.data.customer_id,
-        );
-    }, [vehicles, form.data.customer_id]);
+    // const filteredVehicles = useMemo(() => {
+    //     if (!form.data.customer_id) return [];
+    //     return (vehicles || []).filter(
+    //         (v: any) => v.customer_id == form.data.customer_id,
+    //     );
+    // }, [vehicles, form.data.customer_id]);
 
-    useEffect(() => {
-        if (!form.data.customer_id) {
-            form.setData('vehicle_id', null);
-            return;
-        }
+    // useEffect(() => {
+    //     if (!form.data.customer_id) {
+    //         form.setData('vehicle_id', null);
+    //         return;
+    //     }
 
-        const stillValid = filteredVehicles.some(
-            (v: any) => v.id === form.data.vehicle_id,
-        );
+    //     const stillValid = filteredVehicles.some(
+    //         (v: any) => v.id === form.data.vehicle_id,
+    //     );
 
-        if (!stillValid) form.setData('vehicle_id', null);
-    }, [form.data.customer_id, filteredVehicles]);
+    //     if (!stillValid) form.setData('vehicle_id', null);
+    // }, [form.data.customer_id, filteredVehicles]);
 
     /* ---------------- Breadcrumbs ---------------- */
     const breadcrumbs: BreadcrumbItem[] = [

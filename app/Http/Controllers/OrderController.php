@@ -71,7 +71,7 @@ class OrderController extends Controller
                 return [
                     'id' => $vehicle->id,
                     'customer_id'=>$vehicle->customer_id,
-                    'name' => $vehicle->display_name, // computed field
+                    'name' => $vehicle->name, // computed field
                 ];
             }),
             'employees' => Employee::all(),
