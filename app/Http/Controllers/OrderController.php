@@ -363,38 +363,38 @@ class OrderController extends Controller
             ->paginate(80)
             ->through(function ($order) {
 
-                $partsLines = $order->lines->filter(fn ($l) => $l->product?->type === 'part');
-                $labourLines = $order->lines->filter(fn ($l) => $l->product?->type === 'labour');
+                $partsLines = $order->lines->filter(fn ($l) => $l->product?->type === 'product');
+                $labourLines = $order->lines->filter(fn ($l) => $l->product?->type === 'service');
 
-                $brakeFluidLines = $order->lines->filter(fn ($l) =>
-                str_contains(strtolower($l->product?->name ?? ''), 'brake')
-                );
+                $brakeFluidLines = $order->lines->filter(fn ($l) =>$l->product?->type === 'consumable');
 
                 $otherLines = $order->lines->diff($partsLines)->diff($labourLines);
 
                 $partsCost = $partsLines->sum('subtotal');
                 $labourTotal = $labourLines->sum('subtotal');
                 $labourPerHour = $labourLines->avg('unit_price') ?? 0;
+                $hours=$labourLines->sum('quantity');
                 $brakeFluidCost = $brakeFluidLines->sum('subtotal');
-                $otherCost = $otherLines->sum('subtotal');
+                $otherCost = 0;
 
                 return [
                     'id' => $order->id,
                     'date' => optional($order->order_date)->format('Y-m-d'),
-                    'invoice_number' => 'INV-' . str_pad($order->id, 6, '0', STR_PAD_LEFT),
+                    'invoice_number' => $order->customer->shop_no.'-'. date('Ym',strtotime($order->order_date)).'-'.$order->id,
                     'license_plate' => $order->vehicle_license_plate ?? $order->vehicle?->license_plate ?? '-',
                     'description' => $order->lines->pluck('product.name')->filter()->implode(', '),
                     'parts_cost' => round($partsCost, 2),
                     'brake_fluid_cost' => round($brakeFluidCost, 2),
-                    'mention' => ucfirst(str_replace('_', ' ', $order->state)),
+                    'mention' => '',
                     'other_cost' => round($otherCost, 2),
+                    'hours'=>$hours,
                     'labour_per_hour' => round($labourPerHour, 2),
                     'total_labour' => round($labourTotal, 2),
                     'subtotal' => round($partsCost + $labourTotal, 2),
                     'parts' => round($partsCost, 2),
                     'hst' => round($order->total_tax ?? 0, 2),
                     'invoice_total' => round($order->total_amount ?? ($partsCost + $labourTotal + ($order->total_tax ?? 0)), 2),
-                    'parts_teejay' => $order->parts_by === 'us' ? 'Yes' : 'No',
+                    'parts_by' => $order->parts_by === 'us' ? 'Yes' : 'No',
                 ];
             });
 

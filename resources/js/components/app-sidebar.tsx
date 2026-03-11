@@ -91,16 +91,16 @@ const mainNavItems: NavItem[] = [
         icon: UserCog, // staff/mechanics
         isActive: route().current('employees.*'),
     },
-    // {
-    //     title: 'Reports',
-    //     icon: BarChart2,
-    //     children: [
-    //         {
-    //             title: 'Billing Report',
-    //             href: route('reports.billingReport'),
-    //         },
-    //     ],
-    // },
+    {
+        title: 'Reports',
+        icon: BarChart2,
+        children: [
+            {
+                title: 'Billing Report',
+                href: route('reports.billingReport'),
+            },
+        ],
+    },
 ];
 const footerNavItems: NavItem[] = [
     {

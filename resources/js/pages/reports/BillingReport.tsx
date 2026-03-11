@@ -27,13 +27,14 @@ type SaleReportRow = {
     brake_fluid_cost: number;
     mention: string;
     other_cost: number;
+    hours: number;
     labour_per_hour: number;
     total_labour: number;
     subtotal: number;
     parts: number;
     hst: number;
     invoice_total: number;
-    parts_teejay: string;
+    parts_by: string;
 };
 
 
@@ -65,15 +66,15 @@ export default function Index() {
             Description: row.description || '-',
             'Parts Cost': row.parts_cost,
             'Brake Fluid Cost': row.brake_fluid_cost,
-            Mention: row.mention || '-',
             'Other Cost': row.other_cost,
-            'Labour / Hour': row.labour_per_hour,
+            'Mention Description if Other Cost': row.mention || '-',
+            'Hours': row.hours,
+            'Labour Per Hour': row.labour_per_hour,
             'Total Labour': row.total_labour,
             Subtotal: row.subtotal,
-            Parts: row.parts,
             HST: row.hst,
-            'Invoice Total': row.invoice_total,
-            'Parts by Teejay': row.parts_teejay,
+            'Invoice Total Amount': row.invoice_total,
+            'Parts by Teejay': row.parts_by,
         }));
 
         const ws = XLSX.utils.json_to_sheet(data);
@@ -120,16 +121,21 @@ export default function Index() {
             render: (row: SaleReportRow) =>
                 `$${row.brake_fluid_cost.toFixed(2)}`,
         },
-        {
-            label: 'Mention',
-            render: (row: SaleReportRow) => row.mention || '-',
-        },
+
         {
             label: 'Other Cost',
             render: (row: SaleReportRow) => `$${row.other_cost.toFixed(2)}`,
         },
         {
-            label: 'Labour / Hour',
+            label: 'Mention Description if Other Cost',
+            render: (row: SaleReportRow) => row.mention || '',
+        },
+        {
+            label: 'Hours',
+            render: (row: SaleReportRow) => `${row.hours}`,
+        },
+        {
+            label: 'Labour Per Hour',
             render: (row: SaleReportRow) =>
                 `$${row.labour_per_hour.toFixed(2)}`,
         },
@@ -142,20 +148,16 @@ export default function Index() {
             render: (row: SaleReportRow) => `$${row.subtotal.toFixed(2)}`,
         },
         {
-            label: 'Parts',
-            render: (row: SaleReportRow) => `$${row.parts.toFixed(2)}`,
-        },
-        {
             label: 'HST',
             render: (row: SaleReportRow) => `$${row.hst.toFixed(2)}`,
         },
         {
-            label: 'Invoice Total',
+            label: 'Invoice Total Amount',
             render: (row: SaleReportRow) => `$${row.invoice_total.toFixed(2)}`,
         },
         {
             label: 'Parts by Teejay',
-            render: (row: SaleReportRow) => row.parts_teejay,
+            render: (row: SaleReportRow) => row.parts_by,
         },
     ];
 
