@@ -48,13 +48,13 @@ export default function OrderForm({
     const [currentState, setCurrentState] = useState(
         form.data.state || 'pending',
     );
-
+    const isPaid = currentState === 'paid';
     /* ---------------- Workflow Actions ---------------- */
     const workflowActions: WorkflowAction[] = [
         {
             value: 'in_progress',
-            label: 'Start Work',
-            visibleInStates: ['pending'],
+            label: 'Mark as In Progress',
+            visibleInStates: ['paid'],
         },
         {
             value: 'completed',
@@ -63,7 +63,7 @@ export default function OrderForm({
         },
         {
             value: 'paid',
-            label: 'Mark Paid',
+            label: 'Mark as Paid',
             visibleInStates: ['completed', 'invoiced'],
         },
     ];
@@ -259,12 +259,14 @@ export default function OrderForm({
                                 </>
                             )}
 
-                            <Button
-                                type="submit"
-                                className="flex items-center gap-1 border-none bg-gray-700 text-white hover:bg-gray-800"
-                            >
-                                Update
-                            </Button>
+                            {!isPaid && (
+                                <Button
+                                    type="submit"
+                                    className="flex items-center gap-1 border-none bg-gray-700 text-white hover:bg-gray-800"
+                                >
+                                    Update
+                                </Button>
+                            )}
 
                             <Button
                                 type="button"
@@ -289,6 +291,7 @@ export default function OrderForm({
                         form={form}
                         options={options}
                         columns={2}
+                        disabled={isPaid}
                     />
 
                     {/* Lines Table */}
@@ -313,9 +316,11 @@ export default function OrderForm({
                                         <th className="w-[8.75%] p-1">
                                             Subtotal
                                         </th>
+                                        {!isPaid && (
                                         <th className="w-[8.75%] p-1">
                                             Actions
                                         </th>
+                                            )}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -323,6 +328,7 @@ export default function OrderForm({
                                         <tr key={index}>
                                             <td className="p-1">
                                                 <Select
+                                                    isDisabled={isPaid}
                                                     options={products.map(
                                                         (p: any) => ({
                                                             value: p.id,
@@ -379,6 +385,7 @@ export default function OrderForm({
                                             </td>
                                             <td className="p-1">
                                                 <Select
+                                                    isDisabled={isPaid}
                                                     options={employees.map(
                                                         (e: any) => ({
                                                             value: e.id,
@@ -411,6 +418,7 @@ export default function OrderForm({
                                             </td>
                                             <td className="p-1">
                                                 <Input
+                                                    disabled={isPaid}
                                                     type="number"
                                                     value={Number(
                                                         line.quantity || 0,
@@ -428,6 +436,7 @@ export default function OrderForm({
                                             </td>
                                             <td className="p-1">
                                                 <Input
+                                                    disabled={isPaid}
                                                     type="number"
                                                     value={Number(
                                                         line.unit_price || 0,
@@ -448,17 +457,19 @@ export default function OrderForm({
                                                     line.subtotal || 0,
                                                 ).toFixed(0)}
                                             </td>
-                                            <td className="p-1 text-center">
-                                                <Button
-                                                    size="sm"
-                                                    variant="destructive"
-                                                    onClick={() =>
-                                                        removeLine(index)
-                                                    }
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </td>
+                                            {!isPaid && (
+                                                <td className="p-1 text-center">
+                                                    <Button
+                                                        size="sm"
+                                                        variant="destructive"
+                                                        onClick={() =>
+                                                            removeLine(index)
+                                                        }
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </td>
+                                            )}
                                         </tr>
                                     ))}
                                 </tbody>
@@ -476,6 +487,7 @@ export default function OrderForm({
                                                 Product
                                             </label>
                                             <Select
+                                                isDisabled={isPaid}
                                                 className="text-sm"
                                                 options={products.map(
                                                     (p: any) => ({
@@ -543,6 +555,7 @@ export default function OrderForm({
                                                 Mechanic
                                             </label>
                                             <Select
+                                                isDisabled={isPaid}
                                                 className="text-sm"
                                                 options={employees.map(
                                                     (e: any) => ({
@@ -580,6 +593,7 @@ export default function OrderForm({
                                                     Qty
                                                 </label>
                                                 <Input
+                                                    disabled={isPaid}
                                                     className="h-9 text-sm"
                                                     type="number"
                                                     value={line.quantity}
@@ -600,6 +614,7 @@ export default function OrderForm({
                                                     Price
                                                 </label>
                                                 <Input
+                                                    disabled={isPaid}
                                                     className="h-9 text-sm"
                                                     type="number"
                                                     value={line.unit_price}
@@ -628,17 +643,19 @@ export default function OrderForm({
                                         </div>
 
                                         {/* Delete */}
-                                        <div className="text-right">
-                                            <Button
-                                                size="sm"
-                                                variant="destructive"
-                                                onClick={() =>
-                                                    removeLine(index)
-                                                }
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </div>
+                                        {!isPaid && (
+                                            <div className="text-right">
+                                                <Button
+                                                    size="sm"
+                                                    variant="destructive"
+                                                    onClick={() =>
+                                                        removeLine(index)
+                                                    }
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>

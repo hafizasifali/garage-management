@@ -4,6 +4,7 @@ import OdooMenuList from './OdooMenuList';
 import QuickCreateModal from './QuickCreateModal';
 
 type Many2OneFieldProps = {
+    disabled: boolean;
     label: string;
     value: string | null;
     options?: any[];
@@ -18,6 +19,7 @@ type Many2OneFieldProps = {
 };
 
 export default function Many2OneField({
+    disabled,
     label,
     value,
     options = [],
@@ -51,6 +53,7 @@ export default function Many2OneField({
     return (
         <>
             <Select
+                isDisabled={disabled}
                 options={selectOptions}
                 value={selected}
                 onChange={(opt) => onChange(opt ? opt.value : null)}

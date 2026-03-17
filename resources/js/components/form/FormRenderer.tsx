@@ -16,6 +16,7 @@ type FormRendererProps = {
     options?: Record<string, any>;
     columns?: 1 | 2 | 4; // default 2 columns
     onOptionsUpdate?: (relation: string, newRecord: any) => void;
+    disabled: boolean;
 };
 
 export default function FormRenderer({
@@ -24,6 +25,7 @@ export default function FormRenderer({
     options = {},
     columns = 2,
     onOptionsUpdate,
+    disabled,
 }: FormRendererProps) {
     const gridCols =
         columns === 1
@@ -75,6 +77,7 @@ export default function FormRenderer({
                         <div className="flex flex-1 flex-col">
                             {field.type === 'char' && (
                                 <Input
+                                    disabled={disabled}
                                     maxLength={field.length}
                                     value={form.data[name] || ''}
                                     onChange={(e) =>
@@ -88,6 +91,7 @@ export default function FormRenderer({
 
                             {field.type === 'email' && (
                                 <Input
+                                    disabled={disabled}
                                     type={`email`}
                                     maxLength={field.length}
                                     value={form.data[name] || ''}
@@ -102,6 +106,7 @@ export default function FormRenderer({
 
                             {field.type === 'password' && (
                                 <Input
+                                    disabled={disabled}
                                     type={`password`}
                                     maxLength={field.length}
                                     value={form.data[name] || ''}
@@ -116,6 +121,7 @@ export default function FormRenderer({
 
                             {field.type === 'text' && (
                                 <Textarea
+                                    disabled={disabled}
                                     value={form.data[name] || ''}
                                     onChange={(e) =>
                                         form.setData(name, e.target.value)
@@ -128,6 +134,8 @@ export default function FormRenderer({
 
                             {field.type === 'date' && (
                                 <DatePicker
+                                    disabled={disabled}
+                                    readOnly={disabled}
                                     selected={toPickerDate(form.data[name])}
                                     onChange={(date: Date | null) =>
                                         form.setData(name, toBackendDate(date))
@@ -165,6 +173,7 @@ export default function FormRenderer({
                             {(field.type === 'many2one' ||
                                 field.type === 'many2many') && (
                                 <Many2OneField
+                                    disabled={disabled}
                                     label={field.label}
                                     value={String(form.data[name])}
                                     options={options[field.relation] || []}
