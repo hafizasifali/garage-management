@@ -6,7 +6,7 @@
 </p>
 
 <p>
-    <strong>Order Number:</strong> #{{ $order->id }}<br>
+    <strong>Invoice Number:</strong> {{$order->customer->shop_no}}-{{date('ym',strtotime($order->order_date))}}-{{$order->id}}<br>
     <strong>Vehicle:</strong> {{ $order->vehicle_name ?? 'N/A' }}<br>
     <strong>Service Date:</strong> {{ \Carbon\Carbon::parse($order->order_date)->format('d-M-Y') }}
 </p>

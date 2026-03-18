@@ -179,12 +179,6 @@ export default function Index() {
                             search={search}
                             config={[
                                 {
-                                    label: 'Invoice #',
-                                    field: 'id',
-                                    operator: '=',
-                                    type: 'number',
-                                },
-                                {
                                     label: 'Customer',
                                     field: 'customer_id',
                                     operator: '=',
@@ -192,16 +186,6 @@ export default function Index() {
                                     options: customers.map((c: any) => ({
                                         label: c.name,
                                         value: c.id,
-                                    })),
-                                },
-                                {
-                                    label: 'Vehicle',
-                                    field: 'vehicle_id',
-                                    operator: '=',
-                                    type: 'select',
-                                    options: vehicles.map((v: any) => ({
-                                        label: v.license_plate,
-                                        value: v.id,
                                     })),
                                 },
                                 {
@@ -225,8 +209,14 @@ export default function Index() {
                                     })),
                                 },
                                 {
-                                    label: 'Order Date',
-                                    field: 'order_date',
+                                    label: 'From',
+                                    field: 'from',
+                                    operator: '=',
+                                    type: 'date',
+                                },
+                                {
+                                    label: 'To',
+                                    field: 'to',
                                     operator: '=',
                                     type: 'date',
                                 },

@@ -27,7 +27,7 @@ class OrderInvoiceMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Invoice for Order #' . $this->order->id,
+            subject: 'Teejays Autos - Invoice Number: '.$this->order->customer->shop_no.'-' .date('ym',strtotime($this->order->order_date)). $this->order->id,
         );
     }
 
