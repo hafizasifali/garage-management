@@ -114,8 +114,8 @@ class VehicleController extends Controller
 
     public function destroy(Vehicle $vehicle)
     {
-        $vehicle->update(['active' => false]);
+        $vehicle->delete();
 
-        return redirect()->back()->with('success', 'Vehicle deactivated successfully.');
+        return redirect()->route('vehicles.index')->with('success', 'Vehicle deactivated successfully.');
     }
 }

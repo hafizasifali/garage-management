@@ -5,6 +5,7 @@ import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { route } from 'ziggy-js';
 import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 type VehicleFormProps = {
     fields: any;
@@ -43,6 +44,26 @@ export default function VehicleForm({ fields, record, customers,customers_fields
               });
     };
 
+    const handleDelete = async (id: number, name: string) => {
+        const result = await Swal.fire({
+            title: 'Delete Vehicle?',
+            text: `Vehicle "${name}" will be permanently deleted.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, Delete',
+            cancelButtonText: 'Cancel',
+        });
+
+        if (!result.isConfirmed) return;
+
+        form.delete(route('vehicles.destroy', id), {
+            preserveScroll: true,
+            onSuccess: () => toast.success('Vehicle deleted successfully'),
+        });
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head
@@ -72,6 +93,16 @@ export default function VehicleForm({ fields, record, customers,customers_fields
                                     </Button>
                                     <Button type="submit">
                                         {record ? 'Update' : 'Create'}
+                                    </Button>
+                                    <Button
+                                        type="button" // 👈 this is the fix
+                                        className={`cursor-pointer`}
+                                        variant="destructive"
+                                        onClick={() =>
+                                            handleDelete(record.id, record.name)
+                                        }
+                                    >
+                                        Delete
                                     </Button>
                                 </div>
                             </div>

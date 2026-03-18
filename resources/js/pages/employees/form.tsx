@@ -5,6 +5,7 @@ import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { route } from 'ziggy-js';
 import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 type Props = {
     fields: any;
@@ -47,22 +48,61 @@ export default function EmployeeForm({ fields, record, companies, countries, use
               });
     };
 
+    const handleDelete = async (id: number, name: string) => {
+        const result = await Swal.fire({
+            title: 'Delete Mechanic?',
+            text: `Mechanic "${name}" will be permanently deleted.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, Delete',
+            cancelButtonText: 'Cancel',
+        });
+
+        if (!result.isConfirmed) return;
+
+        form.delete(route('employees.destroy', id), {
+            preserveScroll: true,
+            onSuccess: () => toast.success('Employee deleted successfully'),
+        });
+    };
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={record ? `Edit Employee - ${record.name}` : 'New Employee'} />
+            <Head
+                title={
+                    record ? `Edit Employee - ${record.name}` : 'New Employee'
+                }
+            />
 
             <div className="p-4">
                 <form onSubmit={handleSubmit}>
-                    <div className="flex justify-between mb-4">
+                    <div className="mb-4 flex justify-between">
                         <h1 className="text-xl font-bold">
-                            {record ? `Edit Employee #${record.id}` : 'Create Employee'}
+                            {record
+                                ? `Edit Employee #${record.id}`
+                                : 'Create Employee'}
                         </h1>
                         <div className="flex gap-2">
-                            <Button type="button" variant="outline" onClick={() => history.back()}>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => history.back()}
+                            >
                                 Cancel
                             </Button>
                             <Button type="submit">
                                 {record ? 'Update' : 'Create'}
+                            </Button>
+                            <Button
+                                type="button" // 👈 this is the fix
+                                className={`cursor-pointer`}
+                                variant="destructive"
+                                onClick={() =>
+                                    handleDelete(record.id, record.name)
+                                }
+                            >
+                                Delete
                             </Button>
                         </div>
                     </div>

@@ -207,7 +207,7 @@ class OrderController extends Controller
         ]);
 
         return redirect()
-            ->route('orders.index')
+            ->route('orders.edit',$order->id)
             ->with('success', 'Order created successfully.');
     }
 
@@ -295,7 +295,7 @@ class OrderController extends Controller
         ]);
 
         return redirect()
-            ->route('orders.index')
+            ->route('orders.edit',$order->id)
             ->with('success', 'Order updated successfully.');
     }
 

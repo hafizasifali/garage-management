@@ -39,6 +39,7 @@ class Customer extends Model
             'shop_no' => [
                 'type' => 'char',
                 'label' => 'Shop No',
+                'placeholder' => 'Enter shop number (optional, for business only)',
             ],
             'address' => [
                 'type' => 'char',

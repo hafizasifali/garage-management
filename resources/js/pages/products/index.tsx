@@ -53,7 +53,7 @@ export default function ProductIndex() {
         { label: 'Category', render: (row: Product) => row.category?.name },
         // { label: 'UOM', render: (row: Product) => row.uom?.name },
         { label: 'Type', render: (row: Product) => row.type },
-        { label: 'Quantity', render: (row: Product) => row.qty_on_hand },
+        // { label: 'Quantity', render: (row: Product) => row.qty_on_hand },
         { label: 'Sale Price', render: (row: Product) => row.sale_price },
         {
             label: 'Active',

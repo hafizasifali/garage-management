@@ -30,7 +30,7 @@ export default function EmployeeIndex() {
     const [selected, setSelected] = useState<number[]>([]);
 
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Employees', href: route('employees.index') },
+        { title: 'Mechanics', href: route('employees.index') },
     ];
 
     const handleDelete = async (id: number, name: string) => {
@@ -69,13 +69,13 @@ export default function EmployeeIndex() {
                             <Edit className="h-4 w-4" />
                         </Link>
                     </Button>
-                    <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => handleDelete(row.id, row.name)}
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {/*<Button*/}
+                    {/*    size="sm"*/}
+                    {/*    variant="destructive"*/}
+                    {/*    onClick={() => handleDelete(row.id, row.name)}*/}
+                    {/*>*/}
+                    {/*    <Trash2 className="h-4 w-4" />*/}
+                    {/*</Button>*/}
                 </div>
             ),
         },

@@ -101,8 +101,8 @@ class CustomerController extends Controller
 
     public function destroy(Customer $customer)
     {
-        $customer->update(['active' => false]);
+        $customer->delete();
 
-        return redirect()->back()->with('success', 'Customer archived successfully.');
+        return redirect()->route('customers.index')->with('success', 'Customer deleted successfully.');
     }
 }

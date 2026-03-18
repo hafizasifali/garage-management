@@ -78,6 +78,7 @@ export default function FormRenderer({
                             {field.type === 'char' && (
                                 <Input
                                     disabled={disabled}
+                                    placeholder={field.placeholder || ''}
                                     maxLength={field.length}
                                     value={form.data[name] || ''}
                                     onChange={(e) =>

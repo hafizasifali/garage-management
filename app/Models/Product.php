@@ -93,10 +93,10 @@ class Product extends Model
                 'label' => 'Sale Price',
                 'required' => true,
             ],
-            'qty_on_hand' => [
-                'type' => 'char',
-                'label' => 'QTY On Hand',
-            ],
+//            'qty_on_hand' => [
+//                'type' => 'char',
+//                'label' => 'QTY On Hand',
+//            ],
         ];
     }
 
