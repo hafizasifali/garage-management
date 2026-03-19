@@ -82,6 +82,7 @@ export default function CustomerForm({ fields, record }) {
                                     <Button type="submit">
                                         {record ? 'Update' : 'Create'}
                                     </Button>
+                                    {record && (
                                     <Button
                                         type="button" // 👈 this is the fix
                                         className={`cursor-pointer`}
@@ -92,6 +93,7 @@ export default function CustomerForm({ fields, record }) {
                                     >
                                         Delete
                                     </Button>
+                                    )}
                                     {record && (
                                         <Button
                                             type="button"

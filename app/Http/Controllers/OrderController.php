@@ -344,8 +344,19 @@ class OrderController extends Controller
             'customer',
         ]);
 
+        // Remap virtual date fields to real column before applying
+        $mappedFilters = collect($filters)->map(function ($rule) {
+            if ($rule['field'] === 'order_date_from') {
+                return array_merge($rule, ['field' => 'order_date', 'operator' => '>=']);
+            }
+            if ($rule['field'] === 'order_date_to') {
+                return array_merge($rule, ['field' => 'order_date', 'operator' => '<=']);
+            }
+            return $rule;
+        })->toArray();
+
         // Apply structured filters
-        $query = QueryFilter::apply($query, $filters);
+        $query = QueryFilter::apply($query, $mappedFilters);
 
         // Global search
         if ($search) {

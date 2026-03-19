@@ -210,14 +210,14 @@ export default function Index() {
                                 },
                                 {
                                     label: 'From',
-                                    field: 'from',
-                                    operator: '=',
+                                    field: 'order_date_from',   // ← changed
+                                    operator: '>=',
                                     type: 'date',
                                 },
                                 {
                                     label: 'To',
-                                    field: 'to',
-                                    operator: '=',
+                                    field: 'order_date_to',     // ← changed
+                                    operator: '<=',
                                     type: 'date',
                                 },
                             ]}

@@ -53,8 +53,8 @@ export default function StateBarWithActions({
                 ${sizeClasses[size]}
                 ${
                                 active
-                                    ? 'bg-gray-700 text-white hover:bg-gray-800'
-                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                    ? 'bg-blue-700 text-white hover:bg-blue-800'
+                                    : 'bg-blue-700 text-white hover:bg-blue-800'
                             }
               `}
                         >

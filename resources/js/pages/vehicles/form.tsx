@@ -94,6 +94,7 @@ export default function VehicleForm({ fields, record, customers,customers_fields
                                     <Button type="submit">
                                         {record ? 'Update' : 'Create'}
                                     </Button>
+                                    {record && (
                                     <Button
                                         type="button" // 👈 this is the fix
                                         className={`cursor-pointer`}
@@ -104,6 +105,7 @@ export default function VehicleForm({ fields, record, customers,customers_fields
                                     >
                                         Delete
                                     </Button>
+                                        )}
                                 </div>
                             </div>
 
