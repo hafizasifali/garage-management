@@ -29,7 +29,7 @@
     </div>
 @endif
 <h1 style="text-align: center;">{{strtoupper($company->name)}}</h1>
-<h3 style="text-align: center">{{$company->address}}</h3>
+<h3 style="text-align: center">{{$company->address}}, Ph {{$company->phone}}</h3>
 <div class="header">
     <table class="header-table">
         <tr>
@@ -42,7 +42,7 @@
             <td style="font-weight: bold">Name:</td>
             <td>{{$order->customer_name}}</td>
             <td style="font-weight: bold">Make:</td>
-            <td>{{$order->vehicle_name}}</td>
+            <td>{{$order->vehicle_make}}</td>
         </tr>
         <tr>
             <td style="font-weight: bold">Address:</td>
@@ -54,7 +54,7 @@
             <td style="font-weight: bold">Telephone #:</td>
             <td>{{$order->customer_phone}}</td>
             <td style="font-weight: bold">Year:</td>
-            <td>{{$order->vehicle_model}}</td>
+            <td>{{$order->vehicle_year}}</td>
         </tr>
         <tr>
             <td style="font-weight: bold">License Plate:</td>
@@ -100,5 +100,9 @@
     </tr>
     </tbody>
 </table>
+@if($order->note)
+    <div style="margin-top: 50px;"><b>Note: </b>{{$order->note}}</div>
+@endif
+
 </body>
 </html>

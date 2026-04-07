@@ -84,11 +84,11 @@ class Employee extends Model
                 'label' => 'Country',
                 'relation' => 'countries',
             ],
-            'user_id' => [
-                'type' => 'many2one',
-                'label' => 'System User',
-                'relation' => 'users',
-            ],
+//            'user_id' => [
+//                'type' => 'many2one',
+//                'label' => 'System User',
+//                'relation' => 'users',
+//            ],
         ];
     }
 

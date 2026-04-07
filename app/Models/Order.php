@@ -19,9 +19,12 @@ class Order extends Model
         'customer_address',
         'vehicle_name',
         'vehicle_model',
+        'vehicle_make',
+        'vehicle_year',
         'vehicle_license_plate',
         'vehicle_vin',
         'vehicle_id',
+        'note',
         'order_date',
         'state', // pending, in_progress, completed
         'parts_by',
@@ -47,6 +50,10 @@ class Order extends Model
         return [
             'customer_id' => ['label' => 'Customer', 'type' => 'many2one', 'relation' => 'customers', 'quick_create' => true, 'edit_route' => 'customers.edit',],
             'vehicle_id' => ['label' => 'Vehicle', 'type' => 'many2one', 'relation' => 'vehicles', 'quick_create' => true, 'edit_route' => 'vehicles.edit'],
+            'vehicle_year' => ['label' => 'Year', 'type' => 'number', 'length' => '4'],
+            'vehicle_make' => ['label' => 'Make', 'type' => 'char'],
+            'vehicle_model' => ['label' => 'Model', 'type' => 'char'],
+            'vehicle_license_plate' => ['label' => 'License Plate', 'type' => 'char'],
             'order_date' => ['label' => 'Order Date', 'type' => 'date'],
             // 'employee_ids' => ['label' => 'Mechanics', 'type' => 'many2many', 'relation' => 'employees'],
             //'state' => ['label' => 'Order State', 'type' => 'many2one', 'relation' => 'states'],
@@ -61,12 +68,15 @@ class Order extends Model
             'customer_phone' => ['label' => 'Customer Phone', 'type' => 'char'],
             'customer_address' => ['label' => 'Customer Address', 'type' => 'char'],
             'vehicle_name' => ['label' => 'Vehicle Name', 'type' => 'char'],
-            'vehicle_model' => ['label' => 'Vehicle Model', 'type' => 'char'],
-            'vehicle_license_plate' => ['label' => 'Vehicle License', 'type' => 'char'],
+            'vehicle_year' => ['label' => 'Year', 'type' => 'number', 'length' => '4'],
+            'vehicle_make' => ['label' => 'Make', 'type' => 'char'],
+            'vehicle_model' => ['label' => 'Model', 'type' => 'char'],
+            'vehicle_license_plate' => ['label' => 'License Plate', 'type' => 'char'],
             'vehicle_vin' => ['label' => 'VIN', 'type' => 'char'],
             'order_date' => ['label' => 'Order Date', 'type' => 'date'],
             'parts_by' => ['label' => 'Parts By', 'type' => 'many2one', 'relation' => 'parts_by'],
 //            'state' => ['label' => 'Order State', 'type' => 'many2one', 'relation' => 'states'],
+            'note' => ['label' => 'Note', 'type' => 'char'],
         ];
     }
 

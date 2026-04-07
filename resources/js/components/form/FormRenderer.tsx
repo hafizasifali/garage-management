@@ -90,6 +90,31 @@ export default function FormRenderer({
                                 />
                             )}
 
+                            {field.type === 'number' && (
+                                <Input
+                                    type="text"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
+                                    maxLength={field.length}
+                                    disabled={disabled}
+                                    placeholder={field.placeholder || ''}
+                                    value={form.data[name] || ''}
+                                    onChange={
+                                        (e) =>
+                                            form.setData(
+                                                name,
+                                                e.target.value.replace(
+                                                    /\D/g,
+                                                    '',
+                                                ),
+                                            ) // only digits
+                                    }
+                                    className={cn(
+                                        error && 'border-destructive',
+                                    )}
+                                />
+                            )}
+
                             {field.type === 'email' && (
                                 <Input
                                     disabled={disabled}

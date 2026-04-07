@@ -24,8 +24,11 @@ return new class extends Migration
             $table->string('customer_address')->nullable();
             $table->string('vehicle_name')->nullable();
             $table->string('vehicle_model')->nullable();
+            $table->string('vehicle_make')->nullable();
+            $table->string('vehicle_year')->nullable();
             $table->string('vehicle_license_plate')->nullable();
             $table->string('vehicle_vin')->nullable();
+            $table->text('note')->nullable();
             $table->decimal('total_parts_cost', 10, 2)->default(0);
             $table->decimal('total_labor_cost', 10, 2)->default(0);
             $table->decimal('tax_rate', 10, 2)->default(0);

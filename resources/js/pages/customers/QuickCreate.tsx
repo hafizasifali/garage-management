@@ -29,27 +29,25 @@ fields,
   };
 
   return (
-    <Dialog open={open}>
-      <DialogContent className="max-w-xl">
-        <DialogHeader>
-            <DialogTitle>Create Customer</DialogTitle>
-        </DialogHeader>
+      <Dialog open={open} onOpenChange={() => {}}>
+          <DialogContent
+              className="max-w-xl"
+              onInteractOutside={(e) => e.preventDefault()}
+              onEscapeKeyDown={(e) => e.preventDefault()}
+          >
+              <DialogHeader>
+                  <DialogTitle>Create Customer</DialogTitle>
+              </DialogHeader>
 
-        <FormRenderer
-          fields={fields}
-          form={form}
-          columns={1}
-        />
+              <FormRenderer fields={fields} form={form} columns={1} />
 
-        <div className="flex justify-end gap-2 mt-4">
-          <Button variant="outline" onClick={() => onCreated(null)}>
-            Cancel
-          </Button>
-          <Button onClick={submit}>
-            Save
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+              <div className="mt-4 flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => onCreated(null)}>
+                      Cancel
+                  </Button>
+                  <Button onClick={submit}>Save</Button>
+              </div>
+          </DialogContent>
+      </Dialog>
   );
 }

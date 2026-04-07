@@ -67,7 +67,7 @@ class EmployeeController extends Controller
             'birthday'     => 'nullable|date',
             'company_id'   => 'required|exists:companies,id',
             'country_id'   => 'nullable|exists:countries,id',
-            'user_id'      => 'nullable|exists:users,id',
+//            'user_id'      => 'nullable|exists:users,id',
         ]);
 
         $data['active'] = 1;
@@ -89,7 +89,7 @@ class EmployeeController extends Controller
             'birthday'     => 'nullable|date',
             'company_id'   => 'required|exists:companies,id',
             'country_id'   => 'nullable|exists:countries,id',
-            'user_id'      => 'nullable|exists:users,id',
+//            'user_id'      => 'nullable|exists:users,id',
         ]);
         $employee->update($data);
 
