@@ -119,6 +119,7 @@ export default function FormRenderer({
                                 <Input
                                     disabled={disabled}
                                     type={`email`}
+                                    placeholder={field.placeholder || ''}
                                     maxLength={field.length}
                                     value={form.data[name] || ''}
                                     onChange={(e) =>
@@ -134,6 +135,7 @@ export default function FormRenderer({
                                 <Input
                                     disabled={disabled}
                                     type={`password`}
+                                    placeholder={field.placeholder || ''}
                                     maxLength={field.length}
                                     value={form.data[name] || ''}
                                     onChange={(e) =>
@@ -148,6 +150,7 @@ export default function FormRenderer({
                             {field.type === 'text' && (
                                 <Textarea
                                     disabled={disabled}
+                                    placeholder={field.placeholder || ''}
                                     value={form.data[name] || ''}
                                     onChange={(e) =>
                                         form.setData(name, e.target.value)
@@ -167,7 +170,7 @@ export default function FormRenderer({
                                         form.setData(name, toBackendDate(date))
                                     }
                                     dateFormat="dd-MMM-yyyy"
-                                    placeholderText="Select date"
+                                    placeholderText={field.placeholder || 'Select date'}
                                     className={cn(
                                         'w-full rounded-md border px-3 py-2 text-sm',
                                         error && 'border-destructive',
@@ -212,6 +215,7 @@ export default function FormRenderer({
                                         {}
                                     }
                                     quickCreate={field.quick_create === true}
+                                    placeholder={field.placeholder}
                                     defaultValues={
                                         name === 'vehicle_id' &&
                                         form.data.customer_id

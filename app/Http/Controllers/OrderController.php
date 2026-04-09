@@ -119,6 +119,7 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
+        
         $validated = $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'vehicle_id' => 'required|exists:vehicles,id',
@@ -162,9 +163,9 @@ class OrderController extends Controller
 
             'vehicle_id' => $validated['vehicle_id'],
             'vehicle_name' => $validated['vehicle_name']?? null,
-            'vehicle_model'=> $validated['vehicle_model'],
-            'vehicle_year'=> $validated['vehicle_year'],
-            'vehicle_make'=> $validated['vehicle_make'],
+            'vehicle_model'=> $validated['vehicle_model']?? null,
+            'vehicle_year'=> $validated['vehicle_year']?? null,
+            'vehicle_make'=> $validated['vehicle_make']?? null,
             'vehicle_license_plate' => $validated['vehicle_license_plate']?? null,
             'vehicle_vin' => $validated['vehicle_vin']?? null,
             'note'=>$validated['note']?? null,
@@ -253,10 +254,10 @@ class OrderController extends Controller
             'customer_email' => $validated['customer_email'] ?? null,
             'customer_phone' => $validated['customer_phone'] ?? null,
             'customer_address' => $validated['customer_address'] ?? null,
-            'vehicle_name'=> $validated['vehicle_name'],
-            'vehicle_model'=> $validated['vehicle_model'],
-            'vehicle_year'=> $validated['vehicle_year'],
-            'vehicle_make'=> $validated['vehicle_make'],
+            'vehicle_name' => $validated['vehicle_name']?? null,
+            'vehicle_model'=> $validated['vehicle_model']?? null,
+            'vehicle_year'=> $validated['vehicle_year']?? null,
+            'vehicle_make'=> $validated['vehicle_make']?? null,
             'vehicle_license_plate'=> $validated['vehicle_license_plate'],
             'vehicle_vin'=> $validated['vehicle_vin'],
             'note'=>$validated['note']?? null,

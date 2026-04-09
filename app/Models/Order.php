@@ -48,35 +48,35 @@ class Order extends Model
     public static function fields(): array
     {
         return [
-            'customer_id' => ['label' => 'Customer', 'type' => 'many2one', 'relation' => 'customers', 'quick_create' => true, 'edit_route' => 'customers.edit',],
-            'vehicle_id' => ['label' => 'Vehicle', 'type' => 'many2one', 'relation' => 'vehicles', 'quick_create' => true, 'edit_route' => 'vehicles.edit'],
-            'vehicle_year' => ['label' => 'Year', 'type' => 'number', 'length' => '4'],
-            'vehicle_make' => ['label' => 'Make', 'type' => 'char'],
-            'vehicle_model' => ['label' => 'Model', 'type' => 'char'],
-            'vehicle_license_plate' => ['label' => 'License Plate', 'type' => 'char'],
-            'order_date' => ['label' => 'Order Date', 'type' => 'date'],
+            'customer_id' => ['label' => 'Customer', 'type' => 'many2one', 'relation' => 'customers', 'quick_create' => true, 'edit_route' => 'customers.edit', 'placeholder' => 'Select Customer e.g. John Doe'],
+            'vehicle_id' => ['label' => 'Vehicle', 'type' => 'many2one', 'relation' => 'vehicles', 'quick_create' => true, 'edit_route' => 'vehicles.edit', 'placeholder' => 'Select Vehicle e.g. 2020 Toyota Camry'],
+            'vehicle_year' => ['label' => 'Year', 'type' => 'number', 'length' => '4', 'placeholder' => 'Enter year e.g. 2025'],
+            'vehicle_make' => ['label' => 'Make', 'type' => 'char', 'placeholder' => 'Enter vehicle make e.g. Toyota'],
+            'vehicle_model' => ['label' => 'Model', 'type' => 'char', 'placeholder' => 'Enter vehicle model e.g. Camry'],
+            'vehicle_license_plate' => ['label' => 'License Plate', 'type' => 'char', 'placeholder' => 'Enter vehicle license plate e.g. ABC 123'],
+            'order_date' => ['label' => 'Order Date', 'type' => 'date', 'placeholder' => 'Select order date e.g. 2024-01-15'],
             // 'employee_ids' => ['label' => 'Mechanics', 'type' => 'many2many', 'relation' => 'employees'],
             //'state' => ['label' => 'Order State', 'type' => 'many2one', 'relation' => 'states'],
-            'parts_by' => ['label' => 'Parts By', 'type' => 'many2one', 'relation' => 'parts_by'],
+            'parts_by' => ['label' => 'Parts By', 'type' => 'many2one', 'relation' => 'parts_by', 'placeholder' => 'Select parts provider e.g. Customer'],
         ];
     }
         public static function editFields(): array
     {
         return [
-            'customer_name' => ['label' => 'Customer Name', 'type' => 'char'],
-            'customer_email' => ['label' => 'Customer Email', 'type' => 'email'],
-            'customer_phone' => ['label' => 'Customer Phone', 'type' => 'char'],
-            'customer_address' => ['label' => 'Customer Address', 'type' => 'char'],
-            'vehicle_name' => ['label' => 'Vehicle Name', 'type' => 'char'],
-            'vehicle_year' => ['label' => 'Year', 'type' => 'number', 'length' => '4'],
-            'vehicle_make' => ['label' => 'Make', 'type' => 'char'],
-            'vehicle_model' => ['label' => 'Model', 'type' => 'char'],
-            'vehicle_license_plate' => ['label' => 'License Plate', 'type' => 'char'],
-            'vehicle_vin' => ['label' => 'VIN', 'type' => 'char'],
-            'order_date' => ['label' => 'Order Date', 'type' => 'date'],
-            'parts_by' => ['label' => 'Parts By', 'type' => 'many2one', 'relation' => 'parts_by'],
+            'customer_name' => ['label' => 'Customer Name', 'type' => 'char', 'placeholder' => 'Enter customer name e.g. John Doe'],
+            'customer_email' => ['label' => 'Customer Email', 'type' => 'email', 'placeholder' => 'Enter email address e.g. john@example.com'],
+            'customer_phone' => ['label' => 'Customer Phone', 'type' => 'char', 'placeholder' => 'Enter phone number e.g. (416) 123-4567'],
+            'customer_address' => ['label' => 'Customer Address', 'type' => 'char', 'placeholder' => 'Enter customer address e.g. 123 Main St, Toronto, ON'],
+            'vehicle_name' => ['label' => 'Vehicle Name', 'type' => 'char', 'placeholder' => 'Enter vehicle name e.g. 2020 Toyota Camry'],
+            'vehicle_year' => ['label' => 'Year', 'type' => 'number', 'length' => '4', 'placeholder' => 'Enter year e.g. 2025'],
+            'vehicle_make' => ['label' => 'Make', 'type' => 'char', 'placeholder' => 'Enter vehicle make e.g. Toyota'],
+            'vehicle_model' => ['label' => 'Model', 'type' => 'char', 'placeholder' => 'Enter vehicle model e.g. Camry'],
+            'vehicle_license_plate' => ['label' => 'License Plate', 'type' => 'char', 'placeholder' => 'Enter vehicle license plate e.g. ABC 123'],
+            'vehicle_vin' => ['label' => 'VIN', 'type' => 'char', 'placeholder' => 'Enter VIN e.g. 1HGCM82633A123456'],
+            'order_date' => ['label' => 'Order Date', 'type' => 'date', 'placeholder' => 'Select order date e.g. 2024-01-15'],
+            'parts_by' => ['label' => 'Parts By', 'type' => 'many2one', 'relation' => 'parts_by', 'placeholder' => 'Select parts provider e.g. Customer'],
 //            'state' => ['label' => 'Order State', 'type' => 'many2one', 'relation' => 'states'],
-            'note' => ['label' => 'Note', 'type' => 'char'],
+            'note' => ['label' => 'Note', 'type' => 'char', 'placeholder' => 'Enter note e.g. Oil change required'],
         ];
     }
 

@@ -16,6 +16,7 @@ type Many2OneFieldProps = {
     quickCreate?: boolean;
     defaultValues?: Record<string, any>;
     onOptionsUpdate?: (relation: string, newRecord: any) => void; // 🔥 NEW
+    placeholder?: string;
 };
 
 export default function Many2OneField({
@@ -31,6 +32,7 @@ export default function Many2OneField({
     quickCreate = false,
     defaultValues = {},
     onOptionsUpdate,
+    placeholder,
 }: Many2OneFieldProps) {
     const [localOptions, setLocalOptions] = useState(options || []);
     const [open, setOpen] = useState(false);
@@ -57,7 +59,7 @@ export default function Many2OneField({
                 options={selectOptions}
                 value={selected}
                 onChange={(opt) => onChange(opt ? opt.value : null)}
-                placeholder={`Select ${label}`}
+                placeholder={placeholder || `Select ${label}`}
                 isClearable
                 components={
                     quickCreate ? { MenuList: OdooMenuList } : undefined
