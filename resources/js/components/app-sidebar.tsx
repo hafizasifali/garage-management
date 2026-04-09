@@ -78,12 +78,12 @@ const mainNavItems: NavItem[] = [
         icon: Users, // user/customer management
         isActive: route().current('customers.*'),
     },
-    {
-        title: 'Vehicles',
-        href: route('vehicles.index'),
-        icon: Car, // vehicles
-        isActive: route().current('vehicles.*'),
-    },
+    // {
+    //     title: 'Vehicles',
+    //     href: route('vehicles.index'),
+    //     icon: Car, // vehicles
+    //     isActive: route().current('vehicles.*'),
+    // },
 
     {
         title: 'Mechanics',

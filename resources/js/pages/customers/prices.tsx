@@ -76,7 +76,7 @@ export default function Prices({ customer, products, prices }) {
                                         </td>
 
                                         <td className="px-4 py-3 text-gray-600">
-                                            Rs {product.sale_price}
+                                            ${product.sale_price}
                                         </td>
 
                                         <td className="px-4 py-3">

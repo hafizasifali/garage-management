@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import FormRenderer from '@/components/form/FormRenderer';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
@@ -74,8 +74,9 @@ export default function CustomerForm({ fields, record }) {
                                 </h1>
                                 <div className="flex gap-2">
                                     <Button
+                                        type="button"
                                         variant="outline"
-                                        onClick={() => history.back()}
+                                        onClick={() => router.visit(route('customers.index'))}
                                     >
                                         Go Back
                                     </Button>

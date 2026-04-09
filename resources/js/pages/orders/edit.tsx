@@ -271,7 +271,7 @@ export default function OrderForm({
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() => window.history.back()}
+                                onClick={() => router.visit(route('orders.index'))}
                                 className="flex items-center gap-1 border-gray-400 text-gray-700 hover:bg-gray-100"
                             >
                                 Go Back

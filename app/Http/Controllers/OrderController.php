@@ -130,6 +130,7 @@ class OrderController extends Controller
             'order_date' => 'required|date',
             'state' => 'required',
             'parts_by' => 'nullable',
+            'is_brake_fluid_order' => 'boolean',
             'note'=>'nullable',
             'employees' => 'array',
             'employees.*' => 'exists:employees,id',
@@ -171,6 +172,7 @@ class OrderController extends Controller
             'note'=>$validated['note']?? null,
             'order_date' => $validated['order_date'],
             'parts_by'=> $validated['parts_by']?? null,
+            'is_brake_fluid_order' => $validated['is_brake_fluid_order'] ?? false,
             'state' => $validated['state'],
         ]);
 
@@ -237,6 +239,7 @@ class OrderController extends Controller
             'note' => 'nullable',
             'order_date' => 'required|date',
             'parts_by' => 'nullable',
+            'is_brake_fluid_order' => 'boolean',
             'state' => 'nullable',
             'lines' => 'required|array',
             'lines.*.product_id' => 'required|exists:products,id',
@@ -264,6 +267,7 @@ class OrderController extends Controller
             'order_date' => $validated['order_date'],
             'parts_by' => $validated['parts_by'],
             'state' => $validated['state'],
+            'is_brake_fluid_order' => $validated['is_brake_fluid_order'] ?? false,
         ]);
 
         /* ----------------------------
@@ -494,6 +498,10 @@ class OrderController extends Controller
             'customer',
         ]);
 
+        // Filter for brake fluid orders only
+        $query->where('is_brake_fluid_order', true);
+
+
         // Remap virtual date fields to real column before applying
         $mappedFilters = collect($filters)->map(function ($rule) {
             if ($rule['field'] === 'order_date_from') {
@@ -524,15 +532,14 @@ class OrderController extends Controller
             ->paginate(80)
             ->through(function ($order) {
 
-                $brakeFluidLines = $order->lines->filter(fn ($l) =>$l->product?->type === 'consumable');
-
+                
                 return [
                     'date' => optional($order->order_date)->format('F j, Y'),
                     'invoice_number' => $order->customer->shop_no.'-'. date('Ym',strtotime($order->order_date)).'-'.$order->id,
                     'license_plate' => $order->vehicle_license_plate ?? $order->vehicle?->license_plate ?? '-',
-                    'brake_fluid_cost' => round($brakeFluidLines->sum('subtotal'), 2),
-                    'hst' => round($brakeFluidLines->sum('subtotal') * 0.13, 2),
-                    'grand_total' => round($brakeFluidLines->sum('subtotal') * 1.13, 2),
+                    'brake_fluid_cost' => round($order->lines->sum('subtotal'), 2),
+                    'hst' => round($order->total_tax, 2),
+                    'grand_total' => round($order->total_amount, 2),
                 ];
             });
 

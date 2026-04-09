@@ -34,6 +34,7 @@ class Order extends Model
         'total_tax',
         'total_discount',
         'total_amount',
+        'is_brake_fluid_order',
     ];
 
     protected $casts = [
@@ -43,6 +44,7 @@ class Order extends Model
         'total_tax' => 'decimal:2',
         'total_discount' => 'decimal:2',
         'total_amount' => 'decimal:2',
+        'is_brake_fluid_order' => 'boolean',
     ];
 
     public static function fields(): array
@@ -58,7 +60,8 @@ class Order extends Model
             // 'employee_ids' => ['label' => 'Mechanics', 'type' => 'many2many', 'relation' => 'employees'],
             //'state' => ['label' => 'Order State', 'type' => 'many2one', 'relation' => 'states'],
             'parts_by' => ['label' => 'Parts By', 'type' => 'many2one', 'relation' => 'parts_by', 'placeholder' => 'Select parts provider e.g. Customer'],
-        ];
+        'is_brake_fluid_order' => ['label' => 'Is Brake Fluid Order', 'type' => 'boolean'],
+            ];
     }
         public static function editFields(): array
     {
@@ -77,6 +80,7 @@ class Order extends Model
             'parts_by' => ['label' => 'Parts By', 'type' => 'many2one', 'relation' => 'parts_by', 'placeholder' => 'Select parts provider e.g. Customer'],
 //            'state' => ['label' => 'Order State', 'type' => 'many2one', 'relation' => 'states'],
             'note' => ['label' => 'Note', 'type' => 'char', 'placeholder' => 'Enter note e.g. Oil change required'],
+            'is_brake_fluid_order' => ['label' => 'Is Brake Fluid Order', 'type' => 'boolean'],
         ];
     }
 

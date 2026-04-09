@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import FormRenderer from '@/components/form/FormRenderer';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
@@ -61,7 +61,7 @@ export default function ProductForm({ fields, record, categories, uoms,product_t
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() => history.back()}
+                                onClick={() => router.visit(route('products.index'))}
                             >
                                 Go Back
                             </Button>
