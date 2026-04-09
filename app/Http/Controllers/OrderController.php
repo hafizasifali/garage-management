@@ -122,7 +122,7 @@ class OrderController extends Controller
         
         $validated = $request->validate([
             'customer_id' => 'required|exists:customers,id',
-            'vehicle_id' => 'required|exists:vehicles,id',
+            // 'vehicle_id' => 'required|exists:vehicles,id',
             'vehicle_model' => 'nullable',
             'vehicle_year'=>'nullable',
             'vehicle_make'=>'nullable',
@@ -147,14 +147,14 @@ class OrderController extends Controller
      | Snapshot customer data
      |-----------------------------*/
         $customer = Customer::findOrFail($validated['customer_id']);
-        $vehicle = Vehicle::find($validated['vehicle_id']);
-        if ($vehicle) {
-            $validated['vehicle_name'] = $vehicle->name;
-//            $validated['vehicle_model'] = $vehicle->model;
-//            $validated['vehicle_license_plate'] = $vehicle->license_plate;
-//            $validated['vehicle_vin'] = $vehicle->vin;
-        }
-
+        // $vehicle = Vehicle::find($validated['vehicle_id']);
+//         if ($vehicle) {
+//             $validated['vehicle_name'] = $vehicle->name;
+// //            $validated['vehicle_model'] = $vehicle->model;
+// //            $validated['vehicle_license_plate'] = $vehicle->license_plate;
+// //            $validated['vehicle_vin'] = $vehicle->vin;
+//         }
+        $validated['vehicle_name']= $validated['vehicle_make'] . ' ' . $validated['vehicle_model'];
         $order = Order::create([
             'customer_id' => $customer->id,
             'customer_name' => $customer->name,
@@ -162,7 +162,7 @@ class OrderController extends Controller
             'customer_phone' => $customer->phone,
             'customer_address' => $customer->address,
 
-            'vehicle_id' => $validated['vehicle_id'],
+            // 'vehicle_id' => $validated['vehicle_id'],
             'vehicle_name' => $validated['vehicle_name']?? null,
             'vehicle_model'=> $validated['vehicle_model']?? null,
             'vehicle_year'=> $validated['vehicle_year']?? null,
@@ -230,12 +230,11 @@ class OrderController extends Controller
             'customer_email' => 'nullable|email|max:255',
             'customer_phone' => 'nullable|string|max:50',
             'customer_address' => 'nullable|string|max:500',
-            'vehicle_name' => 'nullable',
             'vehicle_model' => 'nullable',
             'vehicle_year'=>'nullable',
             'vehicle_make'=>'nullable',
             'vehicle_license_plate' => 'nullable',
-            'vehicle_vin' => 'nullable',
+            // 'vehicle_vin' => 'nullable',
             'note' => 'nullable',
             'order_date' => 'required|date',
             'parts_by' => 'nullable',
@@ -252,6 +251,7 @@ class OrderController extends Controller
         /* ----------------------------
      | Update order basic fields
      |-----------------------------*/
+     $validated['vehicle_name']= $validated['vehicle_make'] . ' ' . $validated['vehicle_model'];
         $order->update([
             'customer_name' => $validated['customer_name'],
             'customer_email' => $validated['customer_email'] ?? null,
@@ -262,7 +262,7 @@ class OrderController extends Controller
             'vehicle_year'=> $validated['vehicle_year']?? null,
             'vehicle_make'=> $validated['vehicle_make']?? null,
             'vehicle_license_plate'=> $validated['vehicle_license_plate'],
-            'vehicle_vin'=> $validated['vehicle_vin'],
+            // 'vehicle_vin'=> $validated['vehicle_vin'],
             'note'=>$validated['note']?? null,
             'order_date' => $validated['order_date'],
             'parts_by' => $validated['parts_by'],
