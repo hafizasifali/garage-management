@@ -68,6 +68,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/reports/billing', [OrderController::class, 'billingReport'])->name('reports.billingReport');
     Route::post('/reports/billing/filter', [OrderController::class, 'filterBillingReport'])->name('reports.billing.filter');
 
+    Route::get('/reports/brake-fluid-billing', [OrderController::class, 'brakeFluidBillingReport'])->name('reports.brakeFluidBillingReport');
+    Route::post('/reports/brake-fluid-billing/filter', [OrderController::class, 'filterBrakeFluidBillingReport'])->name('reports.brakeFluidBillingReport.filter');
+
 });
 
 require __DIR__.'/settings.php';

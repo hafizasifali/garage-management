@@ -421,6 +421,7 @@ class OrderController extends Controller
                     'hst' => round($order->total_tax ?? 0, 2),
                     'invoice_total' => round($order->total_amount ?? ($partsCost + $labourTotal + ($order->total_tax ?? 0)), 2),
                     'parts_by' => $order->parts_by === 'us' ? 'Yes' : 'No',
+                    'note' => $order->note,
                 ];
             });
 
@@ -481,4 +482,83 @@ class OrderController extends Controller
         // Redirect to index
         return redirect()->route('reports.billingReport');
     }
+
+    public function brakeFluidBillingReport()
+    {
+        $filters = session('reports.brake_fluid_billing.filters', []);
+        $search  = session('reports.brake_fluid_billing.search', '');
+
+        $query = Order::query()->with([
+            'lines.product',
+            'vehicle',
+            'customer',
+        ]);
+
+        // Remap virtual date fields to real column before applying
+        $mappedFilters = collect($filters)->map(function ($rule) {
+            if ($rule['field'] === 'order_date_from') {
+                return array_merge($rule, ['field' => 'order_date', 'operator' => '>=']);
+            }
+            if ($rule['field'] === 'order_date_to') {
+                return array_merge($rule, ['field' => 'order_date', 'operator' => '<=']);
+            }
+            return $rule;
+        })->toArray();
+
+        // Apply structured filters
+        $query = QueryFilter::apply($query, $mappedFilters);
+
+        // Global search
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('customer_name', 'like', "%$search%")
+                    ->orWhere('vehicle_license_plate', 'like', "%$search%")
+                    ->orWhereHas('vehicle', fn ($v) =>
+                    $v->where('license_plate', 'like', "%$search%")
+                    );
+            });
+        }
+
+        $orders = $query
+            ->orderBy('order_date', 'desc')
+            ->paginate(80)
+            ->through(function ($order) {
+
+                $brakeFluidLines = $order->lines->filter(fn ($l) =>$l->product?->type === 'consumable');
+
+                return [
+                    'date' => optional($order->order_date)->format('F j, Y'),
+                    'invoice_number' => $order->customer->shop_no.'-'. date('Ym',strtotime($order->order_date)).'-'.$order->id,
+                    'license_plate' => $order->vehicle_license_plate ?? $order->vehicle?->license_plate ?? '-',
+                    'brake_fluid_cost' => round($brakeFluidLines->sum('subtotal'), 2),
+                    'hst' => round($brakeFluidLines->sum('subtotal') * 0.13, 2),
+                    'grand_total' => round($brakeFluidLines->sum('subtotal') * 1.13, 2),
+                ];
+            });
+
+        return inertia('reports/BrakeFluidBillingReport', [
+            'reports' => $orders,
+            'activeFilters' => $filters,  
+            'search' => $search,
+            'customers' => Customer::select('id', 'name')->orderBy('name')->get(),
+            'vehicles' => Vehicle::select('id', 'license_plate', 'name')->orderBy('license_plate')->get(),
+        ]);
+    }
+
+
+    public function filterBrakeFluidBillingReport(Request $request)
+    {
+        // Ensure filters/search are arrays/strings
+        $filters = $request->input('filters', []);
+        $search  = $request->input('search', '');
+
+        // Store in session
+        session([
+            'reports.brake_fluid_billing.filters' => $filters,
+            'reports.brake_fluid_billing.search'  => $search,
+        ]);
+
+        // Redirect to index
+        return redirect()->route('reports.brakeFluidBillingReport');
+    }   
 }

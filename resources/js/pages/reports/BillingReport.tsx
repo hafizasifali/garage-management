@@ -35,6 +35,7 @@ type SaleReportRow = {
     hst: number;
     invoice_total: number;
     parts_by: string;
+    note: string;
 };
 
 
@@ -75,6 +76,7 @@ export default function Index() {
             HST: row.hst,
             'Invoice Total Amount': row.invoice_total,
             'Parts by Teejay': row.parts_by,
+            Note: row.note || '-',
         }));
 
         const ws = XLSX.utils.json_to_sheet(data);
@@ -158,6 +160,10 @@ export default function Index() {
         {
             label: 'Parts by Teejay',
             render: (row: SaleReportRow) => row.parts_by,
+        },
+        {
+            label: 'Note',
+            render: (row: SaleReportRow) => row.note || '-',
         },
     ];
 

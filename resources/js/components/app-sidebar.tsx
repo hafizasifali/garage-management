@@ -99,6 +99,10 @@ const mainNavItems: NavItem[] = [
                 title: 'Billing Report',
                 href: route('reports.billingReport'),
             },
+            {
+                title: 'Brake Fluid Billing Report',
+                href: route('reports.brakeFluidBillingReport'),
+            },
         ],
     },
 ];
