@@ -4,13 +4,14 @@ import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, RotateCcw } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import Select from 'react-select';
 import { route } from 'ziggy-js';
 
 const today = new Date().toISOString().slice(0, 10);
+const STORAGE_KEY = 'order-form-state';
 
 export default function OrderForm({
     record,
@@ -25,27 +26,47 @@ export default function OrderForm({
     vehicles_fields,
     customer_prices, // customer-specific prices passed from controller
 }: any) {
+    // Load form state from localStorage or initialize with fresh data
+    const getSavedFormState = () => {
+        if (record) return null; // Don't restore if editing existing record
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            return saved ? JSON.parse(saved) : null;
+        } catch (error) {
+            console.error('Error loading form state:', error);
+            return null;
+        }
+    };
+
+    const savedState = getSavedFormState();
+    const [showRestoreNotice, setShowRestoreNotice] = useState(!!savedState);
+
     const form = useForm({
-        customer_id: null,
-        vehicle_id: null,
-        order_date: today,
-        state: 'in_progress',
-        parts_by: 'us',
-        total_parts_cost: 0,
-        total_labor_cost: 0,
-        total_tax: 0,
-        total_amount: 0,
-        lines: (record?.lines || []).map((line: any) => ({
+        customer_id: savedState?.customer_id ?? null,
+        // vehicle_id: savedState?.vehicle_id ?? null,
+        vehicle_name: savedState?.vehicle_name ?? '',
+        vehicle_model: savedState?.vehicle_model ?? '',
+        vehicle_make: savedState?.vehicle_make ?? '',
+        vehicle_year: savedState?.vehicle_year ?? '',
+        vehicle_license_plate: savedState?.vehicle_license_plate ?? '',
+        order_date: savedState?.order_date ?? today,
+        state: savedState?.state ?? 'in_progress',
+        is_brake_fluid_order: savedState?.is_brake_fluid_order ?? false,
+        parts_by: savedState?.parts_by ?? 'us',
+        total_parts_cost: savedState?.total_parts_cost ?? 0,
+        total_labor_cost: savedState?.total_labor_cost ?? 0,
+        total_tax: savedState?.total_tax ?? 0,
+        total_amount: savedState?.total_amount ?? 0,
+        lines: savedState?.lines ?? (record?.lines || []).map((line: any) => ({
             ...line,
             quantity: Number(line.quantity || 0),
             unit_price: Number(line.unit_price || 0),
             subtotal: Number(line.unit_price || 0) * Number(line.quantity || 0),
         })),
-        ...(record || {}),
+        ...(record ? { ...record, ...(savedState || {}) } : {}),
     });
 
-    const filteredVehicles=vehicles;
-
+    const filteredVehicles = vehicles;
     /* ---------------- Vehicle Filtering ---------------- */
     // const filteredVehicles = useMemo(() => {
     //     if (!form.data.customer_id) return [];
@@ -73,11 +94,40 @@ export default function OrderForm({
         { title: record ? `Edit Order #${record.id}` : 'New Order', href: '#' },
     ];
 
+    /* ---------------- Save Form State to localStorage ---------------- */
+    useEffect(() => {
+        if (record) return; // Don't save when editing existing record
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(form.data));
+        } catch (error) {
+            console.error('Error saving form state:', error);
+        }
+    }, [form.data, record]);
+
+    /* ---------------- Clear localStorage on submit success ---------------- */
+    const clearFormState = () => {
+        try {
+            localStorage.removeItem(STORAGE_KEY);
+        } catch (error) {
+            console.error('Error clearing form state:', error);
+        }
+    };
+
+    /* ---------------- Reset Form and Clear State ---------------- */
+    const handleReset = () => {
+        form.reset();
+        clearFormState();
+        toast.success('Form reset successfully');
+    };
+
     /* ---------------- Form Submit ---------------- */
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         form.post(route('orders.store'), {
-            onSuccess: () => toast.success('Order saved successfully!'),
+            onSuccess: () => {
+                clearFormState();
+                toast.success('Order saved successfully!');
+            },
             onError: (errors) =>
                 Object.values(errors).forEach((err: any) => toast.error(err)),
         });
@@ -197,15 +247,50 @@ export default function OrderForm({
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() => window.history.back()}
+                                onClick={() => {
+                                    clearFormState();
+                                    window.history.back();
+                                }}
                             >
                                 Cancel
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleReset}
+                                title="Reset form to initial state"
+                            >
+                                <RotateCcw className="mr-1 h-4 w-4" />
+                                Reset
                             </Button>
                             <Button type="submit">
                                 {record ? 'Update' : 'Create'}
                             </Button>
                         </div>
                     </div>
+
+                    {/* Restoration Notice
+                    {showRestoreNotice && (
+                        <div className="mb-4 rounded-md border border-blue-200 bg-blue-50 p-4 text-sm">
+                            <div className="flex items-start justify-between">
+                                <div>
+                                    <p className="font-semibold text-blue-900">
+                                        Form Data Restored
+                                    </p>
+                                    <p className="mt-1 text-blue-800">
+                                        Your previous form entries have been
+                                        restored. Click Reset to start fresh.
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setShowRestoreNotice(false)}
+                                    className="text-blue-600 hover:text-blue-900"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
+                    )} */}
 
                     {/* Customer, Vehicle, and Other Fields */}
                     <FormRenderer
