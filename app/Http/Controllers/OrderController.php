@@ -357,7 +357,9 @@ class OrderController extends Controller
         $filters = session('reports.billing.filters', []);
         $search  = session('reports.billing.search', '');
 
-        $query = Order::query()->with([
+        $query = Order::query();
+        $query->where('is_brake_fluid_order', false);
+        $query = $query->with([
             'lines.product',
             'vehicle',
             'customer',
