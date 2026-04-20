@@ -11,6 +11,13 @@ import {
     Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import DataTable from '@/components/index/DataTable';
 import Pagination from '@/components/index/Pagination';
 import { route } from 'ziggy-js';
@@ -35,6 +42,7 @@ type Order = {
   total_amount: number;
   customer_name: string;
   vehicle_name: string;
+  vehicle_license_plate: string;
 };
 
 export default function Index() {
@@ -42,6 +50,7 @@ export default function Index() {
     orders,
     activeFilters,
     search,
+    sort,
     customers,
     vehicles,
     states,
@@ -83,6 +92,8 @@ export default function Index() {
 
       { label: 'Customer', render: (row: Order) => row.customer_name },
       { label: 'Vehicle', render: (row: Order) => row.vehicle_name },
+      { label: 'License Plate', render: (row: Order) => row.vehicle_license_plate },
+
       {
           label: 'Order Date',
           render: (row: Order) => toDisplayDate(row.order_date),
@@ -242,7 +253,7 @@ export default function Index() {
 
           <div className="space-y-4 p-4">
               {/* Header */}
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-4">
                   {/* Left spacer */}
                   <div className="flex-1" />
                   {/* Centered Filter/Search */}
@@ -290,17 +301,49 @@ export default function Index() {
                                   })),
                               },
                               {
-                                  label: 'Order Date',
-                                  field: 'order_date',
-                                  operator: '=',
-                                  type: 'date',
-                              },
+                                    label: 'From',
+                                    field: 'order_date_from',   // ← changed
+                                    operator: '>=',
+                                    type: 'date',
+                                },
+                                {
+                                    label: 'To',
+                                    field: 'order_date_to',     // ← changed
+                                    operator: '<=',
+                                    type: 'date',
+                                },
                           ]}
                       />
                   </div>
 
+                  {/* Sort Dropdown */}
+                  <div className="w-48">
+                      <Select
+                          value={sort || 'id_desc'}
+                          onValueChange={(value) => {
+                              router.post(route('orders.filter'), {
+                                  filters: activeFilters,
+                                  search: search,
+                                  sort: value,
+                              }, { preserveState: true });
+                          }}
+                      >
+                          <SelectTrigger>
+                              <SelectValue placeholder="Sort by..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                              <SelectItem value="id_desc">ID (Newest First)</SelectItem>
+                              <SelectItem value="id_asc">ID (Oldest First)</SelectItem>
+                              <SelectItem value="order_date_desc">Order Date (Newest)</SelectItem>
+                              <SelectItem value="order_date_asc">Order Date (Oldest)</SelectItem>
+                              <SelectItem value="customer_name_asc">Customer (A-Z)</SelectItem>
+                              <SelectItem value="customer_name_desc">Customer (Z-A)</SelectItem>
+                          </SelectContent>
+                      </Select>
+                  </div>
+
                   {/* Right aligned Create button */}
-                  <div className="flex flex-1 justify-end">
+                  <div className="flex justify-end">
                       <Button asChild>
                           <Link href={route('orders.create')}>Create</Link>
                       </Button>
@@ -352,6 +395,12 @@ export default function Index() {
                                       Vehicle:
                                   </span>{' '}
                                   {row.vehicle_name}
+                              </div>
+                              <div>
+                                  <span className="font-semibold">
+                                      License Plate:
+                                  </span>{' '}
+                                  {row.vehicle_license_plate}
                               </div>
                               <div>
                                   <span className="font-semibold">

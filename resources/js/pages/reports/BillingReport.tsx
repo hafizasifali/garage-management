@@ -1,9 +1,16 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head, usePage, router } from '@inertiajs/react';
 import { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { route } from 'ziggy-js';
 import { Button } from '@/components/ui/button';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { LucideDownloadCloud } from 'lucide-react';
 
 /* Reusable index components */
@@ -44,6 +51,7 @@ export default function Index() {
         reports,
         activeFilters,
         search,
+        sort,
         customers,
         vehicles,
         states,
@@ -59,6 +67,37 @@ export default function Index() {
 
     /* ---------------- Export to Excel ---------------- */
     const handleExport = () => {
+        // Build filename with filter values
+        let filename = 'Billing_Report';
+        
+        if (activeFilters && activeFilters.length > 0) {
+            const filterParts = [];
+            
+            activeFilters.forEach((filter: any) => {
+                if (filter.field === 'customer_id' && filter.display) {
+                    filterParts.push(`Customer_${filter.display.replace(/\s+/g, '_')}`);
+                } else if (filter.field === 'state' && filter.display) {
+                    filterParts.push(`State_${filter.display.replace(/\s+/g, '_')}`);
+                } else if (filter.field === 'parts_by' && filter.display) {
+                    filterParts.push(`PartsBy_${filter.display.replace(/\s+/g, '_')}`);
+                } else if (filter.field === 'order_date_from' && filter.value) {
+                    filterParts.push(`From_${filter.value.replace(/-/g, '')}`);
+                } else if (filter.field === 'order_date_to' && filter.value) {
+                    filterParts.push(`To_${filter.value.replace(/-/g, '')}`);
+                }
+            });
+            
+            if (filterParts.length > 0) {
+                filename += '_' + filterParts.join('_');
+            }
+        }
+        
+        if (search && search.trim()) {
+            filename += `_Search_${search.trim().replace(/\s+/g, '_').substring(0, 20)}`;
+        }
+        
+        filename += '.xlsx';
+
         // Map your report data to Excel-friendly format
         const data = reports.data.map((row: SaleReportRow) => ({
             Date: row.date,
@@ -92,7 +131,7 @@ export default function Index() {
             type: 'application/octet-stream',
         });
 
-        saveAs(blob, 'Billing_Report.xlsx');
+        saveAs(blob, filename);
     };
 
     /* ---------------- Table Columns ---------------- */
@@ -172,7 +211,7 @@ export default function Index() {
             <Head title="Billing Report" />
 
             <div className="space-y-4 p-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-4">
                     {/* Left spacer */}
                     <div className="flex-1" />
 
@@ -230,8 +269,34 @@ export default function Index() {
                         />
                     </div>
 
+                    {/* Sort Dropdown */}
+                    <div className="w-48">
+                        <Select
+                            value={sort || 'order_date_desc'}
+                            onValueChange={(value) => {
+                                router.post(route('reports.billing.filter'), {
+                                    filters: activeFilters,
+                                    search: search,
+                                    sort: value,
+                                }, { preserveState: true });
+                            }}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Sort by..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="id_desc">ID (Newest First)</SelectItem>
+                              <SelectItem value="id_asc">ID (Oldest First)</SelectItem>
+                                <SelectItem value="order_date_desc">Order Date (Newest)</SelectItem>
+                                <SelectItem value="order_date_asc">Order Date (Oldest)</SelectItem>
+                                <SelectItem value="customer_name_asc">Customer (A-Z)</SelectItem>
+                                <SelectItem value="customer_name_desc">Customer (Z-A)</SelectItem>
+                                </SelectContent>
+                        </Select>
+                    </div>
+
                     {/* Right aligned Export */}
-                    <div className="flex flex-1 justify-end">
+                    <div className="flex justify-end">
                         <Button
                             type="button"
                             variant="secondary"

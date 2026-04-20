@@ -22,11 +22,23 @@ class OrderController extends Controller
     {
         $filters = session('orders.filters', []);
         $search  = session('orders.search', '');
+        $sort    = session('orders.sort', 'id_desc');
 
         $query = Order::query()->with(['customer', 'vehicle']);
 
+        // Remap virtual date fields to real column before applying
+        $mappedFilters = collect($filters)->map(function ($rule) {
+            if ($rule['field'] === 'order_date_from') {
+                return array_merge($rule, ['field' => 'order_date', 'operator' => '>=']);
+            }
+            if ($rule['field'] === 'order_date_to') {
+                return array_merge($rule, ['field' => 'order_date', 'operator' => '<=']);
+            }
+            return $rule;
+        })->toArray();
+
         // Apply structured filters
-        $query = QueryFilter::apply($query, $filters);
+        $query = QueryFilter::apply($query, $mappedFilters);
 
         // Apply global search
         if ($search) {
@@ -37,6 +49,30 @@ class OrderController extends Controller
             });
         }
 
+        // Apply sorting
+        switch ($sort) {
+            case 'id_asc':
+                $query->orderBy('id', 'asc');
+                break;
+            case 'id_desc':
+                $query->orderBy('id', 'desc');
+                break;
+            case 'order_date_asc':
+                $query->orderBy('order_date', 'asc');
+                break;
+            case 'order_date_desc':
+                $query->orderBy('order_date', 'desc');
+                break;
+            case 'customer_name_asc':
+                $query->orderBy('customer_name', 'asc');
+                break;
+            case 'customer_name_desc':
+                $query->orderBy('customer_name', 'desc');
+                break;
+            default:
+                $query->latest();
+        }
+
         // Cascading vehicle filter
         $customerId = collect($filters)->firstWhere('field', 'customer_id')['value'] ?? null;
         $vehicles = Vehicle::when($customerId, fn($q) => $q->where('customer_id', $customerId))
@@ -45,9 +81,10 @@ class OrderController extends Controller
             ->get();
 
         return inertia('orders/index', [
-            'orders' => $query->latest()->paginate(80),
+            'orders' => $query->paginate(80),
             'activeFilters' => $filters,
             'search' => $search,
+            'sort' => $sort,
             'customers' => Customer::select('id', 'name')->orderBy('name')->get(),
             'states' => Order::states(),
             'partsBy' => Order::partsBy(),
@@ -356,6 +393,7 @@ class OrderController extends Controller
     {
         $filters = session('reports.billing.filters', []);
         $search  = session('reports.billing.search', '');
+        $sort    = session('reports.billing.sort', 'order_date_desc');
 
         $query = Order::query();
         $query->where('is_brake_fluid_order', false);
@@ -390,8 +428,37 @@ class OrderController extends Controller
             });
         }
 
+        // Apply sorting
+        switch ($sort) {
+            case 'order_date_asc':
+                $query->orderBy('order_date', 'asc');
+                break;
+            case 'order_date_desc':
+                $query->orderBy('order_date', 'desc');
+                break;
+            case 'customer_name_asc':
+                $query->orderBy('customer_name', 'asc');
+                break;
+            case 'customer_name_desc':
+                $query->orderBy('customer_name', 'desc');
+                break;
+            case 'license_plate_asc':
+                $query->orderBy('vehicle_license_plate', 'asc');
+                break;
+            case 'license_plate_desc':
+                $query->orderBy('vehicle_license_plate', 'desc');
+                break;
+            case 'invoice_total_asc':
+                $query->orderBy('total_amount', 'asc');
+                break;
+            case 'invoice_total_desc':
+                $query->orderBy('total_amount', 'desc');
+                break;
+            default:
+                $query->orderBy('order_date', 'desc');
+        }
+
         $orders = $query
-            ->orderBy('order_date', 'desc')
             ->paginate(80)
             ->through(function ($order) {
 
@@ -435,6 +502,7 @@ class OrderController extends Controller
             'reports' => $orders,
             'activeFilters' => $filters,
             'search' => $search,
+            'sort' => $sort,
             'customers' => Customer::select('id', 'name')->orderBy('name')->get(),
             'vehicles' => Vehicle::select('id', 'license_plate', 'name')->orderBy('license_plate')->get(),
             'states' => Order::states(),
@@ -459,14 +527,16 @@ class OrderController extends Controller
     // New filter POST method
     public function filter(Request $request)
     {
-        // Ensure filters/search are arrays/strings
+        // Ensure filters/search/sort are arrays/strings
         $filters = $request->input('filters', []);
         $search  = $request->input('search', '');
+        $sort    = $request->input('sort', 'id_desc');
 
         // Store in session
         session([
             'orders.filters' => $filters,
             'orders.search'  => $search,
+            'orders.sort'    => $sort,
         ]);
 
         // Redirect to index
@@ -475,14 +545,16 @@ class OrderController extends Controller
 
     public function filterBillingReport(Request $request)
     {
-        // Ensure filters/search are arrays/strings
+        // Ensure filters/search/sort are arrays/strings
         $filters = $request->input('filters', []);
         $search  = $request->input('search', '');
+        $sort    = $request->input('sort', 'order_date_desc');
 
         // Store in session
         session([
             'reports.billing.filters' => $filters,
             'reports.billing.search'  => $search,
+            'reports.billing.sort'    => $sort,
         ]);
 
         // Redirect to index
@@ -493,6 +565,7 @@ class OrderController extends Controller
     {
         $filters = session('reports.brake_fluid_billing.filters', []);
         $search  = session('reports.brake_fluid_billing.search', '');
+        $sort    = session('reports.brake_fluid_billing.sort', 'order_date_desc');
 
         $query = Order::query()->with([
             'lines.product',
@@ -529,8 +602,31 @@ class OrderController extends Controller
             });
         }
 
+        // Apply sorting
+        switch ($sort) {
+            case 'order_date_asc':
+                $query->orderBy('order_date', 'asc');
+                break;
+            case 'order_date_desc':
+                $query->orderBy('order_date', 'desc');
+                break;
+            case 'customer_name_asc':
+                $query->orderBy('customer_name', 'asc');
+                break;
+            case 'customer_name_desc':
+                $query->orderBy('customer_name', 'desc');
+                break;
+            case 'license_plate_asc':
+                $query->orderBy('vehicle_license_plate', 'asc');
+                break;
+            case 'license_plate_desc':
+                $query->orderBy('vehicle_license_plate', 'desc');
+                break;
+            default:
+                $query->orderBy('order_date', 'desc');
+        }
+
         $orders = $query
-            ->orderBy('order_date', 'desc')
             ->paginate(80)
             ->through(function ($order) {
 
@@ -549,6 +645,7 @@ class OrderController extends Controller
             'reports' => $orders,
             'activeFilters' => $filters,  
             'search' => $search,
+            'sort' => $sort,
             'customers' => Customer::select('id', 'name')->orderBy('name')->get(),
             'vehicles' => Vehicle::select('id', 'license_plate', 'name')->orderBy('license_plate')->get(),
         ]);
@@ -557,14 +654,16 @@ class OrderController extends Controller
 
     public function filterBrakeFluidBillingReport(Request $request)
     {
-        // Ensure filters/search are arrays/strings
+        // Ensure filters/search/sort are arrays/strings
         $filters = $request->input('filters', []);
         $search  = $request->input('search', '');
+        $sort    = $request->input('sort', 'order_date_desc');
 
         // Store in session
         session([
             'reports.brake_fluid_billing.filters' => $filters,
             'reports.brake_fluid_billing.search'  => $search,
+            'reports.brake_fluid_billing.sort'    => $sort,
         ]);
 
         // Redirect to index

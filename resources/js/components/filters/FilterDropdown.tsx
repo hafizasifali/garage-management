@@ -14,7 +14,7 @@ interface FilterConfig {
     label: string;
     field: string;
     operator: string;
-    type: 'select' | 'date' | 'number';
+    type: 'select' | 'date' | 'date-range' | 'number';
     options?: Option[];
 }
 
@@ -34,6 +34,7 @@ export default function FilterDropdown({
     if (!visible) return null;
 
     const [dates, setDates] = useState<Record<string, Date | null>>({});
+    const [dateRanges, setDateRanges] = useState<Record<string, { from: Date | null; to: Date | null }>>({});
     const [numbers, setNumbers] = useState<Record<string, number | ''>>({});
 
     const formatForBackend = (date: Date) => {
@@ -167,6 +168,87 @@ export default function FilterDropdown({
                                 placeholderText="Select date…"
                                 popperPlacement="bottom-start"
                                 wrapperClassName="w-full"
+                                className="h-[34px] w-full rounded-md border border-slate-200 px-2 text-sm focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                            />
+                        </div>
+                    )}
+
+                    {/* Date Range */}
+                    {filter.type === 'date-range' && (
+                        <div className="flex-1 flex gap-2 items-center">
+                            <DatePicker
+                                selected={dateRanges[filter.field]?.from || null}
+                                onChange={(date: Date | null) => {
+                                    const range = dateRanges[filter.field] || { from: null, to: null };
+                                    const newRange = { ...range, from: date };
+                                    setDateRanges((prev) => ({
+                                        ...prev,
+                                        [filter.field]: newRange,
+                                    }));
+
+                                    if (!newRange.from || !newRange.to) {
+                                        onSelectValue(
+                                            { label: '', value: null },
+                                            filter,
+                                        );
+                                        return;
+                                    }
+
+                                    const fromLabel = formatForLabel(newRange.from);
+                                    const toLabel = formatForLabel(newRange.to);
+                                    onSelectValue(
+                                        {
+                                            label: `${fromLabel} to ${toLabel}`,
+                                            value: [
+                                                formatForBackend(newRange.from),
+                                                formatForBackend(newRange.to),
+                                            ],
+                                        },
+                                        filter,
+                                    );
+                                }}
+                                dateFormat="dd-MMM-yyyy"
+                                placeholderText="From…"
+                                popperPlacement="bottom-start"
+                                wrapperClassName="flex-1"
+                                className="h-[34px] w-full rounded-md border border-slate-200 px-2 text-sm focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                            />
+                            <span className="text-slate-400">to</span>
+                            <DatePicker
+                                selected={dateRanges[filter.field]?.to || null}
+                                onChange={(date: Date | null) => {
+                                    const range = dateRanges[filter.field] || { from: null, to: null };
+                                    const newRange = { ...range, to: date };
+                                    setDateRanges((prev) => ({
+                                        ...prev,
+                                        [filter.field]: newRange,
+                                    }));
+
+                                    if (!newRange.from || !newRange.to) {
+                                        onSelectValue(
+                                            { label: '', value: null },
+                                            filter,
+                                        );
+                                        return;
+                                    }
+
+                                    const fromLabel = formatForLabel(newRange.from);
+                                    const toLabel = formatForLabel(newRange.to);
+                                    onSelectValue(
+                                        {
+                                            label: `${fromLabel} to ${toLabel}`,
+                                            value: [
+                                                formatForBackend(newRange.from),
+                                                formatForBackend(newRange.to),
+                                            ],
+                                        },
+                                        filter,
+                                    );
+                                }}
+                                dateFormat="dd-MMM-yyyy"
+                                placeholderText="To…"
+                                popperPlacement="bottom-start"
+                                wrapperClassName="flex-1"
                                 className="h-[34px] w-full rounded-md border border-slate-200 px-2 text-sm focus:ring-2 focus:ring-blue-200 focus:outline-none"
                             />
                         </div>
