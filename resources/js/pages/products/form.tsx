@@ -5,6 +5,7 @@ import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { route } from 'ziggy-js';
 import toast from 'react-hot-toast';
+import { useConfirm } from '@/hooks/useConfirm';
 
 type Props = {
     fields: any;
@@ -26,6 +27,8 @@ export default function ProductForm({ fields, record, categories, uoms,product_t
         ...(record || {}),
     });
 
+    const { confirm } = useConfirm();
+
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Products', href: route('products.index') },
     ];
@@ -42,6 +45,19 @@ export default function ProductForm({ fields, record, categories, uoms,product_t
                   onSuccess: () => toast.success('Product created successfully'),
                   onError: (e) => Object.values(e).forEach(err => toast.error(err)),
               });
+    };
+
+    const handleDelete = async () => {
+        const ok = await confirm({
+            title: 'Delete Product?',
+            text: `Product "${record.name}" will be deleted.`,
+            confirmText: 'Delete',
+        });
+        if (!ok) return;
+
+        form.delete(route('products.destroy', record.id), {
+            onSuccess: () => toast.success('Product deleted successfully'),
+        });
     };
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -65,6 +81,15 @@ export default function ProductForm({ fields, record, categories, uoms,product_t
                             >
                                 Go Back
                             </Button>
+                            {record && (
+                                <Button
+                                    type="button"
+                                    variant="destructive"
+                                    onClick={handleDelete}
+                                >
+                                    Delete
+                                </Button>
+                            )}
                             <Button type="submit">
                                 {record ? 'Update' : 'Create'}
                             </Button>

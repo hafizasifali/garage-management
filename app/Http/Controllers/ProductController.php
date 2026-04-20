@@ -95,8 +95,8 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        $product->update(['active' => false]);
+        $product->delete();
 
-        return redirect()->back()->with('success', 'Product deactivated successfully.');
+        return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
     }
 }
