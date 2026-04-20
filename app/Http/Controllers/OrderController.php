@@ -410,7 +410,7 @@ class OrderController extends Controller
                 return [
                     'id' => $order->id,
                     'date' => optional($order->order_date)->format('Y-m-d'),
-                    'invoice_number' => $order->customer->shop_no.'-'. date('Ym',strtotime($order->order_date)).'-'.$order->id,
+                    'invoice_number' => $order->customer->shop_no.'-'. date('ymd',strtotime($order->order_date)).'-'.$order->id,
                     'license_plate' => $order->vehicle_license_plate ?? $order->vehicle?->license_plate ?? '-',
                     'description' => $order->lines->pluck('product.name')->filter()->implode(', '),
                     'parts_cost' => round($partsCost, 2),
@@ -535,7 +535,7 @@ class OrderController extends Controller
                 
                 return [
                     'date' => optional($order->order_date)->format('F j, Y'),
-                    'invoice_number' => $order->customer->shop_no.'-'. date('Ym',strtotime($order->order_date)).'-'.$order->id,
+                    'invoice_number' => $order->customer->shop_no.'-'. date('ymd',strtotime($order->order_date)).'-'.$order->id,
                     'license_plate' => $order->vehicle_license_plate ?? $order->vehicle?->license_plate ?? '-',
                     'brake_fluid_cost' => round($order->lines->sum('subtotal'), 2),
                     'hst' => round($order->total_tax, 2),
