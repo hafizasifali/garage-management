@@ -25,6 +25,8 @@ export default function OrderForm({
     customers_fields,
     vehicles_fields,
     customer_prices, // customer-specific prices passed from controller
+    vehicle_makes,
+    vehicle_models,
 }: any) {
     // Load form state from localStorage or initialize with fresh data
     const getSavedFormState = () => {
@@ -232,6 +234,10 @@ export default function OrderForm({
         setLocalCustomers((prev) => [...prev, newCustomer]);
     };
 
+    const autocompleteData = {
+        vehicle_makes,
+        vehicle_models,
+    };
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={record ? `Edit Order #${record.id}` : 'New Order'} />
@@ -263,8 +269,8 @@ export default function OrderForm({
                                 <RotateCcw className="mr-1 h-4 w-4" />
                                 Reset
                             </Button>
-                            <Button type="submit">
-                                {record ? 'Update' : 'Create'}
+                            <Button type="submit" disabled={form.processing}>
+                                {form.processing ? 'Saving...' : record ? 'Update' : 'Create'}
                             </Button>
                         </div>
                     </div>
@@ -302,6 +308,8 @@ export default function OrderForm({
                         form={form}
                         options={options}
                         columns={2}
+                        disabled={false}
+                        autocompleteData={autocompleteData}
                     />
 
                     {/* Lines Table */}
@@ -461,6 +469,7 @@ export default function OrderForm({
                                         <td className="p-1 text-center">
                                             <Button
                                                 size="sm"
+                                                type="button"
                                                 variant="destructive"
                                                 onClick={() =>
                                                     removeLine(index)
@@ -622,6 +631,7 @@ export default function OrderForm({
                                     <div className="text-right">
                                         <Button
                                             size="sm"
+                                            type="button"
                                             variant="destructive"
                                             onClick={() => removeLine(index)}
                                         >

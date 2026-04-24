@@ -51,8 +51,8 @@ class Order extends Model
     {
         return [
             'customer_id' => ['label' => 'Customer', 'type' => 'many2one', 'relation' => 'customers', 'quick_create' => true, 'edit_route' => 'customers.edit', 'placeholder' => 'Select Customer e.g. John Doe'],
-            'vehicle_make' => ['label' => 'Vehicle Make', 'type' => 'char', 'placeholder' => 'Enter vehicle make e.g. Toyota'],
-            'vehicle_model' => ['label' => 'Vehicle Model', 'type' => 'char', 'placeholder' => 'Enter vehicle model e.g. Camry'],
+            'vehicle_make'  => ['label' => 'Vehicle Make',  'type' => 'autocomplete', 'placeholder' => 'e.g. Toyota'],
+            'vehicle_model' => ['label' => 'Vehicle Model', 'type' => 'autocomplete', 'placeholder' => 'e.g. Camry', 'depends_on' => 'vehicle_make'],
             'vehicle_year' => ['label' => 'Vehicle Year', 'type' => 'number', 'length' => '4', 'placeholder' => 'Enter year e.g. 2025'],
             'vehicle_license_plate' => ['label' => 'License Plate', 'type' => 'char', 'placeholder' => 'Enter vehicle license plate e.g. ABC 123'],
             'order_date' => ['label' => 'Order Date', 'type' => 'date', 'placeholder' => 'Select order date e.g. 2024-01-15'],

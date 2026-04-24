@@ -17,6 +17,7 @@ type FormRendererProps = {
     columns?: 1 | 2 | 4; // default 2 columns
     onOptionsUpdate?: (relation: string, newRecord: any) => void;
     disabled: boolean;
+    autocompleteData?: Record<string, string[] | Record<string, string[]>>;
 };
 
 export default function FormRenderer({
@@ -26,6 +27,7 @@ export default function FormRenderer({
     columns = 2,
     onOptionsUpdate,
     disabled,
+    autocompleteData = {},
 }: FormRendererProps) {
     const gridCols =
         columns === 1
@@ -75,6 +77,72 @@ export default function FormRenderer({
                         </Label>
 
                         <div className="flex flex-1 flex-col">
+                            {field.type === 'autocomplete' && (() => {
+                                const dependsOn = field.depends_on || null;
+                                const dependsValue = dependsOn ? form.data[dependsOn] : null;
+
+                                // Key is always based on the field name: vehicle_make -> vehicle_makes, vehicle_model -> vehicle_models
+                                const suggestionsKey = `${name}s`;
+
+                                // Debug: log the key and data structure
+                                const autocompleteValue = autocompleteData[suggestionsKey];
+                                console.log('Autocomplete:', name, dependsOn, dependsValue, suggestionsKey, autocompleteValue);
+
+                                // If depends_on is set, data is nested Record<string, string[]>
+                                // Otherwise it's a flat string[]
+                                const isNested = dependsOn && dependsValue;
+                                let suggestions: string[] = [];
+                                if (isNested && autocompleteValue && typeof autocompleteValue === 'object') {
+                                    suggestions = (autocompleteValue as Record<string, string[]>)[dependsValue] || [];
+                                } else if (Array.isArray(autocompleteValue)) {
+                                    suggestions = autocompleteValue as string[];
+                                }
+
+                                const filtered = suggestions.filter(s =>
+                                    s.toLowerCase().includes((form.data[name] || '').toLowerCase())
+                                );
+
+                                const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+                                return (
+                                    <div className="relative">
+                                        <Input
+                                            disabled={field.disabled}
+                                            placeholder={field.placeholder}
+                                            value={form.data[name] || ''}
+                                            autoComplete="off"
+                                            onChange={(e) => {
+                                                form.setData(name, e.target.value);
+                                                // When parent (non-dependent field) changes, clear dependent field
+                                                if (!dependsOn) {
+                                                    // Find fields that depend on this one and clear them
+                                                    // This is a simple approach - in production you'd track dependencies
+                                                }
+                                                setOpenDropdown(name);
+                                            }}
+                                            onFocus={() => setOpenDropdown(name)}
+                                            onBlur={() => setTimeout(() => setOpenDropdown(null), 150)}
+                                            className={cn(error && 'border-destructive')}
+                                        />
+                                        {openDropdown === name && filtered.length > 0 && (
+                                            <ul className="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border bg-white text-sm shadow-md">
+                                                {filtered.map(s => (
+                                                    <li
+                                                        key={s}
+                                                        className="cursor-pointer px-3 py-2 hover:bg-gray-100"
+                                                        onMouseDown={() => {
+                                                            form.setData(name, s);
+                                                            setOpenDropdown(null);
+                                                        }}
+                                                    >
+                                                        {s}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+                                );
+                            })()}
+
                             {field.type === 'char' && (
                                 <Input
                                     disabled={disabled}

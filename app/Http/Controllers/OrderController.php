@@ -102,6 +102,24 @@ class OrderController extends Controller
             ];
         });
 
+        // Distinct makes from past orders
+    $vehicleMakes = Order::whereNotNull('vehicle_make')
+        ->where('vehicle_make', '!=', '')
+        ->distinct()
+        ->pluck('vehicle_make')
+        ->sort()
+        ->values();
+
+    // All make→models grouped
+    $vehicleModels = Order::whereNotNull('vehicle_make')
+        ->whereNotNull('vehicle_model')
+        ->where('vehicle_model', '!=', '')
+        ->select('vehicle_make', 'vehicle_model')
+        ->distinct()
+        ->get()
+        ->groupBy('vehicle_make')
+        ->map(fn($rows) => $rows->pluck('vehicle_model')->sort()->values());
+
         return Inertia::render('orders/form', [
             'customers' => Customer::select('id','name')->get(), // only customers,
             'vehicles' => Vehicle::all()->map(function($vehicle) {
@@ -120,6 +138,8 @@ class OrderController extends Controller
             'vehicles_fields' => Vehicle::fields(),
             'customer_prices' => $customerPrices, // new
             'record' => null,
+            'vehicle_makes'  => $vehicleMakes,
+            'vehicle_models' => $vehicleModels,
         ]);
     }
 
@@ -134,6 +154,8 @@ class OrderController extends Controller
                 $cp->customer_id.'_'.$cp->product_id => $cp->price
             ];
         });
+
+        
 
         return Inertia::render('orders/edit', [
             'customers' => Customer::select('id','name')->get(),
