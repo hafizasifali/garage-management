@@ -16,6 +16,7 @@ const STORAGE_KEY = 'order-form-state';
 export default function OrderForm({
     record,
     customers,
+    customer_groups,
     vehicles,
     products,
     employees,
@@ -210,6 +211,7 @@ export default function OrderForm({
         () => ({
             types,
             states,
+            customer_groups,
             customers: localCustomers,
             vehicles: filteredVehicles,
             products,
@@ -221,6 +223,7 @@ export default function OrderForm({
         [
             types,
             states,
+            current_date,
             localCustomers,
             filteredVehicles,
             products,

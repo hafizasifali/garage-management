@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\CustomerGroup;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -31,6 +32,7 @@ class CustomerController extends Controller
     {
         return Inertia::render('customers/form', [
             'fields' => Customer::fields(),
+            'customer_groups' => CustomerGroup::all(),
             'record' => null,
         ]);
     }
@@ -39,6 +41,7 @@ class CustomerController extends Controller
     {
         return Inertia::render('customers/form', [
             'fields' => Customer::fields(),
+            'customer_groups' => CustomerGroup::all(),
             'record' => $customer,
         ]);
     }
@@ -52,6 +55,7 @@ class CustomerController extends Controller
             'address' => 'nullable|string|max:255',
             'shop_no' => 'nullable|string|max:50',
             'type' => 'required|in:individual,company',
+            'customer_group_id' => 'nullable|exists:customer_groups,id',
         ]);
 
 
@@ -70,6 +74,7 @@ class CustomerController extends Controller
             'address'    => 'nullable|string|max:255',
             'shop_no'    => 'nullable|string|max:50',
             'type'       => 'required|in:individual,company',
+            'customer_group_id' => 'nullable|exists:customer_groups,id',
         ]);
 
         $customer = Customer::create($data);
@@ -92,6 +97,7 @@ class CustomerController extends Controller
             'shop_no' => 'nullable|string|max:50',
             'is_company' => 'boolean',
             'type' => 'required|in:individual,company',
+            'customer_group_id' => 'nullable|exists:customer_groups,id',
         ]);
 
         $customer->update($data);

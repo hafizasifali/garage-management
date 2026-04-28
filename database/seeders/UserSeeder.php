@@ -19,6 +19,7 @@ class UserSeeder extends Seeder
         $adminRole = Role::firstOrCreate(['name' => 'Admin']);
         $mechanicRole = Role::firstOrCreate(['name' => 'Mechanic']);
         $accountantRole = Role::firstOrCreate(['name' => 'Accountant']);
+        $customerRole = Role::firstOrCreate(['name' => 'Customer']);
 
         // Admin user
         $admin = User::firstOrCreate(
@@ -49,5 +50,17 @@ class UserSeeder extends Seeder
             ]
         );
         $accountant->assignRole($accountantRole);
+
+        // Customer user
+        $customer = User::firstOrCreate(
+            ['email' => 'customer@teejaysautos.com'],
+            [
+                'name' => 'Regular Customer',
+                'password' => Hash::make('password'),
+            ]
+        );
+        $customer->assignRole($customerRole);
+        $customerGroup = CustomerGroup::firstOrCreate(['name' => 'Mr. Lube']);
+        $customer->group()->attach($customerGroup);
     }
 }

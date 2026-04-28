@@ -9,6 +9,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Many2OneField from './Many2OneField';
 import ImageField from '@/components/form/ImageField';
+import { isArray } from 'node_modules/chart.js/dist/helpers/helpers.core';
 
 type FormRendererProps = {
     fields: Record<string, any>;
@@ -50,6 +51,20 @@ export default function FormRenderer({
         <div className={`grid gap-4 ${gridCols}`}>
             {Object.entries(fields).map(([name, field]: any) => {
                 const error = form.errors[name];
+
+                // Check conditional visibility based on depends_on and depends_value
+                if (field.depends_on && field.depends_value) {
+                   
+                    const dependentValue = form.data[field.depends_on];
+                    // Handle both array (many2many) and single value (many2one) comparisons
+                    const isVisible = Array.isArray(dependentValue)
+                        ? dependentValue.includes(field.depends_value)
+                        : dependentValue === field.depends_value;
+
+                    if (!isVisible) {
+                        return null; // Hide field if condition not met
+                    }
+                }
 
                 const selectOptions =
                     field.type === 'many2one' || field.type === 'many2many'

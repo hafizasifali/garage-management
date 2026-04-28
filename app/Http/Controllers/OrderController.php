@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\CustomerPrice;
 use App\Models\Order;
 use App\Models\Customer;
+use App\Models\CustomerGroup;
 use App\Models\Vehicle;
 use App\Models\Employee;
 use App\Models\Product;
@@ -126,6 +127,7 @@ class OrderController extends Controller
 
         return Inertia::render('orders/form', [
             'customers' => Customer::select('id','name')->get(), // only customers,
+            'customer_groups' => CustomerGroup::select('id','name')->get(),
             'vehicles' => Vehicle::all()->map(function($vehicle) {
                 return [
                     'id' => $vehicle->id,

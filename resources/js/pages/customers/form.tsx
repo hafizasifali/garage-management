@@ -7,12 +7,13 @@ import { route } from 'ziggy-js';
 import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
 
-export default function CustomerForm({ fields, record }) {
+export default function CustomerForm({ fields, record, customer_groups }: any) {
     const form = useForm({
         name: '',
         email: '',
         phone: '',
         address: '',
+        customer_group_id: '',  
         ...(record || {}),
     });
 
@@ -23,7 +24,7 @@ export default function CustomerForm({ fields, record }) {
     const types=[{id: 'individual',name: 'Individual'},
         {id: 'company',name: 'Company'}
     ]
-    const options = { types};
+    const options = { types, customer_groups };
 
 
     const handleSubmit = (e: React.FormEvent) => {

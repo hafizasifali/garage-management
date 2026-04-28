@@ -17,6 +17,39 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
     const page = usePage();
     const [openMenu, setOpenMenu] = useState<string | null>(null);
 
+    // Get permissions from Inertia shared data
+    const { auth } = page.props as any;
+    const userPermissions = auth?.permissions || [];
+
+    // Filter items based on permission
+    const hasPermission = (item: NavItem) => {
+        // If no permission required, show it
+        if (!item.permission) {
+            return true;
+        }
+        // Check if user has the required permission
+        return userPermissions.includes(item.permission);
+    };
+
+    // Filter menu items recursively
+    const filterItems = (navItems: NavItem[]): NavItem[] => {
+        return navItems
+            .filter(hasPermission)
+            .map((item) => ({
+                ...item,
+                children: item.children ? filterItems(item.children) : undefined,
+            }))
+            .filter((item) => {
+                // Keep item if it has no children or if filtered children exist
+                if (!item.children || item.children.length === 0) {
+                    return true;
+                }
+                return true;
+            });
+    };
+
+    const filteredItems = filterItems(items);
+
     const isUrlActive = (href?: string, exact = false) => {
         if (!href) return false;
 
@@ -44,19 +77,19 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
      * Auto-open parent menu if any child is active
      */
     useEffect(() => {
-        const activeParent = items.find((item) =>
+        const activeParent = filteredItems.find((item) =>
             item.children?.some((child) => isUrlActive(child.href))
         );
 
         if (activeParent) {
             setOpenMenu(activeParent.title);
         }
-    }, [page.url, items]);
+    }, [page.url, filteredItems]);
 
     return (
         <SidebarGroup className="px-2 py-0">
             <SidebarMenu>
-                {items.map((item) => {
+                {filteredItems.map((item) => {
                     const hasChildren = !!item.children?.length;
 
                     const selfActive = isUrlActive(item.href, item.exact);

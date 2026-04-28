@@ -48,6 +48,7 @@ const mainNavItems: NavItem[] = [
         icon: PlusCircle,
         isActive: route().current('orders.create'),
         exact: true,
+        permission: 'order create',
     },
     {
         title: 'Orders',
@@ -55,6 +56,7 @@ const mainNavItems: NavItem[] = [
         icon: ListOrdered,
         isActive: route().current('orders.index'), // only active on index
         exact: true,
+        permission: 'order view',
     },
 
     // {
@@ -66,6 +68,7 @@ const mainNavItems: NavItem[] = [
         title: 'Products',
         href: route('products.index'),
         icon: Package, // spare parts/products
+        permission: 'product view',
     },
     // {
     //     title: 'Suppliers',
@@ -77,6 +80,7 @@ const mainNavItems: NavItem[] = [
         href: route('customers.index'),
         icon: Users, // user/customer management
         isActive: route().current('customers.*'),
+        permission: 'customer view',
     },
     // {
     //     title: 'Vehicles',
@@ -90,18 +94,22 @@ const mainNavItems: NavItem[] = [
         href: route('employees.index'),
         icon: UserCog, // staff/mechanics
         isActive: route().current('employees.*'),
+        permission: 'employee view',
     },
     {
         title: 'Reports',
         icon: BarChart2,
+        permission: 'report view',
         children: [
             {
                 title: 'Billing Report',
                 href: route('reports.billingReport'),
+                permission: 'report view',
             },
             {
                 title: 'Brake Fluid Billing Report',
                 href: route('reports.brakeFluidBillingReport'),
+                permission: 'report view',
             },
         ],
     },
@@ -112,18 +120,21 @@ const footerNavItems: NavItem[] = [
         href: route('companies.create'),
         icon: Building2,
         isActive: route().current('companies.*'),
+        permission: 'company create',
     },
     {
         title: 'Users',
         href: route('users.index'),
         icon: Users,
         isActive: route().current('users.*'),
+        permission: 'user view',
     },
     {
         title: 'Access Control',
         href: '/users',
         icon: Wrench,
         isActive: route().current('users.*'),
+        permission: 'permission manage',
     },
     // {
     //     title: 'Repository',

@@ -18,6 +18,7 @@ class Customer extends Model
         'phone',
         'address',
         'shop_no',
+        'customer_group_id',
     ];
 
        public static function fields(): array
@@ -50,8 +51,22 @@ class Customer extends Model
                 'label' => 'Type',
                 'relation' => 'types'
             ],
+            'customer_group_id' => [
+                'type' => 'many2one',
+                'label' => 'Customer Group',
+                'relation' => 'customer_groups',
+                'depends_on' => 'type',
+                'depends_value' => 'company',
+            ],
         ];
     }
+
+    // The group this store/customer belongs to (e.g. "Mr. Lube")
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(CustomerGroup::class, 'customer_group_id');
+    }
+
 
 
     // Accessor for is_customer

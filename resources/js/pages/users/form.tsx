@@ -10,9 +10,10 @@ type Props = {
     fields: any;
     record?: any;
     roles: { id: number; name: string }[];
+    customer_groups: { id: number; name: string }[];
 };
 
-export default function UserForm({ fields, record, roles }: Props) {
+export default function UserForm({ fields, record, roles, customer_groups }: Props) {
     const form = useForm({
         name: '',
         email: '',
@@ -20,10 +21,12 @@ export default function UserForm({ fields, record, roles }: Props) {
         password_confirmation: '',
         active: true,
         roles: [],
+        customer_groups: [],
         ...(record
             ? {
                   ...record,
                   roles: record.roles?.map((r: any) => r.id) ?? [],
+                customer_groups: record.groups?.map((g: any) => g.id) ?? [],
               }
             : {}),
     });
@@ -34,6 +37,7 @@ export default function UserForm({ fields, record, roles }: Props) {
             href: route('users.index'),
         },
     ];
+
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -85,6 +89,7 @@ export default function UserForm({ fields, record, roles }: Props) {
                         form={form}
                         options={{
                             roles,
+                            customer_groups,
                         }}
                         columns={1} // Odoo-style layout
                     />

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Employee;
 use App\Models\User;
+use App\Models\CustomerGroup;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
@@ -32,6 +33,7 @@ class UserController extends Controller
         return Inertia::render('users/form', [
             'roles' => Role::select('id', 'name')->get(),
             'fields' => User::fields(),
+            'customer_groups' => CustomerGroup::select('id', 'name')->get(),
             'record' => null,
         ]);
     }
@@ -41,7 +43,8 @@ class UserController extends Controller
         return Inertia::render('users/form', [
             'roles' => Role::select('id', 'name')->get(),
             'fields' => User::fields(),
-            'record' => $user->load('roles'),
+            'customer_groups' => CustomerGroup::select('id', 'name')->get(),
+            'record' => $user->load('roles', 'groups'),
         ]);
     }
 
@@ -52,6 +55,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
             'roles.*' => 'exists:roles,id',
+            'customer_groups.*' => 'exists:customer_groups,id',
             'active' => 'boolean',
         ]);
 
@@ -65,6 +69,11 @@ class UserController extends Controller
         if ($request->filled('roles')) {
             $role=Role::where(['id' => $request->roles])->first();
             $user->assignRole($role['name']);
+        }
+        
+
+        if ($request->filled('customer_groups')) {
+            $user->groups()->attach($request->customer_groups);
         }
 
         // Creating employee
@@ -101,6 +110,21 @@ class UserController extends Controller
         $user->update($data);
 
         $user->syncRoles($request->roles ?? []);
+
+        if ($request->filled('customer_groups')) {
+            $user->groups()->sync($request->customer_groups);
+        } else {
+            $user->groups()->detach();
+        }
+
+         // Update employee
+         $employee = Employee::where('user_id', $user->id)->first();
+         if ($employee) {
+             $employee->update([
+                 'name' => $request->name,
+                 'email' => $request->email,
+             ]);
+         }
 
         return redirect()->back()->with('success', 'User updated successfully.');
     }
