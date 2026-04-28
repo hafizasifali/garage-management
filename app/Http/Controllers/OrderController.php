@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 class OrderController extends Controller
 {
 
@@ -120,6 +121,9 @@ class OrderController extends Controller
         ->groupBy('vehicle_make')
         ->map(fn($rows) => $rows->pluck('vehicle_model')->sort()->values());
 
+        $tz=config('app.timezone', 'UTC');
+        $currentDate = now()->setTimezone($tz)->format('Y-m-d');
+
         return Inertia::render('orders/form', [
             'customers' => Customer::select('id','name')->get(), // only customers,
             'vehicles' => Vehicle::all()->map(function($vehicle) {
@@ -140,6 +144,7 @@ class OrderController extends Controller
             'record' => null,
             'vehicle_makes'  => $vehicleMakes,
             'vehicle_models' => $vehicleModels,
+            'current_date' => $currentDate,
         ]);
     }
 
@@ -214,6 +219,9 @@ class OrderController extends Controller
 // //            $validated['vehicle_vin'] = $vehicle->vin;
 //         }
         $validated['vehicle_name']= $validated['vehicle_make'] . ' ' . $validated['vehicle_model'];
+        $tz = config('app.timezone', 'UTC');
+        $order_date = Carbon::parse($validated['order_date'])->setTimezone($tz)->format('Y-m-d');
+
         $order = Order::create([
             'customer_id' => $customer->id,
             'customer_name' => $customer->name,
@@ -229,7 +237,7 @@ class OrderController extends Controller
             'vehicle_license_plate' => $validated['vehicle_license_plate']?? null,
             'vehicle_vin' => $validated['vehicle_vin']?? null,
             'note'=>$validated['note']?? null,
-            'order_date' => $validated['order_date'],
+            'order_date' => $order_date,
             'parts_by'=> $validated['parts_by']?? null,
             'is_brake_fluid_order' => $validated['is_brake_fluid_order'] ?? false,
             'state' => $validated['state'],
@@ -311,7 +319,10 @@ class OrderController extends Controller
      | Update order basic fields
      |-----------------------------*/
      $validated['vehicle_name']= $validated['vehicle_make'] . ' ' . $validated['vehicle_model'];
-        $order->update([
+     $tz = config('app.timezone', 'UTC');
+     $validated['order_date'] = Carbon::parse($validated['order_date'])->setTimezone($tz)->format('Y-m-d');
+     
+     $order->update([
             'customer_name' => $validated['customer_name'],
             'customer_email' => $validated['customer_email'] ?? null,
             'customer_phone' => $validated['customer_phone'] ?? null,

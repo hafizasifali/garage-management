@@ -27,6 +27,7 @@ export default function OrderForm({
     customer_prices, // customer-specific prices passed from controller
     vehicle_makes,
     vehicle_models,
+    current_date,
 }: any) {
     // Load form state from localStorage or initialize with fresh data
     const getSavedFormState = () => {
@@ -51,7 +52,7 @@ export default function OrderForm({
         vehicle_make: savedState?.vehicle_make ?? '',
         vehicle_year: savedState?.vehicle_year ?? '',
         vehicle_license_plate: savedState?.vehicle_license_plate ?? '',
-        order_date: savedState?.order_date ?? today,
+        order_date: current_date,
         state: savedState?.state ?? 'in_progress',
         is_brake_fluid_order: savedState?.is_brake_fluid_order ?? false,
         parts_by: savedState?.parts_by ?? 'us',
