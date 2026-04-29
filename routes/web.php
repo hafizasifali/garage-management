@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\AccessControlController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
@@ -32,6 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route::resource('countries', CountryController::class);
     Route::resource('companies', CompanyController::class);
     Route::resource('users', UserController::class);
+    Route::resource('access-control', AccessControlController::class);
     Route::resource('customers', CustomerController::class);
     Route::get('/customers/{customer}/prices',[\App\Http\Controllers\CustomerPriceController::class,'index'] )->name('customers.prices.index');
     Route::post('/customers/{customer}/prices',

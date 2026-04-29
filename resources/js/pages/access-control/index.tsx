@@ -38,7 +38,7 @@ export default function AccessControlIndex() {
     const activeRole = roles.find((r) => r.id === activeRoleId)!;
 
     const { data, setData, put, processing } = useForm({
-        permissions: activeRole?.permissions ?? [] as string[],
+        permissions: activeRole?.permissions ?? [],
     });
 
     const handleRoleChange = (role: Role) => {
@@ -73,6 +73,7 @@ export default function AccessControlIndex() {
 
     const handleSave = () => {
         put(route('access-control.update', activeRole.id), {
+            permissions: data.permissions,
             preserveScroll: true,
             onSuccess: () => toast.success(`Permissions for "${activeRole.name}" saved.`),
             onError: () => toast.error('Failed to save permissions.'),

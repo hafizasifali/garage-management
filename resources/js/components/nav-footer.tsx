@@ -19,8 +19,8 @@ export function NavFooter({
     items: NavItem[];
 }) {
     const page = usePage();
-    const { permissions } = page.props as any;
-    const userPermissions = permissions?.permissions || [];
+    const { auth } = page.props as any;
+    const userPermissions = auth?.permissions || [];
 
     // Check if user has permission
     const hasPermission = (item: NavItem) => {
