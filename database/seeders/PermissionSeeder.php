@@ -5,129 +5,87 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-use App\Models\User;
 
 class PermissionSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Define all permissions
         $permissions = [
-            // Order permissions
-            'order view',
-            'order create',
-            'order edit',
-            'order delete',
+            // Order
+            ['feature' => 'Order', 'name' => 'order view'],
+            ['feature' => 'Order', 'name' => 'order create'],
+            ['feature' => 'Order', 'name' => 'order edit'],
+            ['feature' => 'Order', 'name' => 'order delete'],
 
-            // Product permissions
-            'product view',
-            'product create',
-            'product edit',
-            'product delete',
+            // Product
+            ['feature' => 'Product', 'name' => 'product view'],
+            ['feature' => 'Product', 'name' => 'product create'],
+            ['feature' => 'Product', 'name' => 'product edit'],
+            ['feature' => 'Product', 'name' => 'product delete'],
 
-            // Customer permissions
-            'customer view',
-            'customer create',
-            'customer edit',
-            'customer delete',
+            // Customer
+            ['feature' => 'Customer', 'name' => 'customer view'],
+            ['feature' => 'Customer', 'name' => 'customer create'],
+            ['feature' => 'Customer', 'name' => 'customer edit'],
+            ['feature' => 'Customer', 'name' => 'customer delete'],
 
-            // Employee/Mechanic permissions
-            'employee view',
-            'employee create',
-            'employee edit',
-            'employee delete',
+            // Employee
+            ['feature' => 'Employee', 'name' => 'employee view'],
+            ['feature' => 'Employee', 'name' => 'employee create'],
+            ['feature' => 'Employee', 'name' => 'employee edit'],
+            ['feature' => 'Employee', 'name' => 'employee delete'],
 
-            // Supplier permissions
-            // 'supplier view',
-            // 'supplier create',
-            // 'supplier edit',
-            // 'supplier delete',
+            // Company
+            ['feature' => 'Company', 'name' => 'company view'],
+            ['feature' => 'Company', 'name' => 'company create'],
+            ['feature' => 'Company', 'name' => 'company edit'],
+            ['feature' => 'Company', 'name' => 'company delete'],
 
-            // Vehicle permissions
-            // 'vehicle view',
-            // 'vehicle create',
-            // 'vehicle edit',
-            // 'vehicle delete',
+            // User
+            ['feature' => 'User', 'name' => 'user view'],
+            ['feature' => 'User', 'name' => 'user create'],
+            ['feature' => 'User', 'name' => 'user edit'],
+            ['feature' => 'User', 'name' => 'user delete'],
 
-            // Company permissions
-            'company view',
-            'company create',
-            'company edit',
-            'company delete',
+            // Report
+            ['feature' => 'Report', 'name' => 'report view'],
+            ['feature' => 'Report', 'name' => 'report create'],
+            ['feature' => 'Report', 'name' => 'report export'],
 
-            // User permissions
-            'user view',
-            'user create',
-            'user edit',
-            'user delete',
-
-            // Report permissions
-            'report view',
-            'report create',
-            'report export',
-
-            // Purchase Order permissions
-            // 'purchase view',
-            // 'purchase create',
-            // 'purchase edit',
-            // 'purchase delete',
-
-            // Payment permissions
-            // 'payment view',
-            // 'payment create',
-            // 'payment edit',
-            // 'payment delete',
-
-            // Access Control / Settings
-            'permission manage',
-            'role manage',
-            'setting manage',
+            // Access Control
+            ['feature' => 'Access Control', 'name' => 'permission manage'],
+            ['feature' => 'Access Control', 'name' => 'role manage'],
+            ['feature' => 'Access Control', 'name' => 'setting manage'],
         ];
 
-        // Create permissions
-        foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
+        foreach ($permissions as $perm) {
+            Permission::updateOrCreate(
+                ['name' => $perm['name'], 'guard_name' => 'web'],
+                ['feature' => $perm['feature']]
+            );
         }
 
-        // Create roles and assign permissions
         $this->createRolesWithPermissions();
     }
 
-    /**
-     * Create roles and assign appropriate permissions
-     */
     protected function createRolesWithPermissions(): void
     {
-        // Admin - Full access
         $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $admin->givePermissionTo(Permission::all());
 
-        
-
-        // Mechanic - Limited access
         $mechanic = Role::firstOrCreate(['name' => 'mechanic', 'guard_name' => 'web']);
-        $mechanic->givePermissionTo([
+        $mechanic->syncPermissions([
             'order view',
             'order edit',
             'product view',
             'customer view',
         ]);
 
-        
-
-        // Viewer - Read only
         $customer = Role::firstOrCreate(['name' => 'customer', 'guard_name' => 'web']);
-        $customer->givePermissionTo([
+        $customer->syncPermissions([
             'report view',
         ]);
-
-        
     }
-
 }

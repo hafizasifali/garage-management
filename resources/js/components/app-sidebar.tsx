@@ -131,9 +131,9 @@ const footerNavItems: NavItem[] = [
     },
     {
         title: 'Access Control',
-        href: '/users',
+        href: route('access-control.index'),
         icon: Wrench,
-        isActive: route().current('users.*'),
+        isActive: route().current('access-control.*'),
         permission: 'permission manage',
     },
     // {
