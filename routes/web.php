@@ -8,16 +8,11 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\InvoiceController;
-use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\VehicleController;
-use App\Models\Customer;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-use Laravel\Fortify\Features;
 
 Route::get('/', function () {
     if (auth()->check()) {
@@ -33,7 +28,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route::resource('countries', CountryController::class);
     Route::resource('companies', CompanyController::class);
     Route::resource('users', UserController::class);
-    Route::resource('access-control', AccessControlController::class);
+    Route::get('/access-control', [AccessControlController::class, 'index'])->name('access-control.index');
+    Route::put('/access-control/{role}', [AccessControlController::class, 'update'])->name('access-control.update');
     Route::resource('customers', CustomerController::class);
     Route::get('/customers/{customer}/prices',[\App\Http\Controllers\CustomerPriceController::class,'index'] )->name('customers.prices.index');
     Route::post('/customers/{customer}/prices',

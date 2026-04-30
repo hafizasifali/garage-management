@@ -27,14 +27,15 @@ class AccessControlController extends Controller
         ]);
     }
 
-    public function update(Request $request, $roleId)
+    public function update(Request $request, Role $role)
     {
         $request->validate([
             'permissions' => 'array',
             'permissions.*' => 'string|exists:permissions,name',
         ]);
 
-        $role = Role::findOrFail($roleId);
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
         $role->syncPermissions($request->permissions ?? []);
 
         return redirect()->back()->with('success', "Permissions for \"{$role->name}\" updated successfully.");
