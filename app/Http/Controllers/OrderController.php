@@ -26,7 +26,10 @@ class OrderController extends Controller
         $search  = session('orders.search', '');
         $sort    = session('orders.sort', 'id_desc');
 
-        $query = Order::query()->with(['customer', 'vehicle']);
+        $query = Order::query()->with([
+            'customer:id,name',
+            'vehicle:id,license_plate,name',
+        ]);
 
         // Remap virtual date fields to real column before applying
         $mappedFilters = collect($filters)->map(function ($rule) {

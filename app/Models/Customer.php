@@ -61,6 +61,26 @@ class Customer extends Model
         ];
     }
 
+    protected static function sanitizeArray(array $attributes): array
+    {
+        return array_map(function ($value) {
+            if (is_string($value)) {
+                return mb_check_encoding($value, 'UTF-8') ? $value : utf8_encode($value);
+            }
+
+            if (is_array($value)) {
+                return self::sanitizeArray($value);
+            }
+
+            return $value;
+        }, $attributes);
+    }
+
+    public function toArray(): array
+    {
+        return self::sanitizeArray(parent::toArray());
+    }
+
     // The group this store/customer belongs to (e.g. "Mr. Lube")
     public function group(): BelongsTo
     {
