@@ -98,6 +98,45 @@ export default function FormRenderer({
                                 );
 
                                 const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+                                const [focusedIndex, setFocusedIndex] = useState<number>(-1);
+
+                                const handleSelectSuggestion = (suggestion: string) => {
+                                    form.setData(name, suggestion);
+                                    setOpenDropdown(null);
+                                    setFocusedIndex(-1);
+                                };
+
+                                const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+                                    if (!openDropdown || filtered.length === 0) return;
+
+                                    switch (e.key) {
+                                        case 'ArrowDown':
+                                            e.preventDefault();
+                                            setFocusedIndex(prev => 
+                                                prev < filtered.length - 1 ? prev + 1 : 0
+                                            );
+                                            break;
+                                        case 'ArrowUp':
+                                            e.preventDefault();
+                                            setFocusedIndex(prev =>
+                                                prev > 0 ? prev - 1 : filtered.length - 1
+                                            );
+                                            break;
+                                        case 'Tab':
+                                        case 'Enter':
+                                            if (focusedIndex >= 0) {
+                                                e.preventDefault();
+                                                handleSelectSuggestion(filtered[focusedIndex]);
+                                            }
+                                            break;
+                                        case 'Escape':
+                                            e.preventDefault();
+                                            setOpenDropdown(null);
+                                            setFocusedIndex(-1);
+                                            break;
+                                    }
+                                };
+
                                 return (
                                     <div className="relative">
                                         <Input
@@ -113,20 +152,26 @@ export default function FormRenderer({
                                                     // This is a simple approach - in production you'd track dependencies
                                                 }
                                                 setOpenDropdown(name);
+                                                setFocusedIndex(-1);
                                             }}
+                                            onKeyDown={handleKeyDown}
                                             onFocus={() => setOpenDropdown(name)}
                                             onBlur={() => setTimeout(() => setOpenDropdown(null), 150)}
                                             className={cn(error && 'border-destructive')}
                                         />
                                         {openDropdown === name && filtered.length > 0 && (
                                             <ul className="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border bg-white text-sm shadow-md">
-                                                {filtered.map(s => (
+                                                {filtered.map((s, index) => (
                                                     <li
                                                         key={s}
-                                                        className="cursor-pointer px-3 py-2 hover:bg-gray-100"
+                                                        className={cn(
+                                                            "cursor-pointer px-3 py-2",
+                                                            index === focusedIndex
+                                                                ? "bg-blue-500 text-white"
+                                                                : "hover:bg-gray-100"
+                                                        )}
                                                         onMouseDown={() => {
-                                                            form.setData(name, s);
-                                                            setOpenDropdown(null);
+                                                            handleSelectSuggestion(s);
                                                         }}
                                                     >
                                                         {s}
