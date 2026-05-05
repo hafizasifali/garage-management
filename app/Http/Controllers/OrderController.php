@@ -22,8 +22,8 @@ class OrderController extends Controller
 
     public function index(Request $request)
     {
-        $from = Carbon::now()->startOfWeek(Carbon::SUNDAY)->format('d-M-Y');
-        $to = Carbon::now()->format('d-M-Y');
+        $from = Carbon::now()->startOfWeek(Carbon::SUNDAY)->format('Y-m-d');
+        $to = Carbon::now()->format('Y-m-d');
         $defaultFilters = [
             ['field' => 'order_date_from','label' => 'From', 'operator' => '>=', 'value' => $from],
             ['field' => 'order_date_to',   'label' => 'To', 'operator' => '<=', 'value' => $to],
@@ -435,8 +435,8 @@ class OrderController extends Controller
 
     public function billingReport(Request $request)
     {
-        $from = Carbon::now()->startOfWeek(Carbon::SUNDAY)->format('d-M-Y');
-        $to = Carbon::now()->format('d-M-Y');
+        $from = Carbon::now()->startOfWeek(Carbon::SUNDAY)->format('Y-m-d');
+        $to = Carbon::now()->format('Y-m-d');
         $defaultFilters = [
             ['field' => 'order_date_from', 'label' => 'From', 'operator' => '>=', 'value' => $from],
             ['field' => 'order_date_to',   'label' => 'To', 'operator' => '<=', 'value' => $to],
@@ -613,8 +613,8 @@ class OrderController extends Controller
 
     public function brakeFluidBillingReport()
     {
-        $from = Carbon::now()->startOfWeek(Carbon::SUNDAY)->format('d-M-Y');
-        $to = Carbon::now()->format('d-M-Y');
+        $from = Carbon::now()->startOfWeek(Carbon::SUNDAY)->format('Y-m-d');
+        $to = Carbon::now()->format('Y-m-d');
         $defaultFilters = [
             ['field' => 'order_date_from', 'label' => 'From', 'operator' => '>=', 'value' => $from],
             ['field' => 'order_date_to',   'label' => 'To', 'operator' => '<=', 'value' => $to],
