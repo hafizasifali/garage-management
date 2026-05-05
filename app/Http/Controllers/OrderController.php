@@ -22,9 +22,11 @@ class OrderController extends Controller
 
     public function index(Request $request)
     {
+        $from = Carbon::now()->startOfWeek(Carbon::SUNDAY)->format('d-M-Y');
+        $to = Carbon::now()->format('d-M-Y');
         $defaultFilters = [
-            ['field' => 'order_date_from', 'operator' => '>=', 'value' => Carbon::now()->startOfWeek(Carbon::SUNDAY)->toDateString()],
-            ['field' => 'order_date_to',   'operator' => '<=', 'value' => Carbon::now()->toDateString()],
+            ['field' => 'order_date_from','label' => 'From', 'operator' => '>=', 'value' => $from],
+            ['field' => 'order_date_to',   'label' => 'To', 'operator' => '<=', 'value' => $to],
         ];
         $filters = session('orders.filters', $defaultFilters);
         $search  = session('orders.search', '');
@@ -433,9 +435,11 @@ class OrderController extends Controller
 
     public function billingReport(Request $request)
     {
+        $from = Carbon::now()->startOfWeek(Carbon::SUNDAY)->format('d-M-Y');
+        $to = Carbon::now()->format('d-M-Y');
         $defaultFilters = [
-            ['field' => 'order_date_from', 'operator' => '>=', 'value' => Carbon::now()->startOfWeek(Carbon::SUNDAY)->toDateString()],
-            ['field' => 'order_date_to',   'operator' => '<=', 'value' => Carbon::now()->toDateString()],
+            ['field' => 'order_date_from', 'label' => 'From', 'operator' => '>=', 'value' => $from],
+            ['field' => 'order_date_to',   'label' => 'To', 'operator' => '<=', 'value' => $to],
         ];
         $filters = session('reports.billing.filters', $defaultFilters);
         $search  = session('reports.billing.search', '');
@@ -609,9 +613,11 @@ class OrderController extends Controller
 
     public function brakeFluidBillingReport()
     {
+        $from = Carbon::now()->startOfWeek(Carbon::SUNDAY)->format('d-M-Y');
+        $to = Carbon::now()->format('d-M-Y');
         $defaultFilters = [
-            ['field' => 'order_date_from', 'operator' => '>=', 'value' => Carbon::now()->startOfWeek(Carbon::SUNDAY)->toDateString()],
-            ['field' => 'order_date_to',   'operator' => '<=', 'value' => Carbon::now()->toDateString()],
+            ['field' => 'order_date_from', 'label' => 'From', 'operator' => '>=', 'value' => $from],
+            ['field' => 'order_date_to',   'label' => 'To', 'operator' => '<=', 'value' => $to],
         ];
         $filters = session('reports.brake_fluid_billing.filters', $defaultFilters);
         $search  = session('reports.brake_fluid_billing.search', '');

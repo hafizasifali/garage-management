@@ -114,7 +114,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('orders', OrderController::class)->only(['create', 'store']);
     });
     Route::middleware('permission:order view')->group(function () {
-        Route::get('/orders/filter', [OrderController::class, 'filter'])
+        Route::post('/orders/filter', [OrderController::class, 'filter'])
             ->name('orders.filter');
         Route::resource('orders', OrderController::class)->only(['index', 'show']);
         Route::get('/orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])
