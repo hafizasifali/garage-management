@@ -59,6 +59,7 @@ class CustomerController extends Controller
         ]);
 
 
+        
         $customer = Customer::create($data);
 
         return redirect()
@@ -97,9 +98,8 @@ class CustomerController extends Controller
             'shop_no' => 'nullable|string|max:50',
             'is_company' => 'boolean',
             'type' => 'required|in:individual,company',
-            'customer_group_id' => 'nullable|exists:customer_groups,id',
+            'customer_group_id' => 'nullable',
         ]);
-
         $customer->update($data);
 
         return redirect()->back()->with('success', 'Customer updated successfully.');

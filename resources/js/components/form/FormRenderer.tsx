@@ -9,7 +9,6 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Many2OneField from './Many2OneField';
 import ImageField from '@/components/form/ImageField';
-import { isArray } from 'node_modules/chart.js/dist/helpers/helpers.core';
 
 type FormRendererProps = {
     fields: Record<string, any>;
@@ -17,7 +16,7 @@ type FormRendererProps = {
     options?: Record<string, any>;
     columns?: 1 | 2 | 4; // default 2 columns
     onOptionsUpdate?: (relation: string, newRecord: any) => void;
-    disabled: boolean;
+    disabled?: boolean;
     autocompleteData?: Record<string, string[] | Record<string, string[]>>;
 };
 
@@ -37,7 +36,6 @@ export default function FormRenderer({
               ? 'md:grid-cols-4'
               : 'md:grid-cols-2';
 
-    const [search, setSearch] = useState<Record<string, string>>({});
 
     if (!fields || Object.keys(fields).length === 0) {
         return (
@@ -66,24 +64,6 @@ export default function FormRenderer({
                     }
                 }
 
-                const selectOptions =
-                    field.type === 'many2one' || field.type === 'many2many'
-                        ? (options[field.relation] || []).map((item: any) => ({
-                              value: item.id,
-                              label: item.name,
-                          }))
-                        : [];
-
-                const selectValue =
-                    field.type === 'many2one'
-                        ? selectOptions.find(
-                              (o) => o.value === form.data[name],
-                          ) || null
-                        : field.type === 'many2many'
-                          ? selectOptions.filter((o) =>
-                                form.data[name]?.includes(o.value),
-                            )
-                          : null;
 
                 return (
                     <div key={name} className="flex items-center gap-2">
@@ -160,7 +140,8 @@ export default function FormRenderer({
 
                             {field.type === 'char' && (
                                 <Input
-                                    disabled={disabled}
+                                    disabled={disabled || field.disabled}
+                                    readOnly={disabled || field.readonly}
                                     placeholder={field.placeholder || ''}
                                     maxLength={field.length}
                                     value={form.data[name] || ''}
@@ -179,7 +160,7 @@ export default function FormRenderer({
                                     inputMode="numeric"
                                     pattern="[0-9]*"
                                     maxLength={field.length}
-                                    disabled={disabled}
+                                    disabled={disabled || field.disabled}
                                     placeholder={field.placeholder || ''}
                                     value={form.data[name] || ''}
                                     onChange={
@@ -200,7 +181,8 @@ export default function FormRenderer({
 
                             {field.type === 'email' && (
                                 <Input
-                                    disabled={disabled}
+                                    disabled={disabled || field.disabled}
+                                    readOnly={disabled || field.readonly}
                                     type={`email`}
                                     placeholder={field.placeholder || ''}
                                     maxLength={field.length}

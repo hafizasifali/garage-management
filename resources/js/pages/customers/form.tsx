@@ -13,7 +13,9 @@ export default function CustomerForm({ fields, record, customer_groups }: any) {
         email: '',
         phone: '',
         address: '',
-        customer_group_id: '',  
+        shop_no: '',
+        type: '',
+        customer_group_id: '',
         ...(record || {}),
     });
 

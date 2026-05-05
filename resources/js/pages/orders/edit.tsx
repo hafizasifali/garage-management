@@ -182,6 +182,23 @@ export default function OrderForm({
         parts_by,
     };
 
+    useEffect(() => {
+        if (!form.data.customer_id) {
+            form.setData('customer_email', '');
+            form.setData('customer_phone', '');
+            form.setData('customer_address', '');
+            return;
+        }
+
+        const customer = customers.find(
+            (c: any) => c.id == form.data.customer_id,
+        );
+        if (customer) {
+            form.setData('customer_email', customer.email || '');
+            form.setData('customer_phone', customer.phone || '');
+            form.setData('customer_address', customer.address || '');
+        }
+    }, [form.data.customer_id]);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={record ? `Edit Order #${record.id}` : 'New Order'} />

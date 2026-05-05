@@ -129,7 +129,7 @@ class OrderController extends Controller
         $currentDate = now()->setTimezone($tz)->format('Y-m-d');
 
         return Inertia::render('orders/form', [
-            'customers' => Customer::select('id','name')->get(), // only customers,
+            'customers' => Customer::select('id','name', 'email', 'phone', 'address')->get(), // only customers,
             'customer_groups' => CustomerGroup::select('id','name')->get(),
             'vehicles' => Vehicle::all()->map(function($vehicle) {
                 return [
@@ -168,7 +168,7 @@ class OrderController extends Controller
         
 
         return Inertia::render('orders/edit', [
-            'customers' => Customer::select('id','name')->get(),
+            'customers' => Customer::select('id','name', 'email', 'phone', 'address')->get(),
             'vehicles' => Vehicle::all()->map(function($vehicle) {
                 return [
                     'id' => $vehicle->id,
@@ -298,7 +298,7 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         $validated = $request->validate([
-            'customer_name' => 'required|string|max:255',
+            'customer_id' => 'required|exists:customers,id',
             'customer_email' => 'nullable|email|max:255',
             'customer_phone' => 'nullable|string|max:50',
             'customer_address' => 'nullable|string|max:500',
@@ -326,12 +326,12 @@ class OrderController extends Controller
      $validated['vehicle_name']= $validated['vehicle_make'] . ' ' . $validated['vehicle_model'];
      $tz = config('app.timezone', 'UTC');
      $validated['order_date'] = Carbon::parse($validated['order_date'])->setTimezone($tz)->format('Y-m-d');
-     
+     $customer = Customer::findOrFail($validated['customer_id']);
      $order->update([
-            'customer_name' => $validated['customer_name'],
-            'customer_email' => $validated['customer_email'] ?? null,
-            'customer_phone' => $validated['customer_phone'] ?? null,
-            'customer_address' => $validated['customer_address'] ?? null,
+            'customer_name' => $customer->name,
+            'customer_email' => $customer->email ?? null,
+            'customer_phone' => $customer->phone ?? null,
+            'customer_address' => $customer->address ?? null,
             'vehicle_name' => $validated['vehicle_name']?? null,
             'vehicle_model'=> $validated['vehicle_model']?? null,
             'vehicle_year'=> $validated['vehicle_year']?? null,
@@ -671,6 +671,7 @@ class OrderController extends Controller
                 
                 return [
                     'date' => optional($order->order_date)->format('F j, Y'),
+                    'customer_name' => $order->customer_name,
                     'invoice_number' => $order->customer->shop_no.'-'. date('ymd',strtotime($order->order_date)).'-'.$order->id,
                     'license_plate' => $order->vehicle_license_plate ?? $order->vehicle?->license_plate ?? '-',
                     'brake_fluid_cost' => round($order->lines->sum('subtotal'), 2),

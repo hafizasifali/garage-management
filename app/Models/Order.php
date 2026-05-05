@@ -51,6 +51,9 @@ class Order extends Model
     {
         return [
             'customer_id' => ['label' => 'Customer', 'type' => 'many2one', 'relation' => 'customers', 'quick_create' => true, 'edit_route' => 'customers.edit', 'placeholder' => 'Select Customer e.g. John Doe'],
+            'customer_email' => ['label' => 'Customer Email', 'type' => 'email', 'disabled' => true, 'placeholder' => 'Customer email will be auto-filled when customer is selected'],
+            'customer_phone' => ['label' => 'Customer Phone', 'type' => 'char', 'disabled' => true, 'placeholder' => 'Customer phone will be auto-filled when customer is selected'],
+            'customer_address' => ['label' => 'Customer Address', 'type' => 'char', 'disabled' => true, 'placeholder' => 'Customer address will be auto-filled when customer is selected'],
             'vehicle_make'  => ['label' => 'Vehicle Make',  'type' => 'autocomplete', 'placeholder' => 'e.g. Toyota'],
             'vehicle_model' => ['label' => 'Vehicle Model', 'type' => 'autocomplete', 'placeholder' => 'e.g. Camry', 'depends_on' => 'vehicle_make'],
             'vehicle_year' => ['label' => 'Vehicle Year', 'type' => 'number', 'length' => '4', 'placeholder' => 'Enter year e.g. 2025'],
@@ -65,10 +68,10 @@ class Order extends Model
         public static function editFields(): array
     {
         return [
-            'customer_name' => ['label' => 'Customer Name', 'type' => 'char', 'placeholder' => 'Enter customer name e.g. John Doe'],
-            'customer_email' => ['label' => 'Customer Email', 'type' => 'email', 'placeholder' => 'Enter email address e.g. john@example.com'],
-            'customer_phone' => ['label' => 'Customer Phone', 'type' => 'char', 'placeholder' => 'Enter phone number e.g. (416) 123-4567'],
-            'customer_address' => ['label' => 'Customer Address', 'type' => 'char', 'placeholder' => 'Enter customer address e.g. 123 Main St, Toronto, ON'],
+            'customer_id' => ['label' => 'Customer', 'type' => 'many2one', 'relation' => 'customers', 'quick_create' => true, 'edit_route' => 'customers.edit', 'placeholder' => 'Select Customer e.g. John Doe'],
+            'customer_email' => ['label' => 'Customer Email', 'type' => 'email', 'disabled' => true, 'placeholder' => 'Customer email will be auto-filled when customer is selected'],
+            'customer_phone' => ['label' => 'Customer Phone', 'type' => 'char', 'disabled' => true, 'placeholder' => 'Customer phone will be auto-filled when customer is selected'],
+            'customer_address' => ['label' => 'Customer Address', 'type' => 'char', 'disabled' => true, 'placeholder' => 'Customer address will be auto-filled when customer is selected'],
             'vehicle_make' => ['label' => 'Vehicle Make', 'type' => 'char', 'placeholder' => 'Enter vehicle make e.g. Toyota'],
             'vehicle_model' => ['label' => 'Vehicle Model', 'type' => 'char', 'placeholder' => 'Enter vehicle model e.g. Camry'],
             'vehicle_year' => ['label' => 'Vehicle Year', 'type' => 'number', 'length' => '4', 'placeholder' => 'Enter year e.g. 2025'],

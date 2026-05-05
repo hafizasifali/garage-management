@@ -108,6 +108,7 @@ export default function Index() {
     /* ---------------- Table Columns ---------------- */
     const columns = [
         { label: 'Date', render: (row: BrakeFluidReportRow) => row.date },
+        {label: 'Customer', render: (row: BrakeFluidReportRow) => row.customer_name || '-'},
         {
             label: 'Invoice Number',
             render: (row: BrakeFluidReportRow) => row.invoice_number,

@@ -48,6 +48,9 @@ export default function OrderForm({
     const form = useForm({
         customer_id: savedState?.customer_id ?? null,
         // vehicle_id: savedState?.vehicle_id ?? null,
+        customer_email: savedState?.customer_email ?? '',
+        customer_phone: savedState?.customer_phone ?? '',
+        customer_address: savedState?.customer_address ?? '',
         vehicle_name: savedState?.vehicle_name ?? '',
         vehicle_model: savedState?.vehicle_model ?? '',
         vehicle_make: savedState?.vehicle_make ?? '',
@@ -242,6 +245,30 @@ export default function OrderForm({
         vehicle_makes,
         vehicle_models,
     };
+
+    useEffect(() => {
+        if (!form.data.customer_id) {
+            form.setData({
+                ...form.data,
+                customer_email: '',
+                customer_phone: '',
+                customer_address: '',
+            });
+            return;
+        }
+
+        const customer = localCustomers.find(
+            (c: any) => c.id == form.data.customer_id,
+        );
+        if (customer) {
+            form.setData({
+                ...form.data,
+                customer_email: customer.email || '',
+                customer_phone: customer.phone || '',
+                customer_address: customer.address || '',
+            });
+        }
+    }, [form.data.customer_id, localCustomers]);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={record ? `Edit Order #${record.id}` : 'New Order'} />
