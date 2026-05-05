@@ -22,7 +22,11 @@ class OrderController extends Controller
 
     public function index(Request $request)
     {
-        $filters = session('orders.filters', []);
+        $defaultFilters = [
+            ['field' => 'order_date_from', 'operator' => '>=', 'value' => Carbon::now()->startOfWeek(Carbon::SUNDAY)->toDateString()],
+            ['field' => 'order_date_to',   'operator' => '<=', 'value' => Carbon::now()->toDateString()],
+        ];
+        $filters = session('orders.filters', $defaultFilters);
         $search  = session('orders.search', '');
         $sort    = session('orders.sort', 'id_desc');
 
@@ -429,7 +433,11 @@ class OrderController extends Controller
 
     public function billingReport(Request $request)
     {
-        $filters = session('reports.billing.filters', []);
+        $defaultFilters = [
+            ['field' => 'order_date_from', 'operator' => '>=', 'value' => Carbon::now()->startOfWeek(Carbon::SUNDAY)->toDateString()],
+            ['field' => 'order_date_to',   'operator' => '<=', 'value' => Carbon::now()->toDateString()],
+        ];
+        $filters = session('reports.billing.filters', $defaultFilters);
         $search  = session('reports.billing.search', '');
         $sort    = session('reports.billing.sort', 'order_date_desc');
 
@@ -601,7 +609,11 @@ class OrderController extends Controller
 
     public function brakeFluidBillingReport()
     {
-        $filters = session('reports.brake_fluid_billing.filters', []);
+        $defaultFilters = [
+            ['field' => 'order_date_from', 'operator' => '>=', 'value' => Carbon::now()->startOfWeek(Carbon::SUNDAY)->toDateString()],
+            ['field' => 'order_date_to',   'operator' => '<=', 'value' => Carbon::now()->toDateString()],
+        ];
+        $filters = session('reports.brake_fluid_billing.filters', $defaultFilters);
         $search  = session('reports.brake_fluid_billing.search', '');
         $sort    = session('reports.brake_fluid_billing.sort', 'order_date_desc');
 
