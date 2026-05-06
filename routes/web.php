@@ -3,6 +3,7 @@
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\AccessControlController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CustomerGroupController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\SupplierController;
@@ -83,6 +84,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('permission:customer delete')->group(function () {
         Route::resource('customers', CustomerController::class)->only(['destroy']);
     });
+
+    Route::post('customer-groups/quick-create', [CustomerGroupController::class, 'quickCreate'])
+        ->name('customer_groups.quickCreate');
 
     Route::resource('suppliers', SupplierController::class);
     Route::post('suppliers/quick-create', [SupplierController::class, 'quickCreate'])

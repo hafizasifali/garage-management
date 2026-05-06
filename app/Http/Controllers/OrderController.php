@@ -445,9 +445,17 @@ class OrderController extends Controller
         $search  = session('reports.billing.search', '');
         $sort    = session('reports.billing.sort', 'order_date_desc');
 
-        $query = Order::query();
-        $query->where('is_brake_fluid_order', false);
-        $query = $query->with([
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+
+        $query = Order::query()->where('is_brake_fluid_order', false);
+
+        if ($user && $user->groups()->exists()) {
+            $customerIds = $user->accessibleCustomers()->pluck('id')->toArray();
+            $query->whereIn('customer_id', $customerIds);
+        }
+
+        $query->with([
             'lines.product',
             'vehicle',
             'customer',
@@ -548,12 +556,20 @@ class OrderController extends Controller
                 ];
             });
 
+        $customers = Customer::select('id', 'name')
+            ->when($user && $user->groups()->exists(), function ($q) use ($user) {
+                $groupIds = $user->groups()->pluck('customer_groups.id')->toArray();
+                $q->whereIn('customer_group_id', $groupIds);
+            })
+            ->orderBy('name')
+            ->get();
+
         return inertia('reports/BillingReport', [
             'reports' => $orders,
             'activeFilters' => $filters,
             'search' => $search,
             'sort' => $sort,
-            'customers' => Customer::select('id', 'name')->orderBy('name')->get(),
+            'customers' => $customers,
             'vehicles' => Vehicle::select('id', 'license_plate', 'name')->orderBy('license_plate')->get(),
             'states' => Order::states(),
             'partsBy' => Order::partsBy(),
@@ -611,7 +627,7 @@ class OrderController extends Controller
         return redirect()->route('reports.billingReport');
     }
 
-    public function brakeFluidBillingReport()
+    public function brakeFluidBillingReport(Request $request)
     {
         $from = Carbon::now()->startOfWeek(Carbon::SUNDAY)->format('Y-m-d');
         $to = Carbon::now()->format('Y-m-d');
@@ -623,14 +639,21 @@ class OrderController extends Controller
         $search  = session('reports.brake_fluid_billing.search', '');
         $sort    = session('reports.brake_fluid_billing.sort', 'order_date_desc');
 
-        $query = Order::query()->with([
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+
+        $query = Order::query()->where('is_brake_fluid_order', true);
+
+        if ($user && $user->groups()->exists()) {
+            $groupIds = $user->groups()->pluck('customer_groups.id')->toArray();
+            $query->whereHas('customer', fn ($q) => $q->whereIn('customer_group_id', $groupIds));
+        }
+
+        $query->with([
             'lines.product',
             'vehicle',
             'customer',
         ]);
-
-        // Filter for brake fluid orders only
-        $query->where('is_brake_fluid_order', true);
 
 
         // Remap virtual date fields to real column before applying
@@ -698,12 +721,20 @@ class OrderController extends Controller
                 ];
             });
 
+        $customers = Customer::select('id', 'name')
+            ->when($user && $user->groups()->exists(), function ($q) use ($user) {
+                $groupIds = $user->groups()->pluck('customer_groups.id')->toArray();
+                $q->whereIn('customer_group_id', $groupIds);
+            })
+            ->orderBy('name')
+            ->get();
+
         return inertia('reports/BrakeFluidBillingReport', [
             'reports' => $orders,
-            'activeFilters' => $filters,  
+            'activeFilters' => $filters,
             'search' => $search,
             'sort' => $sort,
-            'customers' => Customer::select('id', 'name')->orderBy('name')->get(),
+            'customers' => $customers,
             'vehicles' => Vehicle::select('id', 'license_plate', 'name')->orderBy('license_plate')->get(),
         ]);
     }
