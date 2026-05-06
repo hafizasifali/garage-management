@@ -556,12 +556,20 @@ class OrderController extends Controller
                 ];
             });
 
+        $customers = Customer::select('id', 'name')
+            ->when($user && $user->groups()->exists(), function ($q) use ($user) {
+                $groupIds = $user->groups()->pluck('customer_groups.id')->toArray();
+                $q->whereIn('customer_group_id', $groupIds);
+            })
+            ->orderBy('name')
+            ->get();
+
         return inertia('reports/BillingReport', [
             'reports' => $orders,
             'activeFilters' => $filters,
             'search' => $search,
             'sort' => $sort,
-            'customers' => Customer::select('id', 'name')->orderBy('name')->get(),
+            'customers' => $customers,
             'vehicles' => Vehicle::select('id', 'license_plate', 'name')->orderBy('license_plate')->get(),
             'states' => Order::states(),
             'partsBy' => Order::partsBy(),
@@ -713,12 +721,20 @@ class OrderController extends Controller
                 ];
             });
 
+        $customers = Customer::select('id', 'name')
+            ->when($user && $user->groups()->exists(), function ($q) use ($user) {
+                $groupIds = $user->groups()->pluck('customer_groups.id')->toArray();
+                $q->whereIn('customer_group_id', $groupIds);
+            })
+            ->orderBy('name')
+            ->get();
+
         return inertia('reports/BrakeFluidBillingReport', [
             'reports' => $orders,
-            'activeFilters' => $filters,  
+            'activeFilters' => $filters,
             'search' => $search,
             'sort' => $sort,
-            'customers' => Customer::select('id', 'name')->orderBy('name')->get(),
+            'customers' => $customers,
             'vehicles' => Vehicle::select('id', 'license_plate', 'name')->orderBy('license_plate')->get(),
         ]);
     }
