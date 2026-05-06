@@ -32,7 +32,10 @@ class CustomerController extends Controller
     {
         return Inertia::render('customers/form', [
             'fields' => Customer::fields(),
-            'customer_groups' => CustomerGroup::all(),
+            'customer_groups' => CustomerGroup::select('id', 'name')->get(),
+            'customer_groups_fields' => [
+                'name' => ['type' => 'char', 'label' => 'Group Name', 'required' => true],
+            ],
             'record' => null,
         ]);
     }
@@ -41,7 +44,10 @@ class CustomerController extends Controller
     {
         return Inertia::render('customers/form', [
             'fields' => Customer::fields(),
-            'customer_groups' => CustomerGroup::all(),
+            'customer_groups' => CustomerGroup::select('id', 'name')->get(),
+            'customer_groups_fields' => [
+                'name' => ['type' => 'char', 'label' => 'Group Name', 'required' => true],
+            ],
             'record' => $customer,
         ]);
     }

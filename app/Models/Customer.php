@@ -58,6 +58,7 @@ class Customer extends Model
                 'relation' => 'customer_groups',
                 'depends_on' => 'type',
                 'depends_value' => 'company',
+                'quick_create' => true,
             ],
         ];
     }
