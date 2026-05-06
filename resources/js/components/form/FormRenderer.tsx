@@ -57,7 +57,7 @@ export default function FormRenderer({
                     // Handle both array (many2many) and single value (many2one) comparisons
                     const isVisible = Array.isArray(dependentValue)
                         ? dependentValue.includes(field.depends_value)
-                        : dependentValue === field.depends_value;
+                        : dependentValue == field.depends_value;
 
                     if (!isVisible) {
                         return null; // Hide field if condition not met
