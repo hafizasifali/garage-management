@@ -159,13 +159,13 @@ export default function Index() {
                                     })),
                                 },
                                 {
-                                    label: 'Order Date From',
+                                    label: 'From',
                                     field: 'order_date_from',
                                     operator: '>=',
                                     type: 'date',
                                 },
                                 {
-                                    label: 'Order Date To',
+                                    label: 'To',
                                     field: 'order_date_to',
                                     operator: '<=',
                                     type: 'date',

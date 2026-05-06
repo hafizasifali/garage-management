@@ -43,7 +43,7 @@ class LoginResponse implements LoginResponseContract
         }
 
         if ($user->hasRole('Customer')) {
-            return route('orders.index');
+            return route('reports.billingReport');
         }
         if ($user->hasRole('Mr. Lube')) {
             return route('reports.billingReport');
