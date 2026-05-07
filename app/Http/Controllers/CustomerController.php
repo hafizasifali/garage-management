@@ -19,6 +19,7 @@ class CustomerController extends Controller
             ->when($request->active !== null, fn ($q) =>
                 $q->where('active', $request->active)
             )
+            ->with('group')
             ->paginate($request->per_page ?? 50)
             ->withQueryString();
 

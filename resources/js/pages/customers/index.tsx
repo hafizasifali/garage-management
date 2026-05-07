@@ -17,6 +17,8 @@ type Customer = {
     email: string;
     phone: string;
     active: boolean;
+    type?: string;
+    group?: { name: string } | null;
 };
 
 export default function CustomersIndex() {
@@ -30,6 +32,7 @@ export default function CustomersIndex() {
         { label: 'Email', render: (row: Customer) => row.email },
         { label: 'Phone', render: (row: Customer) => row.phone },
         { label: 'Type', render: (row: Customer) => row.type },
+        { label: 'Group', render: (row: Customer) => row.group?.name ?? '-' },
         {
             label: 'Actions',
             render: (row: Customer) => (
