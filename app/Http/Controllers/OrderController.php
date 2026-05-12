@@ -303,6 +303,7 @@ class OrderController extends Controller
 
     public function update(Request $request, Order $order)
     {
+       
         $validated = $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'customer_email' => 'nullable|email|max:255',
@@ -317,6 +318,7 @@ class OrderController extends Controller
             'order_date' => 'required|date',
             'parts_by' => 'nullable',
             'is_brake_fluid_order' => 'boolean',
+            'is_revised_invoice' => 'nullable',
             'state' => 'nullable',
             'lines' => 'required|array',
             'lines.*.product_id' => 'required|exists:products,id',
@@ -349,7 +351,7 @@ class OrderController extends Controller
             'parts_by' => $validated['parts_by'],
             'state' => $validated['state'],
             'is_brake_fluid_order' => $validated['is_brake_fluid_order'] ?? false,
-        ]);
+            'is_revised_invoice' => $request->boolean('is_revised_invoice'),        ]);
 
         /* ----------------------------
      | Recalculate totals

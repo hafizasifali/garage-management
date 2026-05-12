@@ -24,6 +24,10 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
         router.flushAll();
     };
 
+    const isCustomer = user.roles?.some(
+    (role) => role.name === 'Customer'
+);
+
     return (
         <>
             <DropdownMenuLabel className="p-0 font-normal">
@@ -32,20 +36,27 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
                 </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-                <DropdownMenuItem asChild>
-                    <Link
-                        className="block w-full"
-                        href={edit()}
-                        as="button"
-                        prefetch
-                        onClick={cleanup}
-                    >
-                        <Settings className="mr-2" />
-                        Settings
-                    </Link>
-                </DropdownMenuItem>
-            </DropdownMenuGroup>
+            {!isCustomer && (
+                <>
+                    <DropdownMenuGroup>
+                        <DropdownMenuItem asChild>
+                            <Link
+                                className="block w-full"
+                                href={edit()}
+                                as="button"
+                                prefetch
+                                onClick={cleanup}
+                                permission="profile edit"
+                            >
+                                <Settings className="mr-2" />
+                                Settings
+                            </Link>
+                        </DropdownMenuItem>
+                    </DropdownMenuGroup>
+
+                    <DropdownMenuSeparator />
+                </>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
                 <Link

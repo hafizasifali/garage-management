@@ -32,6 +32,7 @@ export default function OrderForm({
         employee_id: null,
         order_date: '',
         state: record?.state || 'pending',
+        is_revised_invoice: record?.is_revised_invoice || false,
         total_parts_cost: 0,
         total_labor_cost: 0,
         total_tax: 0,
@@ -180,6 +181,10 @@ export default function OrderForm({
         employees,
         customers_fields,
         parts_by,
+        invoice_statuses: [
+            { id: false, name: 'New' },
+            { id: true, name: 'Revised' },
+        ],
     };
 
     useEffect(() => {

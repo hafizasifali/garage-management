@@ -90,6 +90,7 @@ export default function Index() {
           ),
       },
 
+      { label: 'Customer ID', render: (row: Order) => row.customer_id },
       { label: 'Customer', render: (row: Order) => row.customer_name },
       { label: 'Vehicle', render: (row: Order) => row.vehicle_name },
       { label: 'License Plate', render: (row: Order) => row.vehicle_license_plate },

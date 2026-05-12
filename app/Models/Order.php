@@ -35,6 +35,7 @@ class Order extends Model
         'total_discount',
         'total_amount',
         'is_brake_fluid_order',
+        'is_revised_invoice',
     ];
 
     protected $casts = [
@@ -45,6 +46,7 @@ class Order extends Model
         'total_discount' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'is_brake_fluid_order' => 'boolean',
+        'is_revised_invoice' => 'boolean',
     ];
 
     public static function fields(): array
@@ -81,7 +83,9 @@ class Order extends Model
             'parts_by' => ['label' => 'Parts By', 'type' => 'many2one', 'relation' => 'parts_by', 'placeholder' => 'Select parts provider e.g. Customer'],
 //            'state' => ['label' => 'Order State', 'type' => 'many2one', 'relation' => 'states'],
             'note' => ['label' => 'Note', 'type' => 'char', 'placeholder' => 'Enter note e.g. Oil change required'],
+            'is_revised_invoice' => ['label' => 'Invoice Status', 'relation'=>'invoice_statuses' , 'type' => 'many2one'],
             'is_brake_fluid_order' => ['label' => 'Is Brake Fluid Order', 'type' => 'boolean'],
+            
         ];
     }
 

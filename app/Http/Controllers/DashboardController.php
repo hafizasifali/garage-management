@@ -11,7 +11,14 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        return redirect()->route('orders.index');
+        $user = auth()->user();
+        if($user->hasRole('Customer')) { 
+                return redirect()->route('reports.billingReport');
+            }
+    
+            return redirect()->route('orders.index');
+        
+
         $today = Carbon::today();
 
         // KPIs
