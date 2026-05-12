@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toBackendDate, toPickerDate } from '@/lib/date';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Many2OneField from './Many2OneField';
@@ -36,6 +37,7 @@ export default function FormRenderer({
               ? 'md:grid-cols-4'
               : 'md:grid-cols-2';
 
+    const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
 
     if (!fields || Object.keys(fields).length === 0) {
         return (
@@ -93,9 +95,13 @@ export default function FormRenderer({
                                     suggestions = autocompleteValue as string[];
                                 }
 
-                                const filtered = suggestions.filter(s =>
-                                    s.toLowerCase().includes((form.data[name] || '').toLowerCase())
-                                );
+                                const inputValue = form.data[name] || '';
+                                const showSuggestions = inputValue.length >= 3;
+                                const filtered = showSuggestions
+                                    ? suggestions.filter((s) =>
+                                          s.toLowerCase().includes(inputValue.toLowerCase()),
+                                      )
+                                    : [];
 
                                 const [openDropdown, setOpenDropdown] = useState<string | null>(null);
                                 const [focusedIndex, setFocusedIndex] = useState<number>(-1);
@@ -145,21 +151,30 @@ export default function FormRenderer({
                                             value={form.data[name] || ''}
                                             autoComplete="off"
                                             onChange={(e) => {
-                                                form.setData(name, e.target.value);
+                                                const value = e.target.value;
+                                                form.setData(name, value);
                                                 // When parent (non-dependent field) changes, clear dependent field
                                                 if (!dependsOn) {
                                                     // Find fields that depend on this one and clear them
                                                     // This is a simple approach - in production you'd track dependencies
                                                 }
-                                                setOpenDropdown(name);
+                                                if (value.length >= 3) {
+                                                    setOpenDropdown(name);
+                                                } else {
+                                                    setOpenDropdown(null);
+                                                }
                                                 setFocusedIndex(-1);
                                             }}
                                             onKeyDown={handleKeyDown}
-                                            onFocus={() => setOpenDropdown(name)}
+                                            onFocus={() => {
+                                                if (inputValue.length >= 3) {
+                                                    setOpenDropdown(name);
+                                                }
+                                            }}
                                             onBlur={() => setTimeout(() => setOpenDropdown(null), 150)}
                                             className={cn(error && 'border-destructive')}
                                         />
-                                        {openDropdown === name && filtered.length > 0 && (
+                                        {openDropdown === name && showSuggestions && filtered.length > 0 && (
                                             <ul className="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border bg-white text-sm shadow-md">
                                                 {filtered.map((s, index) => (
                                                     <li
@@ -242,19 +257,40 @@ export default function FormRenderer({
                             )}
 
                             {field.type === 'password' && (
-                                <Input
-                                    disabled={disabled}
-                                    type={`password`}
-                                    placeholder={field.placeholder || ''}
-                                    maxLength={field.length}
-                                    value={form.data[name] || ''}
-                                    onChange={(e) =>
-                                        form.setData(name, e.target.value)
-                                    }
-                                    className={cn(
-                                        error && 'border-destructive',
-                                    )}
-                                />
+                                <div className="relative w-full">
+                                    <Input
+                                        disabled={Boolean(disabled)}
+                                        type={showPasswords[name] ? 'text' : 'password'}
+                                        placeholder={field.placeholder || ''}
+                                        maxLength={field.length}
+                                        value={form.data[name] || ''}
+                                        onChange={(e) =>
+                                            form.setData(name, e.target.value)
+                                        }
+                                        className={cn(
+                                            error && 'border-destructive',
+                                            'pr-10',
+                                        )}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setShowPasswords((prev) => ({
+                                                ...prev,
+                                                [name]: !prev[name],
+                                            }))
+                                        }
+                                        disabled={Boolean(disabled)}
+                                        className="absolute inset-y-0 right-0 mr-2 flex items-center justify-center text-muted-foreground hover:text-foreground"
+                                        aria-label={showPasswords[name] ? 'Hide password' : 'Show password'}
+                                    >
+                                        {showPasswords[name] ? (
+                                            <EyeOff className="h-5 w-5" />
+                                        ) : (
+                                            <Eye className="h-5 w-5" />
+                                        )}
+                                    </button>
+                                </div>
                             )}
 
                             {field.type === 'text' && (
@@ -312,7 +348,7 @@ export default function FormRenderer({
                             {(field.type === 'many2one' ||
                                 field.type === 'many2many') && (
                                 <Many2OneField
-                                    disabled={disabled}
+                                    disabled={Boolean(disabled)}
                                     label={field.label}
                                     value={String(form.data[name])}
                                     options={options[field.relation] || []}

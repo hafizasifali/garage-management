@@ -68,7 +68,10 @@ export default function FilterInput({
         {/* Caret INSIDE input */}
         <button
           type="button"
-          onClick={onToggleDropdown}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleDropdown();
+          }}
           className="absolute right-0 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
         >
           <ChevronDown

@@ -152,6 +152,12 @@ class OrderController extends Controller
             'customers_fields' => Customer::fields(),
             'vehicles_fields' => Vehicle::fields(),
             'customer_prices' => $customerPrices, // new
+            'vehicle_license_plates' => Order::whereNotNull('vehicle_license_plate')
+                ->where('vehicle_license_plate', '!=', '')
+                ->distinct()
+                ->pluck('vehicle_license_plate')
+                ->sort()
+                ->values(),
             'record' => null,
             'vehicle_makes'  => $vehicleMakes,
             'vehicle_models' => $vehicleModels,
@@ -171,8 +177,6 @@ class OrderController extends Controller
             ];
         });
 
-        
-
         return Inertia::render('orders/edit', [
             'customers' => Customer::select('id','name', 'email', 'phone', 'address')->get(),
             'vehicles' => Vehicle::all()->map(function($vehicle) {
@@ -188,6 +192,12 @@ class OrderController extends Controller
             'parts_by' => Order::partsBy(),
             'fields' => Order::editFields(),
             'customer_prices' => $customerPrices,
+            'vehicle_license_plates' => Order::whereNotNull('vehicle_license_plate')
+                ->where('vehicle_license_plate', '!=', '')
+                ->distinct()
+                ->pluck('vehicle_license_plate')
+                ->sort()
+                ->values(),
             'record' => $order,
         ]);
     }

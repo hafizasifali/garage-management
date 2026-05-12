@@ -26,6 +26,7 @@ export default function OrderForm({
     customers_fields,
     vehicles_fields,
     customer_prices, // customer-specific prices passed from controller
+    vehicle_license_plates,
     vehicle_makes,
     vehicle_models,
     current_date,
@@ -74,6 +75,14 @@ export default function OrderForm({
     });
 
     const filteredVehicles = vehicles;
+    const availableProducts = useMemo(
+        () =>
+            form.data.is_brake_fluid_order
+                ? (products || []).filter((p: any) => p.is_brake_fluid)
+                : products || [],
+        [products, form.data.is_brake_fluid_order],
+    );
+
     /* ---------------- Vehicle Filtering ---------------- */
     // const filteredVehicles = useMemo(() => {
     //     if (!form.data.customer_id) return [];
@@ -244,6 +253,7 @@ export default function OrderForm({
     const autocompleteData = {
         vehicle_makes,
         vehicle_models,
+        vehicle_license_plates,
     };
 
     useEffect(() => {
@@ -375,7 +385,7 @@ export default function OrderForm({
                                     >
                                         <td className="p-1">
                                             <Select
-                                                options={products.map(
+                                                options={availableProducts.map(
                                                     (p: any) => ({
                                                         value: p.id,
                                                         label: p.name,
@@ -527,7 +537,7 @@ export default function OrderForm({
                                         </label>
                                         <Select
                                             className="text-sm"
-                                            options={products.map((p: any) => ({
+                                            options={availableProducts.map((p: any) => ({
                                                 value: p.id,
                                                 label: p.name,
                                             }))}

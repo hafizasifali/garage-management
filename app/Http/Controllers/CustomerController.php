@@ -114,6 +114,11 @@ class CustomerController extends Controller
 
     public function destroy(Customer $customer)
     {
+        if ($customer->garageJobs()->exists()) {
+            return redirect()->back()
+                ->with('error', 'Customer cannot be deleted because there are existing orders for this customer.');
+        }
+
         $customer->delete();
 
         return redirect()->route('customers.index')->with('success', 'Customer deleted successfully.');

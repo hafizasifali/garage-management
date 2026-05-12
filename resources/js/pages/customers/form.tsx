@@ -1,4 +1,5 @@
-import { Head, router, useForm } from '@inertiajs/react';
+import React, { useEffect, useRef } from 'react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
 import FormRenderer from '@/components/form/FormRenderer';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
@@ -19,6 +20,9 @@ export default function CustomerForm({ fields, record, customer_groups, customer
         ...(record || {}),
     });
 
+    const { flash } = usePage().props as any;
+    const flashShownRef = useRef({ success: false, error: false });
+
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Customers', href: route('customers.index') },
     ];
@@ -28,17 +32,23 @@ export default function CustomerForm({ fields, record, customer_groups, customer
     ]
     const options = { types, customer_groups, customer_groups_fields };
 
+    useEffect(() => {
+        if (flash.success && !flashShownRef.current.success) {
+            flashShownRef.current.success = true;
+            toast.success(flash.success);
+        }
+        if (flash.error && !flashShownRef.current.error) {
+            flashShownRef.current.error = true;
+            toast.error(flash.error);
+        }
+    }, [flash]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
         record
-            ? form.put(route('customers.update', record.id), {
-                  onSuccess: () => toast.success('Customer updated'),
-              })
-            : form.post(route('customers.store'), {
-                  onSuccess: () => toast.success('Customer created'),
-              });
+            ? form.put(route('customers.update', record.id))
+            : form.post(route('customers.store'));
     };
 
     const handleDelete = async (id: number, name: string) => {
@@ -57,7 +67,13 @@ export default function CustomerForm({ fields, record, customer_groups, customer
 
         form.delete(route('customers.destroy', id), {
             preserveScroll: true,
-            onSuccess: () => toast.success('Customer deleted successfully'),
+            onError: (errors: any) => {
+                if (errors?.message) {
+                    toast.error(errors.message);
+                } else {
+                    toast.error('Failed to delete customer');
+                }
+            },
         });
     };
 

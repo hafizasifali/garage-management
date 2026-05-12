@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import toast from 'react-hot-toast';
@@ -25,13 +25,14 @@ export default function OrderForm({
     fields,
     customers_fields,
     customer_prices, // customer-specific prices passed from controller
+    vehicle_license_plates,
 }: any) {
     const form = useForm({
         customer_id: null,
         vehicle_id: null,
         employee_id: null,
         order_date: '',
-        state: record?.state || 'pending',
+        state: record?.state || 'in_progress',
         is_revised_invoice: record?.is_revised_invoice || false,
         total_parts_cost: 0,
         total_labor_cost: 0,
@@ -47,7 +48,7 @@ export default function OrderForm({
     });
 
     const [currentState, setCurrentState] = useState(
-        form.data.state || 'pending',
+        form.data.state || 'in_progress',
     );
     const isPaid = currentState === 'paid';
     /* ---------------- Workflow Actions ---------------- */
@@ -69,22 +70,21 @@ export default function OrderForm({
         },
     ];
     const handleStateChange = (newState: string) => {
-        // Optimistically update the UI
+        // Optimistically update the UI and local form state
         setCurrentState(newState);
+        form.setData('state', newState);
 
         router.put(
             route('orders.update.state', record.id), // URL
             { state: newState }, // Payload
             {
                 preserveScroll: true,
-                preserveState: true,
                 onSuccess: () => {
-                    // Show success message
                     toast.success('Order state updated successfully!');
                 },
                 onError: (errors) => {
-                    // Optionally revert UI change if error
                     setCurrentState(record.state);
+                    form.setData('state', record.state || 'in_progress');
                     toast.error('Failed to update state.');
                 },
             },
@@ -98,6 +98,14 @@ export default function OrderForm({
             (v: any) => v.customer_id == form.data.customer_id,
         );
     }, [vehicles, form.data.customer_id]);
+
+    const availableProducts = useMemo(
+        () =>
+            form.data.is_brake_fluid_order
+                ? (products || []).filter((p: any) => p.is_brake_fluid)
+                : products || [],
+        [products, form.data.is_brake_fluid_order],
+    );
 
     useEffect(() => {
         if (!form.data.customer_id) {
@@ -187,8 +195,28 @@ export default function OrderForm({
         ],
     };
 
+    const isInvoiceAlreadySent = currentState === 'invoiced';
+    const sendInvoiceConfirmation = {
+        title: isInvoiceAlreadySent
+            ? 'Invoice already sent'
+            : 'Send invoice to customer?',
+        text: isInvoiceAlreadySent
+            ? 'Invoice for this order was already sent. Do you want to resend it?'
+            : 'The invoice PDF will be emailed.',
+        confirmButtonText: isInvoiceAlreadySent ? 'Resend' : 'Send',
+    };
+
+    const previousCustomerIdRef = useRef(form.data.customer_id);
+
     useEffect(() => {
-        if (!form.data.customer_id) {
+        const currentCustomerId = form.data.customer_id;
+        if (previousCustomerIdRef.current === currentCustomerId) {
+            return;
+        }
+
+        previousCustomerIdRef.current = currentCustomerId;
+
+        if (!currentCustomerId) {
             form.setData('customer_email', '');
             form.setData('customer_phone', '');
             form.setData('customer_address', '');
@@ -196,14 +224,19 @@ export default function OrderForm({
         }
 
         const customer = customers.find(
-            (c: any) => c.id == form.data.customer_id,
+            (c: any) => c.id == currentCustomerId,
         );
         if (customer) {
             form.setData('customer_email', customer.email || '');
             form.setData('customer_phone', customer.phone || '');
             form.setData('customer_address', customer.address || '');
         }
-    }, [form.data.customer_id]);
+    }, [form.data.customer_id, customers]);
+
+    const autocompleteData = {
+        vehicle_license_plates,
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={record ? `Edit Order #${record.id}` : 'New Order'} />
@@ -226,11 +259,12 @@ export default function OrderForm({
                                         variant="destructive" // red for important action
                                         onClick={() => {
                                             Swal.fire({
-                                                title: 'Send invoice to customer?',
-                                                text: 'The invoice PDF will be emailed.',
+                                                title: sendInvoiceConfirmation.title,
+                                                text: sendInvoiceConfirmation.text,
                                                 icon: 'question',
                                                 showCancelButton: true,
-                                                confirmButtonText: 'Send',
+                                                confirmButtonText:
+                                                    sendInvoiceConfirmation.confirmButtonText,
                                                 cancelButtonText: 'Cancel',
                                             }).then((result) => {
                                                 if (result.isConfirmed) {
@@ -242,10 +276,13 @@ export default function OrderForm({
                                                         {},
                                                         {
                                                             preserveScroll: true,
-                                                            onSuccess: () =>
+                                                            onSuccess: () => {
+                                                                setCurrentState('invoiced');
+                                                                form.setData('state', 'invoiced');
                                                                 toast.success(
                                                                     'Invoice sent successfully!',
-                                                                ),
+                                                                );
+                                                            },
                                                             onError: () =>
                                                                 toast.error(
                                                                     'Failed to send invoice.',
@@ -258,7 +295,7 @@ export default function OrderForm({
                                         className="flex items-center gap-1 border-none bg-red-600 text-white hover:bg-red-700"
                                     >
                                         <Send className="h-4 w-4" />
-                                        Send Invoice
+                                        {isInvoiceAlreadySent ? 'Resend Invoice' : 'Send Invoice'}
                                     </Button>
 
                                     <Button
@@ -314,6 +351,7 @@ export default function OrderForm({
                         options={options}
                         columns={2}
                         disabled={isPaid}
+                        autocompleteData={autocompleteData}
                     />
 
                     {/* Lines Table */}
@@ -351,7 +389,7 @@ export default function OrderForm({
                                             <td className="p-1">
                                                 <Select
                                                     isDisabled={isPaid}
-                                                    options={products.map(
+                                                    options={availableProducts.map(
                                                         (p: any) => ({
                                                             value: p.id,
                                                             label: p.name,
@@ -511,7 +549,7 @@ export default function OrderForm({
                                             <Select
                                                 isDisabled={isPaid}
                                                 className="text-sm"
-                                                options={products.map(
+                                                options={availableProducts.map(
                                                     (p: any) => ({
                                                         value: p.id,
                                                         label: p.name,

@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { route } from 'ziggy-js';
+import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';
-import { useConfirm } from '@/hooks/useConfirm';
 
 type Props = {
     fields: any;
@@ -24,10 +24,9 @@ export default function ProductForm({ fields, record, categories, uoms,product_t
         cost_price: '',
         sale_price: '',
         active: true,
+        is_brake_fluid: false,
         ...(record || {}),
     });
-
-    const { confirm } = useConfirm();
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Products', href: route('products.index') },
@@ -47,15 +46,22 @@ export default function ProductForm({ fields, record, categories, uoms,product_t
               });
     };
 
-    const handleDelete = async () => {
-        const ok = await confirm({
+    const handleDelete = async (id: number, name: string) => {
+        const result = await Swal.fire({
             title: 'Delete Product?',
-            text: `Product "${record.name}" will be deleted.`,
-            confirmText: 'Delete',
+            text: `Product "${name}" will be permanently deleted.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, Delete',
+            cancelButtonText: 'Cancel',
         });
-        if (!ok) return;
 
-        form.delete(route('products.destroy', record.id), {
+        if (!result.isConfirmed) return;
+
+        form.delete(route('products.destroy', id), {
+            preserveScroll: true,
             onSuccess: () => toast.success('Product deleted successfully'),
         });
     };
@@ -85,7 +91,7 @@ export default function ProductForm({ fields, record, categories, uoms,product_t
                                 <Button
                                     type="button"
                                     variant="destructive"
-                                    onClick={handleDelete}
+                                    onClick={() => handleDelete(record.id, record.name)}
                                 >
                                     Delete
                                 </Button>

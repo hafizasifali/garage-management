@@ -20,12 +20,14 @@ class Product extends Model
         'type',
         'qty_on_hand',
         'active',
+        'is_brake_fluid',
     ];
 
     protected $casts = [
         'cost_price' => 'decimal:2',
         'sale_price' => 'decimal:2',
         'active'     => 'boolean',
+        'is_brake_fluid' => 'boolean',
     ];
 
     /* ==========================
@@ -92,6 +94,10 @@ class Product extends Model
                 'type' => 'char',
                 'label' => 'Sale Price',
                 'required' => true,
+            ],
+            'is_brake_fluid' => [
+                'type' => 'boolean',
+                'label' => 'Brake Fluid',
             ],
 //            'qty_on_hand' => [
 //                'type' => 'char',

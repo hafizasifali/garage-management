@@ -1,5 +1,5 @@
 import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { route } from 'ziggy-js';
 import { Edit, Trash2 } from 'lucide-react';
@@ -22,9 +22,21 @@ type Customer = {
 };
 
 export default function CustomersIndex() {
-    const { customers, filters } = usePage().props as any;
+    const { customers, filters, flash } = usePage().props as any;
     const form = useForm();
     const [selected, setSelected] = useState<number[]>([]);
+    const flashShownRef = useRef({ success: false, error: false });
+
+    useEffect(() => {
+        if (flash?.success && !flashShownRef.current.success) {
+            flashShownRef.current.success = true;
+            toast.success(flash.success);
+        }
+        if (flash?.error && !flashShownRef.current.error) {
+            flashShownRef.current.error = true;
+            toast.error(flash.error);
+        }
+    }, [flash]);
 
     const columns = [
         { label: 'ID', render: (row: Customer) => row.id },

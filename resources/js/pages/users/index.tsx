@@ -101,6 +101,7 @@ export default function Index() {
                     ? row.roles.map((r) => r.name).join(', ')
                     : '-',
         },
+        {label: 'Groups', render: (row: User) => row.groups?.map((g: any) => g.name).join(', ') || '-'},
         { label: 'Active', render: (row: User) => (row.active ? 'Yes' : 'No') },
         {
             label: 'Actions',

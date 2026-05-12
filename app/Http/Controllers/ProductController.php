@@ -61,13 +61,14 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name'        => 'required|string|max:255',
-            'category_id' => 'required|exists:product_categories,id',
-//            'uom_id'      => 'required|exists:uoms,id',
-            'type'        => 'required|in:product,service',
-            'cost_price'  => 'nullable|numeric',
-            'sale_price'  => 'required|numeric',
-            'qty_on_hand'=> 'nullable|numeric',
+            'name'           => 'required|string|max:255',
+            'category_id'    => 'required|exists:product_categories,id',
+//            'uom_id'         => 'required|exists:uoms,id',
+            'type'           => 'required|in:product,service',
+            'cost_price'     => 'nullable|numeric',
+            'sale_price'     => 'required|numeric',
+            'qty_on_hand'    => 'nullable|numeric',
+            'is_brake_fluid' => 'boolean',
         ]);
 
         $product = Product::create($data);
@@ -80,12 +81,13 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $data = $request->validate([
-            'name'        => 'required|string|max:255',
-            'category_id' => 'required|exists:product_categories,id',
-//            'uom_id'      => 'required|exists:uoms,id',
-            'type'        => 'required|in:product,service',
-            'cost_price'  => 'nullable|numeric',
-            'sale_price'  => 'required|numeric',
+            'name'           => 'required|string|max:255',
+            'category_id'    => 'required|exists:product_categories,id',
+//            'uom_id'         => 'required|exists:uoms,id',
+            'type'           => 'required|in:product,service',
+            'cost_price'     => 'nullable|numeric',
+            'sale_price'     => 'required|numeric',
+            'is_brake_fluid' => 'boolean',
         ]);
 
         $product->update($data);
