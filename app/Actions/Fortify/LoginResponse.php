@@ -26,9 +26,13 @@ class LoginResponse implements LoginResponseContract
     {
         $user = $request->user();
 
-        if (! $user) {
+
+        if (!$user) {
             return config('fortify.home');
         }
+
+        // Refresh roles to ensure they're loaded from database
+        $user->load('roles');
 
         if ($user->hasRole('Admin')) {
             return route('orders.index');
@@ -43,9 +47,6 @@ class LoginResponse implements LoginResponseContract
         }
 
         if ($user->hasRole('Customer')) {
-            return route('reports.billingReport');
-        }
-        if ($user->hasRole('Mr. Lube')) {
             return route('reports.billingReport');
         }
 
