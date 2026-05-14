@@ -38,6 +38,14 @@ export default function FormRenderer({
               : 'md:grid-cols-2';
 
     const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
+    const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
+    const [focusedIndexes, setFocusedIndexes] = useState<Record<string, number>>({});
+
+    const setDropdownOpen = (fieldName: string, isOpen: boolean) =>
+        setOpenDropdowns((prev) => ({ ...prev, [fieldName]: isOpen }));
+
+    const setFieldFocusedIndex = (fieldName: string, index: number) =>
+        setFocusedIndexes((prev) => ({ ...prev, [fieldName]: index }));
 
     if (!fields || Object.keys(fields).length === 0) {
         return (
@@ -95,37 +103,42 @@ export default function FormRenderer({
                                     suggestions = autocompleteValue as string[];
                                 }
 
+                                const isOpen = openDropdowns[name] ?? false;
+                                const focusedIndex = focusedIndexes[name] ?? -1;
                                 const inputValue = form.data[name] || '';
-                                const showSuggestions = inputValue.length >= 3;
+                                const minCharsForSuggestions = field.suggestions_min_length ?? 3;
+                                const showOnFocus = field.show_suggestions_on_focus ?? false;
+                                const showSuggestions =
+                                    inputValue.length >= minCharsForSuggestions ||
+                                    (showOnFocus && inputValue.length === 0);
                                 const filtered = showSuggestions
-                                    ? suggestions.filter((s) =>
-                                          s.toLowerCase().includes(inputValue.toLowerCase()),
-                                      )
+                                    ? inputValue.trim().length > 0
+                                        ? suggestions.filter((s) =>
+                                              s.toLowerCase().includes(inputValue.toLowerCase()),
+                                          )
+                                        : suggestions
                                     : [];
-
-                                const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-                                const [focusedIndex, setFocusedIndex] = useState<number>(-1);
 
                                 const handleSelectSuggestion = (suggestion: string) => {
                                     form.setData(name, suggestion);
-                                    setOpenDropdown(null);
-                                    setFocusedIndex(-1);
+                                    setDropdownOpen(name, false);
+                                    setFieldFocusedIndex(name, -1);
                                 };
 
                                 const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-                                    if (!openDropdown || filtered.length === 0) return;
+                                    if (!isOpen || filtered.length === 0) return;
 
                                     switch (e.key) {
                                         case 'ArrowDown':
                                             e.preventDefault();
-                                            setFocusedIndex(prev => 
-                                                prev < filtered.length - 1 ? prev + 1 : 0
+                                            setFieldFocusedIndex(name, 
+                                                focusedIndex < filtered.length - 1 ? focusedIndex + 1 : 0
                                             );
                                             break;
                                         case 'ArrowUp':
                                             e.preventDefault();
-                                            setFocusedIndex(prev =>
-                                                prev > 0 ? prev - 1 : filtered.length - 1
+                                            setFieldFocusedIndex(name,
+                                                focusedIndex > 0 ? focusedIndex - 1 : filtered.length - 1
                                             );
                                             break;
                                         case 'Tab':
@@ -137,8 +150,8 @@ export default function FormRenderer({
                                             break;
                                         case 'Escape':
                                             e.preventDefault();
-                                            setOpenDropdown(null);
-                                            setFocusedIndex(-1);
+                                            setDropdownOpen(name, false);
+                                            setFieldFocusedIndex(name, -1);
                                             break;
                                     }
                                 };
@@ -158,23 +171,30 @@ export default function FormRenderer({
                                                     // Find fields that depend on this one and clear them
                                                     // This is a simple approach - in production you'd track dependencies
                                                 }
-                                                if (value.length >= 3) {
-                                                    setOpenDropdown(name);
+                                                if (
+                                                    value.length >= minCharsForSuggestions ||
+                                                    (showOnFocus && value.length === 0)
+                                                ) {
+                                                    setDropdownOpen(name, true);
                                                 } else {
-                                                    setOpenDropdown(null);
+                                                    setDropdownOpen(name, false);
                                                 }
-                                                setFocusedIndex(-1);
+                                                setFieldFocusedIndex(name, -1);
                                             }}
                                             onKeyDown={handleKeyDown}
                                             onFocus={() => {
-                                                if (inputValue.length >= 3) {
-                                                    setOpenDropdown(name);
+                                                if (
+                                                    (inputValue.length >= minCharsForSuggestions ||
+                                                        showOnFocus) &&
+                                                    filtered.length > 0
+                                                ) {
+                                                    setDropdownOpen(name, true);
                                                 }
                                             }}
-                                            onBlur={() => setTimeout(() => setOpenDropdown(null), 150)}
+                                            onBlur={() => setTimeout(() => setDropdownOpen(name, false), 150)}
                                             className={cn(error && 'border-destructive')}
                                         />
-                                        {openDropdown === name && showSuggestions && filtered.length > 0 && (
+                                        {isOpen && showSuggestions && filtered.length > 0 && (
                                             <ul className="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border bg-white text-sm shadow-md">
                                                 {filtered.map((s, index) => (
                                                     <li
