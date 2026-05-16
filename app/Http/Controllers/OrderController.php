@@ -86,16 +86,19 @@ class OrderController extends Controller
 
         // Cascading vehicle filter
         $customerId = collect($filters)->firstWhere('field', 'customer_id')['value'] ?? null;
-        $vehicles = Vehicle::when($customerId, fn($q) => $q->where('customer_id', $customerId))
-            ->select('id', 'license_plate', 'name')
-            ->orderBy('license_plate')
-            ->get();
+        $vehicle_license_plates = Order::whereNotNull('vehicle_license_plate')
+                ->where('vehicle_license_plate', '!=', '')
+                ->distinct()
+                ->pluck('vehicle_license_plate')
+                ->sort()
+                ->values();
 
         return inertia('orders/index', [
             'orders' => $query->paginate(80),
             'activeFilters' => $filters,
             'search' => $search,
             'sort' => $sort,
+            'vehicle_license_plates'=> $vehicle_license_plates,
             'customers' => Customer::select('id', 'name')->orderBy('name')->get(),
             'states' => Order::states(),
             'partsBy' => Order::partsBy(),

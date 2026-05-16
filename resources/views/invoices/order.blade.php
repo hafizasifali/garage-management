@@ -30,6 +30,7 @@
 @endif
 <h1 style="text-align: center;">{{strtoupper($company->name)}}</h1>
 <h3 style="text-align: center">{{$company->address}}, Ph {{$company->phone}}</h3>
+<h3 style="text-align: center">HST #: {{$company->vat}}</h3>
 <div class="header">
     <table class="header-table">
         <tr>

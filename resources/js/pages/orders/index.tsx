@@ -52,7 +52,7 @@ export default function Index() {
     search,
     sort,
     customers,
-    vehicles,
+    vehicle_license_plates,
     states,
     partsBy,
   } = usePage().props as any;
@@ -271,6 +271,16 @@ export default function Index() {
                                   operator: '=',
                                   type: 'number',
                               },
+                                 {
+                                    label: 'License Plate',
+                                    field: 'vehicle_license_plate',
+                                    operator: '=',
+                                    type: 'select',
+                                    options: vehicle_license_plates.map((v: any) => ({
+                                        label: v,
+                                        value: v,
+                                    })),
+                                },
                               {
                                   label: 'Customer',
                                   field: 'customer_id',

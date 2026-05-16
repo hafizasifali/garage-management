@@ -53,7 +53,7 @@ class Company extends Model
             ],
             'vat' => [
                 'type' => 'char',
-                'label' => 'VAT Number',
+                'label' => 'HST #',
             ],
             'website' => [
                 'type' => 'char',
