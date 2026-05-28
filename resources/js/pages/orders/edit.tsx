@@ -132,6 +132,8 @@ export default function OrderForm({
         if (record) {
             form.put(route('orders.update', record.id), {
                 onSuccess: () => toast.success('Order updated successfully!'),
+                onError: (errors) =>
+                Object.values(errors).forEach((err: any) => toast.error(err)),
             });
         } else {
             form.post(route('orders.store'), {

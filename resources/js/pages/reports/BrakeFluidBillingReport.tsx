@@ -110,6 +110,14 @@ export default function Index() {
         { label: 'Date', render: (row: BrakeFluidReportRow) => row.date },
         {label: 'Customer', render: (row: BrakeFluidReportRow) => row.customer_name || '-'},
         {
+            label: 'Make',
+            render: (row: BrakeFluidReportRow) => row.vehicle_make,
+        },
+        {
+            label: 'Model',
+            render: (row: BrakeFluidReportRow) => row.vehicle_model,
+        },
+        {
             label: 'Invoice Number',
             render: (row: BrakeFluidReportRow) => row.invoice_number,
         },
@@ -216,7 +224,8 @@ export default function Index() {
                     setView={setView}
                 />
 
-                <Pagination links={reports.links} />
+                {/* Pagination */}
+                                <Pagination meta={reports} />
             </div>
         </AppLayout>
     );
