@@ -23,6 +23,7 @@ import Pagination from '@/components/index/Pagination';
 import { route } from 'ziggy-js';
 import { toDisplayDate } from '@/lib/date';
 import FilterBar from '@/components/filters/FilterBar';
+import Tiles from '@/components/tiles/Tiles';
 import { FilterRule } from '@/types/filter';
 import StatusBadge from '@/components/ui/status-badge';
 import {
@@ -53,8 +54,9 @@ export default function Index() {
     sort,
     customers,
     vehicle_license_plates,
-    states,
-    partsBy,
+        states,
+        partsBy,
+        stateCounts,
   } = usePage().props as any;
 
   const [selected, setSelected] = useState<number[]>([]);
@@ -254,11 +256,13 @@ export default function Index() {
 
           <div className="space-y-4 p-4">
               {/* Header */}
+                        
               <div className="flex items-center justify-between gap-4">
                   {/* Left spacer */}
                   <div className="flex-1" />
                   {/* Centered Filter/Search */}
                   <div className="w-full max-w-xl">
+                          
                       <FilterBar
                           routeName="orders.filter"
                           placeholder="Search Orders By Customer, Vehicle, State..."
@@ -360,7 +364,17 @@ export default function Index() {
                       </Button>
                   </div>
               </div>
-
+{/* Tiles showing counts by state */}
+                          <Tiles
+                              items={states.map((s: any) => ({
+                                  id: s.id,
+                                  name: s.name,
+                                  count: stateCounts?.[s.id] ?? 0,
+                              }))}
+                              routeName="orders.filter"
+                              activeFilters={activeFilters}
+                              search={search}
+                          />
               {/* Table */}
               <div className="hidden overflow-x-auto md:block">
                   <DataTable

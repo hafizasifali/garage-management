@@ -93,6 +93,32 @@ class OrderController extends Controller
                 ->sort()
                 ->values();
 
+        // Calculate counts per state for tiles
+        // Build counts using the same mapped filters/search but without any state filter
+        $stateList = Order::states();
+
+        $countFilters = collect($mappedFilters)
+            ->filter(function ($rule) {
+                return ($rule['field'] ?? '') !== 'state';
+            })
+            ->values()
+            ->toArray();
+
+        $countsQuery = Order::query();
+        $countsQuery = QueryFilter::apply($countsQuery, $countFilters);
+
+        // Apply same global search to counts (so counts respect the search box)
+        if ($search) {
+            $countsQuery->where(function ($q) use ($search) {
+                $q->where('customer_name', 'like', "%$search%")
+                    ->orWhere('vehicle_name', 'like', "%$search%")
+                    ->orWhere('vehicle_license_plate', 'like', "%$search%");
+            });
+        }
+
+        // Group and pluck counts by state in one query
+        $stateCounts = $countsQuery->selectRaw('state, count(*) as cnt')->groupBy('state')->pluck('cnt', 'state')->toArray();
+
         return inertia('orders/index', [
             'orders' => $query->paginate(80),
             'activeFilters' => $filters,
@@ -102,6 +128,7 @@ class OrderController extends Controller
             'customers' => Customer::select('id', 'name')->orderBy('name')->get(),
             'states' => Order::states(),
             'partsBy' => Order::partsBy(),
+            'stateCounts' => $stateCounts,
         ]);
     }
 
