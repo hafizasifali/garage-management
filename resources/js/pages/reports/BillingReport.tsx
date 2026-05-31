@@ -11,6 +11,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import {
+    TableFooter,
+    TableRow,
+    TableCell,
+} from '@/components/ui/table';
 import { LucideDownloadCloud } from 'lucide-react';
 
 /* Reusable index components */
@@ -59,6 +64,30 @@ export default function Index() {
     } = usePage().props as any;
 
     const [view, setView] = useState<'list' | 'kanban'>('list');
+
+    const totals = reports.data.reduce(
+        (acc: any, row: SaleReportRow) => ({
+            parts_cost: acc.parts_cost + Number(row.parts_cost || 0),
+            brake_fluid_cost:
+                acc.brake_fluid_cost + Number(row.brake_fluid_cost || 0),
+            other_cost: acc.other_cost + Number(row.other_cost || 0),
+            hours: acc.hours + Number(row.hours || 0),
+            total_labour: acc.total_labour + Number(row.total_labour || 0),
+            subtotal: acc.subtotal + Number(row.subtotal || 0),
+            hst: acc.hst + Number(row.hst || 0),
+            invoice_total: acc.invoice_total + Number(row.invoice_total || 0),
+        }),
+        {
+            parts_cost: 0,
+            brake_fluid_cost: 0,
+            other_cost: 0,
+            hours: 0,
+            total_labour: 0,
+            subtotal: 0,
+            hst: 0,
+            invoice_total: 0,
+        },
+    );
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Reports', href: route('reports.billingReport') },
@@ -315,6 +344,40 @@ export default function Index() {
                         data={reports.data}
                         columns={columns}
                         selectable={false}
+                        footer={
+                            <TableRow>
+                                <TableCell colSpan={4} className="text-center font-bold">
+                                </TableCell>
+                                <TableCell className="font-bold">
+                                    ${totals.parts_cost.toFixed(2)}
+                                </TableCell>
+                                <TableCell className="font-bold">
+                                    ${totals.brake_fluid_cost.toFixed(2)}
+                                </TableCell>
+                                <TableCell className="font-bold">
+                                    ${totals.other_cost.toFixed(2)}
+                                </TableCell>
+                                <TableCell />
+                                <TableCell className="font-bold">
+                                    {totals.hours}
+                                </TableCell>
+                                <TableCell />
+                                <TableCell className="font-bold">
+                                    ${totals.total_labour.toFixed(2)}
+                                </TableCell>
+                                <TableCell className="font-bold">
+                                    ${totals.subtotal.toFixed(2)}
+                                </TableCell>
+                                <TableCell className="font-bold">
+                                    ${totals.hst.toFixed(2)}
+                                </TableCell>
+                                <TableCell className="font-bold">
+                                    ${totals.invoice_total.toFixed(2)}
+                                </TableCell>
+                                <TableCell />
+                                <TableCell />
+                            </TableRow>
+                        }
                     />
                 )}
 

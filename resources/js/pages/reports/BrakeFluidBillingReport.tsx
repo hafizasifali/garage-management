@@ -12,6 +12,11 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { LucideDownloadCloud } from 'lucide-react';
+import {
+    TableFooter,
+    TableRow,
+    TableCell,
+} from '@/components/ui/table';
 
 /* Reusable index components */
 import DataTable from '@/components/index/DataTable';
@@ -25,9 +30,13 @@ import { FilterRule } from '@/types/filter';
 
 /* ---------------- Types ---------------- */
 type BrakeFluidReportRow = {
+    id: number;
     date: string;
     invoice_number: string;
     license_plate: string;
+    customer_name?: string;
+    vehicle_make?: string;
+    vehicle_model?: string;
     brake_fluid_cost: number;
     hst: number;
     grand_total: number;
@@ -43,12 +52,25 @@ export default function Index() {
         vehicles,
     } = usePage().props as any;
 
-    const [view, setView] = useState<'list' | 'kanban'>('list');
-
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Reports', href: route('reports.brakeFluidBillingReport') },
         { title: 'Brake Fluid Billing Report', href: route('reports.brakeFluidBillingReport') },
     ];
+
+    const totals = reports.data.reduce(
+        (acc: any, row: BrakeFluidReportRow) => ({
+            brake_fluid_cost:
+                acc.brake_fluid_cost + Number(row.brake_fluid_cost || 0),
+            hst: acc.hst + Number(row.hst || 0),
+            grand_total:
+                acc.grand_total + Number(row.grand_total || 0),
+        }),
+        {
+            brake_fluid_cost: 0,
+            hst: 0,
+            grand_total: 0,
+        },
+    );
 
     /* ---------------- Export to Excel ---------------- */
     const handleExport = () => {
@@ -56,7 +78,7 @@ export default function Index() {
         let filename = 'Brake_Fluid_Billing_Report';
         
         if (activeFilters && activeFilters.length > 0) {
-            const filterParts = [];
+            const filterParts: string[] = [];
             
             activeFilters.forEach((filter: any) => {
                 if (filter.field === 'customer_id' && filter.display) {
@@ -220,8 +242,21 @@ export default function Index() {
                 <DataTable
                     columns={columns}
                     data={reports.data}
-                    view={view}
-                    setView={setView}
+                    footer={
+                        <TableRow>
+                            <TableCell colSpan={7} className="text-center font-bold">
+                            </TableCell>
+                            <TableCell className="font-bold">
+                                ${totals.brake_fluid_cost.toFixed(2)}
+                            </TableCell>
+                            <TableCell className="font-bold">
+                                ${totals.hst.toFixed(2)}
+                            </TableCell>
+                            <TableCell className="font-bold">
+                                ${totals.grand_total.toFixed(2)}
+                            </TableCell>
+                        </TableRow>
+                    }
                 />
 
                 {/* Pagination */}

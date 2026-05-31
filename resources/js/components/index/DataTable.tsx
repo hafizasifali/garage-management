@@ -2,6 +2,7 @@ import {
     Table,
     TableBody,
     TableCell,
+    TableFooter,
     TableHead,
     TableHeader,
     TableRow,
@@ -15,10 +16,11 @@ type Column<T> = {
 type Props<T> = {
     data: T[];
     columns: Column<T>[];
-    selectable?: boolean; // 👈 NEW
-    selected: number[];
-    toggleAll: () => void;
-    toggleOne: (id: number) => void;
+    selectable?: boolean;
+    selected?: number[];
+    toggleAll?: () => void;
+    toggleOne?: (id: number) => void;
+    footer?: React.ReactNode;
 };
 
 export default function DataTable<T extends { id: number }>({
@@ -28,6 +30,7 @@ export default function DataTable<T extends { id: number }>({
     selected = [],
     toggleAll,
     toggleOne,
+    footer,
 }: Props<T>) {
     return (
         <Table>
@@ -59,7 +62,7 @@ export default function DataTable<T extends { id: number }>({
                             <TableCell>
                                 <input
                                     type="checkbox"
-                                    checked={selected.includes(row.id)}
+                                    checked={selected?.includes(row.id)}
                                     onChange={() =>
                                         toggleOne && toggleOne(row.id)
                                     }
@@ -75,6 +78,7 @@ export default function DataTable<T extends { id: number }>({
                     </TableRow>
                 ))}
             </TableBody>
+            {footer && <TableFooter>{footer}</TableFooter>}
         </Table>
     );
 }
