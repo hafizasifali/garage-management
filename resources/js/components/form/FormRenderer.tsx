@@ -4,7 +4,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { toBackendDate, toPickerDate } from '@/lib/date';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -40,12 +40,25 @@ export default function FormRenderer({
     const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
     const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
     const [focusedIndexes, setFocusedIndexes] = useState<Record<string, number>>({});
+    const suggestionItemRefs = useRef<Record<string, Record<number, HTMLLIElement | null>>>({});
 
     const setDropdownOpen = (fieldName: string, isOpen: boolean) =>
         setOpenDropdowns((prev) => ({ ...prev, [fieldName]: isOpen }));
 
     const setFieldFocusedIndex = (fieldName: string, index: number) =>
         setFocusedIndexes((prev) => ({ ...prev, [fieldName]: index }));
+
+    const setSuggestionItemRef = (fieldName: string, index: number) => (el: HTMLLIElement | null) => {
+        if (!suggestionItemRefs.current[fieldName]) {
+            suggestionItemRefs.current[fieldName] = {};
+        }
+        suggestionItemRefs.current[fieldName][index] = el;
+    };
+
+    const scrollSuggestionIntoView = (fieldName: string, index: number) => {
+        const item = suggestionItemRefs.current[fieldName]?.[index];
+        item?.scrollIntoView({ block: 'nearest' });
+    };
 
     if (!fields || Object.keys(fields).length === 0) {
         return (
@@ -131,15 +144,17 @@ export default function FormRenderer({
                                     switch (e.key) {
                                         case 'ArrowDown':
                                             e.preventDefault();
-                                            setFieldFocusedIndex(name, 
-                                                focusedIndex < filtered.length - 1 ? focusedIndex + 1 : 0
-                                            );
+                                            const nextDown =
+                                                focusedIndex < filtered.length - 1 ? focusedIndex + 1 : 0;
+                                            setFieldFocusedIndex(name, nextDown);
+                                            setTimeout(() => scrollSuggestionIntoView(name, nextDown), 0);
                                             break;
                                         case 'ArrowUp':
                                             e.preventDefault();
-                                            setFieldFocusedIndex(name,
-                                                focusedIndex > 0 ? focusedIndex - 1 : filtered.length - 1
-                                            );
+                                            const nextUp =
+                                                focusedIndex > 0 ? focusedIndex - 1 : filtered.length - 1;
+                                            setFieldFocusedIndex(name, nextUp);
+                                            setTimeout(() => scrollSuggestionIntoView(name, nextUp), 0);
                                             break;
                                         case 'Tab':
                                         case 'Enter':
@@ -199,6 +214,7 @@ export default function FormRenderer({
                                                 {filtered.map((s, index) => (
                                                     <li
                                                         key={s}
+                                                        ref={setSuggestionItemRef(name, index)}
                                                         className={cn(
                                                             "cursor-pointer px-3 py-2",
                                                             index === focusedIndex

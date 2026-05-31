@@ -46,32 +46,36 @@ export default function OrderForm({
     const savedState = getSavedFormState();
     const [showRestoreNotice, setShowRestoreNotice] = useState(!!savedState);
 
-    const form = useForm({
-        customer_id: savedState?.customer_id ?? null,
-        // vehicle_id: savedState?.vehicle_id ?? null,
-        customer_email: savedState?.customer_email ?? '',
-        customer_phone: savedState?.customer_phone ?? '',
-        customer_address: savedState?.customer_address ?? '',
-        vehicle_name: savedState?.vehicle_name ?? '',
-        vehicle_model: savedState?.vehicle_model ?? '',
-        vehicle_make: savedState?.vehicle_make ?? '',
-        vehicle_year: savedState?.vehicle_year ?? '',
-        vehicle_license_plate: savedState?.vehicle_license_plate ?? '',
+    const initialFormState = {
+        customer_id: null,
+        customer_email: '',
+        customer_phone: '',
+        customer_address: '',
+        vehicle_name: '',
+        vehicle_model: '',
+        vehicle_make: '',
+        vehicle_year: '',
+        vehicle_license_plate: '',
         order_date: current_date,
-        state: savedState?.state ?? 'in_progress',
-        is_brake_fluid_order: savedState?.is_brake_fluid_order ?? false,
-        parts_by: savedState?.parts_by ?? 'us',
-        total_parts_cost: savedState?.total_parts_cost ?? 0,
-        total_labor_cost: savedState?.total_labor_cost ?? 0,
-        total_tax: savedState?.total_tax ?? 0,
-        total_amount: savedState?.total_amount ?? 0,
-        lines: savedState?.lines ?? (record?.lines || []).map((line: any) => ({
+        state: 'in_progress',
+        is_brake_fluid_order: false,
+        parts_by: 'us',
+        total_parts_cost: 0,
+        total_labor_cost: 0,
+        total_tax: 0,
+        total_amount: 0,
+        lines: (record?.lines || []).map((line: any) => ({
             ...line,
             quantity: Number(line.quantity || 0),
             unit_price: Number(line.unit_price || 0),
             subtotal: Number(line.unit_price || 0) * Number(line.quantity || 0),
         })),
-        ...(record ? { ...record, ...(savedState || {}) } : {}),
+        ...(record ? { ...record } : {}),
+    };
+
+    const form = useForm({
+        ...initialFormState,
+        ...(savedState || {}),
     });
 
     const filteredVehicles = vehicles;
@@ -131,8 +135,9 @@ export default function OrderForm({
 
     /* ---------------- Reset Form and Clear State ---------------- */
     const handleReset = () => {
-        form.reset();
+        form.setData(initialFormState);
         clearFormState();
+        setShowRestoreNotice(false);
         toast.success('Form reset successfully');
     };
 
