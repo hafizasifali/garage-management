@@ -4,6 +4,7 @@ import { route } from 'ziggy-js';
 import toast from 'react-hot-toast';
 import { router } from '@inertiajs/react';
 import Select from 'react-select';
+import CreatableSelect from 'react-select/creatable';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
@@ -43,6 +44,7 @@ export default function OrderForm({
             quantity: Number(line.quantity || 0),
             unit_price: Number(line.unit_price || 0),
             subtotal: Number(line.unit_price || 0) * Number(line.quantity || 0),
+            description: line.description ?? '',
         })),
         ...(record || {}),
     });
@@ -148,6 +150,7 @@ export default function OrderForm({
             ...form.data.lines,
             {
                 product_id: null,
+                description: '',
                 quantity: 1,
                 unit_price: 0,
                 tax: 0,
@@ -155,6 +158,32 @@ export default function OrderForm({
                 employee_id: null,
             },
         ]);
+    };
+
+    const handleProductChange = (index: number, selected: any) => {
+        const rawValue = selected?.value ?? null;
+        const matchedProduct = products.find(
+            (p: any) =>
+                String(p.id) === String(rawValue) || p.name === rawValue,
+        );
+
+        const productId = matchedProduct?.id ?? null;
+        const description = productId ? '' : rawValue ?? '';
+        const customerPrice = productId
+            ? customer_prices[`${form.data.customer_id}_${productId}`] ??
+              matchedProduct?.sale_price ??
+              0
+            : 0;
+
+        const newLines = [...form.data.lines];
+        newLines[index].product_id = productId;
+        newLines[index].description = description;
+        newLines[index].unit_price = Number(customerPrice);
+        newLines[index].subtotal =
+            Number(newLines[index].unit_price) *
+            Number(newLines[index].quantity);
+
+        form.setData('lines', newLines);
     };
 
     const removeLine = (index: number) => {
@@ -389,7 +418,7 @@ export default function OrderForm({
                                     {form.data.lines.map((line, index) => (
                                         <tr key={index}>
                                             <td className="p-1">
-                                                <Select
+                                                <CreatableSelect
                                                     isDisabled={isPaid}
                                                     options={availableProducts.map(
                                                         (p: any) => ({
@@ -407,42 +436,26 @@ export default function OrderForm({
                                                                           line.product_id,
                                                                   )?.name,
                                                               }
+                                                            : line.description
+                                                            ? {
+                                                                  value: line.description,
+                                                                  label: line.description,
+                                                              }
                                                             : null
                                                     }
-                                                    onChange={(
-                                                        selected: any,
-                                                    ) => {
-                                                        const productId =
-                                                            selected?.value ||
-                                                            null;
-                                                        const product =
-                                                            products.find(
-                                                                (p) =>
-                                                                    p.id ===
-                                                                    productId,
-                                                            );
-
-                                                        // Compute customer-specific price
-                                                        const key = `${form.data.customer_id}_${productId}`;
-                                                        const price =
-                                                            customer_prices?.[
-                                                                key
-                                                            ] ??
-                                                            product?.sale_price ??
-                                                            0;
-
-                                                        updateLine(
+                                                    onChange={(selected: any) =>
+                                                        handleProductChange(
                                                             index,
-                                                            'product_id',
-                                                            productId,
-                                                        );
-                                                        updateLine(
-                                                            index,
-                                                            'unit_price',
-                                                            Number(price),
-                                                        );
-                                                    }}
+                                                            selected,
+                                                        )
+                                                    }
                                                     isClearable
+                                                    formatCreateLabel={(inputValue) =>
+                                                        `Add "${inputValue}"`
+                                                    }
+                                                    isValidNewOption={(inputValue) =>
+                                                        Boolean(inputValue?.trim())
+                                                    }
                                                 />
                                             </td>
                                             <td className="p-1">
@@ -548,7 +561,7 @@ export default function OrderForm({
                                             <label className="text-xs font-semibold text-gray-500">
                                                 Product
                                             </label>
-                                            <Select
+                                            <CreatableSelect
                                                 isDisabled={isPaid}
                                                 className="text-sm"
                                                 options={availableProducts.map(
@@ -567,47 +580,26 @@ export default function OrderForm({
                                                                       line.product_id,
                                                               )?.name,
                                                           }
+                                                        : line.description
+                                                        ? {
+                                                              value: line.description,
+                                                              label: line.description,
+                                                          }
                                                         : null
                                                 }
-                                                onChange={(selected: any) => {
-                                                    const productId =
-                                                        selected?.value || null;
-                                                    const product =
-                                                        products.find(
-                                                            (p: any) =>
-                                                                p.id ===
-                                                                productId,
-                                                        );
-
-                                                    // Customer-specific price
-                                                    const key = `${form.data.customer_id}_${productId}`;
-                                                    const price =
-                                                        customer_prices?.[
-                                                            key
-                                                        ] ??
-                                                        product?.sale_price ??
-                                                        0;
-
-                                                    const newLines = [
-                                                        ...form.data.lines,
-                                                    ];
-                                                    newLines[index].product_id =
-                                                        productId;
-                                                    newLines[index].unit_price =
-                                                        Number(price);
-                                                    newLines[index].subtotal =
-                                                        Number(price) *
-                                                        Number(
-                                                            newLines[index]
-                                                                .quantity,
-                                                        );
-
-                                                    form.setData(
-                                                        'lines',
-                                                        newLines,
-                                                    );
-                                                }}
+                                                onChange={(selected: any) =>
+                                                    handleProductChange(
+                                                        index,
+                                                        selected,
+                                                    )
+                                                }
                                                 isClearable
+                                                formatCreateLabel={(inputValue) =>
+                                                    `Add "${inputValue}"`
+                                                }
+                                                isValidNewOption={(inputValue) =>
+                                                    Boolean(inputValue?.trim())
+                                                }
                                             />
                                         </div>
 

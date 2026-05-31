@@ -82,7 +82,7 @@
     @foreach($order->lines as $index=>$line)
         <tr>
             <td>{{$index+1}}</td>
-            <td>{{ $line->product->name ?? '-' }}</td>
+            <td>{{ $line->product->name ?? $line->description ?? '-' }}</td>
             <td>{{ $line->quantity }}</td>
             <td>${{ number_format($line->unit_price, 2) }}</td>
             <td>${{ number_format($line->subtotal, 2) }}</td>

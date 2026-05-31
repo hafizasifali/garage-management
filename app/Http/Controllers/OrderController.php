@@ -251,7 +251,8 @@ class OrderController extends Controller
             'employees.*' => 'exists:employees,id',
 
             'lines' => 'required|array',
-            'lines.*.product_id' => 'required|exists:products,id',
+            'lines.*.product_id' => 'nullable|exists:products,id',
+            'lines.*.description' => 'nullable|string|max:255|required_without:lines.*.product_id',
             'lines.*.employee_id' => 'nullable|exists:employees,id',
             'lines.*.quantity' => 'required|numeric|min:1',
             'lines.*.unit_price' => 'required|numeric|min:0',
@@ -309,7 +310,8 @@ class OrderController extends Controller
             $lineTotal = ($qty * $price) - $discount;
 
             $order->lines()->create([
-                'product_id' => $line['product_id'],
+                'product_id' => $line['product_id'] ?? null,
+                'description' => $line['description'] ?? null,
                 'employee_id' => $line['employee_id'] ?? null,
                 'quantity' => $qty,
                 'unit_price' => $price,
@@ -361,7 +363,8 @@ class OrderController extends Controller
             'is_revised_invoice' => 'nullable',
             'state' => 'nullable',
             'lines' => 'required|array',
-            'lines.*.product_id' => 'required|exists:products,id',
+            'lines.*.product_id' => 'nullable|exists:products,id',
+            'lines.*.description' => 'nullable|string|max:255|required_without:lines.*.product_id',
             'lines.*.employee_id' => 'nullable|exists:employees,id',
             'lines.*.quantity' => 'required|numeric|min:1',
             'lines.*.unit_price' => 'required|numeric|min:0',
@@ -410,7 +413,8 @@ class OrderController extends Controller
             $lineTotal = ($qty * $price) - $discount;
 
             $order->lines()->create([
-                'product_id' => $line['product_id'],
+                'product_id' => $line['product_id'] ?? null,
+                'description' => $line['description'] ?? null,
                 'employee_id' => $line['employee_id'] ?? null,
                 'quantity' => $qty,
                 'unit_price' => $price,

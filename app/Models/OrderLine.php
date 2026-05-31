@@ -15,6 +15,7 @@ class OrderLine extends Model
         'order_id',
         'employee_id',
         'product_id',
+        'description',
         'quantity',
         'unit_price',
         'tax',
