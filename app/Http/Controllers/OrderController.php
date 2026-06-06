@@ -585,7 +585,9 @@ class OrderController extends Controller
                     'date' => optional($order->order_date)->format('Y-m-d'),
                     'invoice_number' => $order->customer->shop_no.'-'. date('ymd',strtotime($order->order_date)).'-'.$order->id,
                     'license_plate' => $order->vehicle_license_plate ?? $order->vehicle?->license_plate ?? '-',
-                    'description' => $order->lines->pluck('product.name')->filter()->implode(', '),
+                    'description' => $order->lines->map(function ($l) {
+                        return $l->product?->name ?? $l->description;
+                    })->filter()->implode(', '),
                     'parts_cost' => round($partsCost, 2),
                     'brake_fluid_cost' => round($brakeFluidCost, 2),
                     'mention' => '',
